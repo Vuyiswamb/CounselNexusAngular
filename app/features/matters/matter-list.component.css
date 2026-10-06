@@ -1,0 +1,43 @@
+.search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      height: 38px;
+      width: 240px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+    }
+    .search-wrap:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+    .search-wrap input { border: none; outline: none; flex: 1; font-size: 13.5px; font-family: inherit; background: transparent; color: var(--text); }
+    .filter { width: 140px; flex: 0 0 140px; }
+    .archived-filter { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; white-space: nowrap; cursor: pointer; }
+    .archived-filter input { accent-color: var(--primary); }
+
+    .title-cell { font-weight: 600; }
+    tbody tr { cursor: pointer; }
+    .empty { text-align: center; color: var(--muted); padding: 28px 16px; }
+
+    .table-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      border-top: 1px solid var(--border);
+    }
+    .pager { display: flex; gap: 4px; }
+    .page-btn {
+      min-width: 28px;
+      height: 28px;
+      border: 1px solid var(--border-strong);
+      background: #fff;
+      border-radius: 6px;
+      font-size: 12.5px;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .page-btn.current { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .page-btn:disabled { opacity: 0.45; cursor: default; }

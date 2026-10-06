@@ -1,0 +1,67 @@
+<div class="register-shell"><header class="register-topnav"><a class="register-topnav-brand" routerLink="/home"><img src="/assets/images/logo-display.png" alt="CounselNexus" width="700" height="142"></a><nav aria-label="Public navigation"><a routerLink="/home">⌂ Home</a><a routerLink="/about">ⓘ About</a><a routerLink="/services">⊞ Services</a><a routerLink="/contact">⌕ Contact</a></nav><a class="register-topnav-cta" routerLink="/login">Sign in</a></header><main class="register-page">
+  <section class="register-brand" aria-label="CounselNexus legal practice management">
+    <div class="brand-content">
+      <img class="brand-logo" src="/assets/images/logo-display.png" alt="CounselNexus logo" width="700" height="142">
+      <p class="brand-tagline">LEGAL PRACTICE MANAGEMENT</p>
+      <div class="brand-rule" aria-hidden="true"></div>
+      <h1>Bring your legal<br>practice into focus.</h1>
+      <p class="brand-subtitle">Set up your firm's workspace and keep matters, clients, time and billing connected.</p>
+      <div class="feature-grid" aria-label="CounselNexus features">
+        <div class="feature"><span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="7" width="17" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12h17M10 12v2h4v-2"/></svg></span><span>Matters<br>Management</span></div>
+        <div class="feature"><span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 19v-1.4a4.7 4.7 0 0 1 4.7-4.7h3a4.7 4.7 0 0 1 4.7 4.7V19M16 5.2a3.1 3.1 0 0 1 0 5.9M17.2 13a4.5 4.5 0 0 1 4 4.5V19"/></svg></span><span>Client<br>Relationships</span></div>
+        <div class="feature"><span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17M8 13h2M14 13h2M8 17h2"/></svg></span><span>Time &amp;<br>Billing</span></div>
+        <div class="feature"><span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3.5h8l4.5 4.5v13H6z"/><path d="M14 3.5V8h4.5M9 12h6M9 15.5h6M9 19h4"/></svg></span><span>Secure<br>Documents</span></div>
+      </div>
+    </div>
+    <footer class="brand-footer">MATTERS. PEOPLE. TIME. TRUST.</footer>
+  </section>
+
+  <section class="register-panel" aria-label="Register your legal firm">
+    <div class="register-card">
+      <img class="form-logo" src="/assets/images/logo-display.png" alt="CounselNexus logo" width="700" height="142">
+      <p class="form-brand-tagline">LEGAL PRACTICE MANAGEMENT</p>
+      <h2>Create your firm account</h2>
+      <p class="form-subtitle">Your firm workspace starts with your details</p>
+      <p class="admin-notice">The first account for a firm becomes its System Admin. You’ll manage your firm’s users, branding, and email settings.</p>
+
+      <form (ngSubmit)="register()" #registrationForm="ngForm">
+        <div class="field">
+          <label for="firmName">Legal firm name</label>
+          <input id="firmName" name="firmName" type="text" autocomplete="organization" placeholder="e.g. Smith & Partners Attorneys" [(ngModel)]="firmName" required maxlength="200">
+        </div>
+        <div class="field">
+          <label for="fullName">Your full name</label>
+          <input id="fullName" name="fullName" type="text" autocomplete="name" placeholder="First and last name" [(ngModel)]="fullName" required maxlength="150">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="email">Work email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@firm.co.za" [(ngModel)]="email" required maxlength="256">
+          </div>
+          <div class="field">
+            <label for="phone">Phone <span>(optional)</span></label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+27 11 123 4567" [(ngModel)]="phone" maxlength="40">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" [(ngModel)]="password" required minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}">
+          </div>
+          <div class="field">
+            <label for="confirmPassword">Confirm password</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Enter it again" [(ngModel)]="confirmPassword" required minlength="8">
+          </div>
+        </div>
+        <p class="password-hint">Use at least 8 characters, including uppercase, lowercase and a number.</p>
+        @if (errorMessage) { <p class="form-error" role="alert">{{ errorMessage }}</p> }
+        <button class="submit-button" type="submit" [disabled]="registrationForm.invalid || busy || password !== confirmPassword">
+          {{ busy ? 'Creating your firm...' : 'Create firm and continue' }} <span aria-hidden="true">&rarr;</span>
+        </button>
+      </form>
+
+      <p class="sign-in-prompt">Already have an account? <a routerLink="/login">Sign in</a></p>
+    </div>
+    <footer class="register-footer">&copy; {{ currentYear }} CounselNexus. All rights reserved.</footer>
+  </section>
+</main></div>

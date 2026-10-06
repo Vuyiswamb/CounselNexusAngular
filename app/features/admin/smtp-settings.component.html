@@ -1,0 +1,82 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Email delivery</h1>
+    <p class="page-subtitle">Configure the SMTP server used for password resets and system emails.</p>
+  </div>
+</div>
+
+<nav class="admin-nav" aria-label="Administration">
+  <a routerLink="/admin/users">Users</a>
+  <a routerLink="/admin/roles">Roles &amp; Permissions</a>
+  <a routerLink="/admin/settings">Firm Settings</a>
+  <a routerLink="/admin/email" class="active" aria-current="page">Email / SMTP</a>
+</nav>
+
+<section class="smtp-card card">
+  <div class="card-heading">
+    <div class="heading-icon"><app-icon name="mail" [size]="19" /></div>
+    <div><h2>SMTP server</h2><p>Messages will be sent from this firm’s configured sender address.</p></div>
+    <span class="status" [class.ready]="settings.isConfigured"><i></i>{{ settings.isConfigured ? 'Configured' : 'Needs setup' }}</span>
+  </div>
+
+  @if (loading) { <div class="loading">Loading email settings…</div> } @else {
+    <form #smtpForm="ngForm" (ngSubmit)="save()">
+      <div class="form-grid">
+        <div class="field">
+          <label for="smtp-host">SMTP host <span class="required">*</span></label>
+          <input id="smtp-host" class="input" name="host" [(ngModel)]="settings.host" placeholder="smtp.example.com" required maxlength="255" />
+        </div>
+        <div class="field">
+          <label for="smtp-port">Port <span class="required">*</span></label>
+          <input id="smtp-port" class="input" name="port" type="number" [(ngModel)]="settings.port" min="1" max="65535" required />
+        </div>
+        <div class="field">
+          <label for="smtp-user">Username</label>
+          <input id="smtp-user" class="input" name="username" [(ngModel)]="settings.username" autocomplete="username" placeholder="SMTP username" />
+        </div>
+        <div class="field">
+          <label for="smtp-password">Password</label>
+          <input id="smtp-password" class="input" name="password" type="password" [(ngModel)]="password" autocomplete="new-password" placeholder="{{ settings.hasPassword ? 'Saved; leave blank to keep it' : 'SMTP password or app password' }}" />
+          <small>The saved password is encrypted and never shown here.</small>
+        </div>
+        <div class="field">
+          <label for="smtp-from">From email <span class="required">*</span></label>
+          <input id="smtp-from" class="input" name="fromAddress" type="email" [(ngModel)]="settings.fromAddress" placeholder="noreply@yourfirm.co.za" required />
+        </div>
+        <div class="field">
+          <label for="smtp-name">Sender name</label>
+          <input id="smtp-name" class="input" name="fromName" [(ngModel)]="settings.fromName" placeholder="CounselNexus" maxlength="200" />
+        </div>
+      </div>
+
+      <label class="ssl-option">
+        <input type="checkbox" name="enableSsl" [(ngModel)]="settings.enableSsl" />
+        <span><b>Use secure connection (STARTTLS)</b><small>Use the TLS submission port provided by your email provider, commonly 587.</small></span>
+      </label>
+
+      <div class="field test-recipient-field">
+        <label for="smtp-test-recipient">Send test email to</label>
+        <input id="smtp-test-recipient" class="input" name="testRecipientEmail" type="email"
+          [(ngModel)]="testRecipientEmail" [ngModelOptions]="{ standalone: true }"
+          placeholder="you@example.com" maxlength="254" />
+        <small>Enter an inbox you can check. Example: you&#64;yourfirm.co.za.</small>
+      </div>
+
+      @if (error) { <div class="message error" role="alert">{{ error }}</div> }
+      @if (notice) { <div class="message success" role="status">{{ notice }}</div> }
+
+      <div class="actions">
+        <span class="hint">Test message recipient is the address entered above.</span>
+        <div class="action-buttons">
+          <button class="btn btn-secondary test-button" type="button" (click)="sendTest()"
+            [disabled]="testing || saving || !settings.isConfigured || !smtpForm.valid || !validTestRecipient">
+            <app-icon name="mail" [size]="16" /> {{ testing ? 'Sending…' : 'Send test email' }}
+          </button>
+          <button class="btn btn-primary" type="submit" [disabled]="saving || !smtpForm.valid">
+            {{ saving ? 'Saving…' : 'Save SMTP settings' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  }
+</section>

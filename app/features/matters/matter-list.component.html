@@ -1,0 +1,67 @@
+<div class="page-header">
+      <h1 class="page-title">Matters</h1>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <app-icon name="search" [size]="15" />
+        <input type="text" placeholder="Search matters..." [(ngModel)]="search" (ngModelChange)="load()" />
+      </div>
+      <select class="select filter" [(ngModel)]="statusFilter" (change)="load()">
+        <option value="">All Statuses</option>
+        <option value="Active">Active</option>
+        <option value="OnHold">On Hold</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <select class="select filter" [(ngModel)]="earnerFilter" (change)="load()">
+        <option value="">All Fee Earners</option>
+        @for (u of users; track u.id) { <option [value]="u.id">{{ u.fullName }}</option> }
+      </select>
+      <select class="select filter" [(ngModel)]="areaFilter" (change)="load()">
+        <option value="">All Areas</option>
+        @for (a of practiceAreas; track a) { <option [value]="a">{{ a }}</option> }
+      </select>
+      <label class="archived-filter"><input type="checkbox" [(ngModel)]="showArchived" (change)="page = 1; load()" /> Include archived</label>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" type="button" (click)="newMatter()">
+        <app-icon name="plus" [size]="15" /> New Matter
+      </button>
+    </div>
+
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Title</th>
+            <th>Client</th>
+            <th>Practice Area</th>
+            <th>Status</th>
+            <th>Fee Earner</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of matters; track m.id) {
+            <tr (click)="open(m)">
+              <td><span class="link">{{ m.reference }}</span></td>
+              <td class="title-cell">{{ m.title }}</td>
+              <td>{{ m.clientName }}</td>
+              <td>{{ m.practiceArea }}</td>
+              <td><span class="badge" [class]="badgeFor(m.status)">{{ statusUi(m.status) }}</span></td>
+              <td>{{ m.feeEarnerName }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="empty">{{ loading ? 'Loading…' : 'No matters found.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="table-footer">
+        <span class="muted">Showing {{ matters.length }} of {{ total }} matters</span>
+        <div class="pager">
+          <button class="page-btn" type="button" [disabled]="page <= 1" (click)="go(page - 1)">&lt;</button>
+          <button class="page-btn current" type="button">{{ page }}</button>
+          <button class="page-btn" type="button" [disabled]="page * pageSize >= total" (click)="go(page + 1)">&gt;</button>
+        </div>
+      </div>
+    </div>

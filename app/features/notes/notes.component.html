@@ -1,0 +1,36 @@
+<header class="page-header">
+  <div><p class="eyebrow">MATTER WORK</p><h1 class="page-title">Notes &amp; file notes</h1><p class="page-subtitle">Record matter advice, attendance notes, and internal updates.</p></div>
+</header>
+
+<section class="notes-layout">
+  <section class="card composer">
+    <div class="section-title"><span class="icon-box"><app-icon name="notes" [size]="18" /></span><div><h2>Add a note</h2><p>Each note is linked to a matter and recorded under your account.</p></div></div>
+    <label class="field"><span>Matter</span><select class="select" name="matterId" [(ngModel)]="matterId" (ngModelChange)="loadNotes()"><option value="">Select a matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} · {{ matter.title }}</option> }</select></label>
+    <div class="field-row">
+      <label class="field"><span>Type</span><select class="select" name="kind" [(ngModel)]="kind"><option value="Note">Note</option><option value="FileNote">File note</option></select></label>
+      <label class="field"><span>Subject</span><input class="input" name="subject" [(ngModel)]="subject" maxlength="200" placeholder="Short note title" /></label>
+    </div>
+    <label class="field"><span>Note details</span><textarea class="textarea" name="body" [(ngModel)]="body" rows="6" placeholder="Enter the note or attendance details..."></textarea></label>
+    <label class="check-row"><input type="checkbox" name="privileged" [(ngModel)]="privileged" /><span>Mark as privileged</span></label>
+    @if (error) { <p class="message error" role="alert">{{ error }}</p> }
+    <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving || !matterId || !subject.trim() || !body.trim()"><app-icon name="plus" [size]="16" /> {{ saving ? 'Saving…' : 'Save note' }}</button>
+  </section>
+
+  <section class="card notes-panel">
+    <div class="list-heading"><div><h2>Notes on this matter</h2><p>{{ notes.length }} {{ notes.length === 1 ? 'record' : 'records' }}</p></div>
+      <label class="check-row archived-toggle"><input type="checkbox" [(ngModel)]="includeArchived" (ngModelChange)="loadNotes()" /><span>Include archived</span></label>
+    </div>
+    @if (!loading && matters.length === 0) { <div class="empty">Create a matter before adding notes.</div> }
+    @if (loading) { <div class="empty">Loading notes…</div> }
+    @else if (!notes.length && matterId) { <div class="empty"><span class="empty-icon"><app-icon name="notes" [size]="22" /></span><b>No notes yet</b><span>Notes you add to this matter will appear here.</span></div> }
+    @else {
+      <div class="note-list">@for (note of notes; track note.id) {
+        <article class="note-card" [class.archived]="!!note.archiveDate">
+          <div class="note-head"><div><span class="kind-badge">{{ note.kind === 'FileNote' ? 'File note' : 'Note' }}</span>@if (note.isPrivileged) { <span class="private-badge">Privileged</span> }@if (note.archiveDate) { <span class="archived-badge">Archived</span> }</div><time>{{ note.createdAtUtc | date:'d MMM y, HH:mm' }}</time></div>
+          <h3>{{ note.subject }}</h3><p class="note-body">{{ note.body }}</p>
+          <footer><span>{{ note.authorName }}</span><button type="button" class="text-action" (click)="archive(note)">{{ note.archiveDate ? 'Restore' : 'Archive' }}</button></footer>
+        </article>
+      }</div>
+    }
+  </section>
+</section>

@@ -1,0 +1,20 @@
+.actions { display: flex; gap: 10px; }
+    .columns { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; align-items: start; }
+.form-card { padding: 24px 26px; }
+.loading-matter { margin-bottom: 16px; padding: 16px 20px; color: var(--muted); font-size: 13px; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .add-party { margin-bottom: 18px; }
+    .empty-parties { text-align: center; font-size: 13px; padding: 24px 0 12px; }
+
+    .error-msg {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1000px) { .columns { grid-template-columns: 1fr; } }

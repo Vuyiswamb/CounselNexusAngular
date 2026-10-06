@@ -1,0 +1,36 @@
+<div class="breadcrumb">
+      <a routerLink="/admin/users">Users</a><span class="sep">›</span><span class="current">New User</span>
+    </div>
+
+    <div class="page-header">
+      <h1 class="page-title">New User</h1>
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" (click)="cancel()">Cancel</button>
+        <button class="btn btn-primary" type="button" (click)="save()">Save</button>
+      </div>
+    </div>
+
+    <div class="card form-card">
+      <div class="field">
+        <label for="name">Full Name <span class="req">*</span></label>
+        <input id="name" class="input" type="text" [(ngModel)]="name" />
+      </div>
+      <div class="field">
+        <label for="email">Email <span class="req">*</span></label>
+        <input id="email" class="input" type="email" [(ngModel)]="email" />
+      </div>
+      <div class="field">
+        <label for="role">Role <span class="req">*</span></label>
+        <select id="role" class="select" [(ngModel)]="role">
+          @for (r of data.roles; track r.name) { <option [value]="r.name">{{ r.name }}</option> }
+        </select>
+      </div>
+      <div class="field">
+        <label for="password">Password <span class="req">*</span></label>
+        <input id="password" class="input" type="password" [(ngModel)]="password" />
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" [(ngModel)]="sendWelcome" />
+        Send welcome email
+      </label>
+    </div>

@@ -1,0 +1,129 @@
+@if (contact) {
+      <div class="breadcrumb">
+        <a routerLink="/contacts">Contacts</a><span class="sep">›</span><span class="current">{{ contact.fullName }}</span>
+      </div>
+
+      <!-- Header -->
+      <div class="card header-card">
+        <div class="header-main">
+          <span class="avatar" [style.background]="avatarColor" style="width: 64px; height: 64px; font-size: 22px;">
+            {{ initials(contact.fullName) }}
+          </span>
+          <div>
+            <div class="title-row">
+              <h1 class="page-title">{{ contact.fullName }}</h1>
+              <span class="badge" [class]="typeBadge">{{ contact.type }}</span>
+              <span class="badge" [class]="contact.status === 'Active' ? 'badge-green' : 'badge-gray'">{{ contact.status }}</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" type="button"><app-icon name="edit" [size]="14" /> Edit</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        @for (tab of tabs; track tab.key) {
+          <button type="button" [class.active]="activeTab === tab.key" (click)="activeTab = tab.key">
+            {{ tab.label }}@if (tab.count !== null) { <span class="count">({{ tab.count }})</span> }
+          </button>
+        }
+      </div>
+
+      <!-- Overview -->
+      @if (activeTab === 'overview') {
+        <div class="grid">
+          <section class="card panel">
+            <h3 class="card-title">Contact Information</h3>
+            <div class="dl">
+              <div><div class="dt">Full Name</div><div class="dd">{{ contact.fullName }}</div></div>
+              <div><div class="dt">Type</div><div class="dd">{{ contact.type }}</div></div>
+              <div><div class="dt">Email</div><div class="dd">{{ contact.email || '—' }}</div></div>
+              <div><div class="dt">Phone</div><div class="dd">{{ contact.phone || '—' }}</div></div>
+              <div class="span-2"><div class="dt">Address</div><div class="dd pre-line">{{ contact.address || '—' }}</div></div>
+              <div class="span-2"><div class="dt">Notes</div><div class="dd">{{ contact.notes || '—' }}</div></div>
+            </div>
+          </section>
+
+          <section class="card panel">
+            <h3 class="card-title">Quick Actions</h3>
+            <div class="quick-actions">
+              <a (click)="go('/matters/new')"><app-icon name="matters" [size]="16" /> New Matter</a>
+              <a href="javascript:void(0)"><app-icon name="notes" [size]="16" /> Add Note</a>
+              <a href="javascript:void(0)"><app-icon name="mail" [size]="16" /> Send Email</a>
+              <a href="javascript:void(0)" (click)="activeTab = 'matters'"><app-icon name="matters" [size]="16" /> View All Matters</a>
+            </div>
+          </section>
+        </div>
+      }
+
+      <!-- Matters (live API) -->
+      @if (activeTab === 'matters') {
+        <div class="card">
+          <table class="table">
+            <thead>
+              <tr><th>Reference</th><th>Title</th><th>Practice Area</th><th>Status</th><th>Fee Earner</th></tr>
+            </thead>
+            <tbody>
+              @for (m of matters; track m.id) {
+                <tr style="cursor: pointer;">
+                  <td><span class="link">{{ m.reference }}</span></td>
+                  <td>{{ m.title }}</td>
+                  <td>{{ m.practiceArea }}</td>
+                  <td><span class="badge" [class]="m.status === 'Active' ? 'badge-green' : 'badge-amber'">{{ statusUi(m.status) }}</span></td>
+                  <td>{{ m.feeEarnerName }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="empty">No matters for this contact yet.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- Notes (mock until Notes module ships) -->
+      @if (activeTab === 'notes') {
+        <div class="notes">
+          @for (n of contactNotes; track n.id) {
+            <div class="card note">
+              <div class="note-meta"><b>{{ n.author }}</b> · {{ n.date }}@if (n.matterRef) { · <span class="link">{{ n.matterRef }}</span> }</div>
+              <div class="note-text">{{ n.text }}</div>
+            </div>
+          } @empty {
+            <div class="empty">No notes yet.</div>
+          }
+        </div>
+      }
+
+      <!-- Documents (mock until Documents module ships) -->
+      @if (activeTab === 'documents') {
+        <div class="card">
+          <table class="table">
+            <thead>
+              <tr><th>Name</th><th>Matter</th><th>Uploaded By</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+              @for (d of contactDocuments; track d.id) {
+                <tr>
+                  <td>
+                    <div class="doc-cell">
+                      <app-icon name="file" [size]="16" />
+                      <span>{{ d.name }}</span>
+                    </div>
+                  </td>
+                  <td>{{ d.matterRef }}</td>
+                  <td>{{ d.uploadedBy }}</td>
+                  <td class="muted-cell">{{ d.uploadedAt }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="4" class="empty">No documents yet.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    } @else {
+      <div class="card not-found">
+        <p>{{ loading ? 'Loading…' : 'Contact not found.' }}</p>
+        <a routerLink="/contacts">Back to contacts</a>
+      </div>
+    }

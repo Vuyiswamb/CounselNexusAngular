@@ -1,0 +1,71 @@
+<section class="assistant-page">
+  <header class="assistant-header">
+    <span class="assistant-header-icon"><app-icon name="scales" [size]="21" /></span>
+    <div><h1>Legal Research Assistant</h1><p>Ask questions about South African cases, legislation and legal practice.</p></div>
+  </header>
+
+  <section class="assistant-card">
+    <div class="assistant-welcome">
+      <span class="assistant-avatar"><app-icon name="scales" [size]="23" /></span>
+      <div>
+        <strong>Hello! I'm your South African legal research assistant.</strong>
+        <p>I can help you find and analyse South African cases, legislation, legal principles and more. You can ask questions, upload documents, or paste text for analysis.</p>
+        <b>How can I help you today?</b>
+      </div>
+    </div>
+
+    <div class="assistant-actions" aria-label="Research shortcuts">
+      <button type="button" (click)="usePrompt('Find relevant South African cases about this matter and explain their outcomes.')"><app-icon name="file" [size]="15" /> Find relevant cases</button>
+      <button type="button" (click)="usePrompt('Explain the relevant South African legal principles for this matter in plain language.')"><app-icon name="scales" [size]="15" /> Explain legislation</button>
+      <button type="button" (click)="usePrompt('Analyse the legal document I will provide and identify the important issues.')"><app-icon name="doc-add" [size]="15" /> Analyse a document</button>
+      <button type="button" (click)="usePrompt('Compare the relevant South African legal principles and explain the differences.')"><app-icon name="scales" [size]="15" /> Compare legal principles</button>
+      <button type="button" (click)="usePrompt('What other information do you need from me to research this matter?')"><app-icon name="more" [size]="15" /> More...</button>
+    </div>
+
+    <div class="assistant-conversation" aria-live="polite">
+      @for (message of chatMessages; track $index) {
+        <div class="chat-message" [class.user-message]="message.role === 'user'" [class.assistant-message]="message.role === 'assistant'">
+          <span class="chat-role">{{ message.role === 'user' ? 'You' : 'Legal Research Assistant' }}</span>
+          <div class="chat-content" [innerHTML]="formatMessage(message.text)"></div>
+        </div>
+      }
+      @if (chatSending) {
+        <div class="chat-message assistant-message thinking-message"><span class="chat-role">Legal Research Assistant</span><div class="thinking-row"><span class="thinking-dots"><i></i><i></i><i></i></span><span>{{ researchStatus }}</span></div></div>
+      }
+    </div>
+
+    @if (documentAuthorities.length) {
+      <section class="case-documents" aria-label="Case documents">
+        <div class="case-documents-heading">
+          <div><h2>Case documents</h2><p>Verified case records found in the South African research corpus.</p></div>
+        </div>
+        @for (authority of documentAuthorities; track authority.id) {
+          <article class="case-document-card">
+            <div class="case-document-title"><strong>{{ authority.title }}</strong><span>{{ authority.citation || authority.court }}</span></div>
+            <div class="case-document-links">
+              @if (authority.sourceUrl) { <a [href]="authority.sourceUrl" target="_blank" rel="noopener">Open source</a> }
+              @if (loadingDocuments.has(authority.id)) { <span class="document-status">Loading documents…</span> }
+              @for (document of documentsByCase[authority.id] || []; track document.id) {
+                <button type="button" (click)="downloadCaseDocument(authority, document)">{{ document.fileName }} <small>{{ formatDocumentSize(document.fileLength) }}</small></button>
+              }
+              @if (!loadingDocuments.has(authority.id) && (documentsByCase[authority.id] || []).length === 0) { <span class="document-status">No stored attachment</span> }
+            </div>
+          </article>
+        }
+      </section>
+    }
+
+    <form class="assistant-composer" (ngSubmit)="sendChat()">
+      <textarea name="chatInput" [(ngModel)]="chatInput" rows="3" [disabled]="chatSending" placeholder="Type your legal research question here..."></textarea>
+      <div class="composer-toolbar">
+        <div class="attachment-actions">
+          <label class="attach-button"><app-icon name="file" [size]="15" /> {{ selectedFileName || 'Attach files' }}<input type="file" (change)="selectFile($event)" /></label>
+          <button type="button" aria-label="Add source link"><app-icon name="import" [size]="16" /></button>
+          <button type="button" aria-label="Add cloud document"><app-icon name="file" [size]="16" /></button>
+          <button type="button" aria-label="Browse documents"><app-icon name="doc-add" [size]="16" /></button>
+        </div>
+        <button class="assistant-send" type="submit" [disabled]="chatSending || !chatInput.trim()"><span>{{ chatSending ? 'Researching...' : 'Send' }}</span><app-icon name="arrow-right" [size]="16" /></button>
+      </div>
+    </form>
+  </section>
+</section>

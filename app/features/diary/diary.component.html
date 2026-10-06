@@ -1,0 +1,25 @@
+<header class="page-header"><div><p class="eyebrow">MATTER WORK</p><h1 class="page-title">Diary &amp; appointments</h1><p class="page-subtitle">Schedule client meetings, court appearances, limitation dates, and reminders.</p></div></header>
+
+<div class="diary-layout">
+  <section class="card event-form">
+    <div class="section-title"><span class="icon-box"><app-icon name="calendar-plus" [size]="18" /></span><div><h2>{{ editingId ? 'Edit diary event' : 'Schedule an event' }}</h2><p>Events are assigned to you and can be linked to a matter.</p></div></div>
+    <label class="field"><span>Title</span><input class="input" [(ngModel)]="title" name="title" maxlength="200" placeholder="e.g. Consultation with client" /></label>
+    <div class="field-row"><label class="field"><span>Event type</span><select class="select" [(ngModel)]="kind" name="kind"><option value="Event">Appointment / event</option><option value="Hearing">Court hearing</option><option value="Limitation">Limitation / deadline</option><option value="Reminder">Reminder</option></select></label>
+      <label class="field"><span>Matter (optional)</span><select class="select" [(ngModel)]="matterId" name="matterId"><option value="">General diary</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} · {{ matter.title }}</option> }</select></label></div>
+    <div class="field-row"><label class="field"><span>Starts</span><input class="input" type="datetime-local" [(ngModel)]="startsLocal" name="startsLocal" /></label><label class="field"><span>Ends</span><input class="input" type="datetime-local" [(ngModel)]="endsLocal" name="endsLocal" /></label></div>
+    <label class="field"><span>Reminder (optional)</span><input class="input" type="datetime-local" [(ngModel)]="reminderLocal" name="reminderLocal" /></label>
+    <label class="field"><span>Details</span><textarea class="textarea" rows="3" [(ngModel)]="description" name="description" placeholder="Location, attendees, or preparation details"></textarea></label>
+    <label class="check-row"><input type="checkbox" [(ngModel)]="allDay" name="allDay" /><span>All-day event</span></label>
+    @if (error) { <p class="message error" role="alert">{{ error }}</p> }
+    <div class="form-actions"><button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving || !title.trim()"><app-icon [name]="editingId ? 'check' : 'plus'" [size]="16" />{{ saving ? 'Saving…' : editingId ? 'Save changes' : 'Add to diary' }}</button>@if (editingId) { <button class="btn btn-secondary" type="button" (click)="resetForm()">Cancel</button> }</div>
+  </section>
+
+  <section class="card agenda">
+    <div class="agenda-heading"><div><h2>Upcoming appointments</h2><p>Showing the next 90 days</p></div><button class="btn btn-secondary refresh" type="button" (click)="load()"><app-icon name="refresh" [size]="15" /> Refresh</button></div>
+    @if (loading) { <div class="empty">Loading diary…</div> }
+    @else if (!events.length) { <div class="empty"><span class="empty-icon"><app-icon name="diary" [size]="22" /></span><b>Your diary is clear</b><span>New appointments and deadlines will appear here.</span></div> }
+    @else { <div class="event-list">@for (item of events; track item.id) {
+      <article class="event-row"><div class="date-block"><b>{{ item.startsAtUtc | date:'d' }}</b><span>{{ item.startsAtUtc | date:'MMM' }}</span></div><div class="event-copy"><div class="event-title-row"><h3>{{ item.title }}</h3><span class="type-badge" [class.hearing]="item.kind === 'Hearing'" [class.deadline]="item.kind === 'Limitation'">{{ item.kind }}</span></div><p>{{ item.startsAtUtc | date:'EEE, d MMM y · HH:mm' }} – {{ item.endsAtUtc | date:'HH:mm' }} <span>· {{ item.allDay ? 'All day' : item.ownerName }}</span></p>@if (item.matterReference) { <small>{{ item.matterReference }}</small> }@if (item.description) { <p class="description">{{ item.description }}</p> }</div><div class="event-actions"><button type="button" aria-label="Edit event" (click)="edit(item)"><app-icon name="edit" [size]="15" /></button><button type="button" aria-label="Delete event" (click)="remove(item)"><app-icon name="trash" [size]="15" /></button></div></article>
+    }</div> }
+  </section>
+</div>

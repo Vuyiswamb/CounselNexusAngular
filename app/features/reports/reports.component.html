@@ -1,0 +1,39 @@
+<header class="page-header"><div><p class="eyebrow">MANAGEMENT</p><h1 class="page-title">Reports</h1><p class="page-subtitle">Monitor work in progress, outstanding invoices, client funds, and firm activity.</p></div><button class="btn btn-secondary refresh" type="button" (click)="load()"><app-icon name="refresh" [size]="15" /> Refresh reports</button></header>
+
+<div class="report-metrics">
+  <article class="card metric"><span class="metric-icon blue"><app-icon name="fees" [size]="18" /></span><div><small>Work in progress</small><b>R {{ totalWork | number:'1.2-2' }}</b><span>{{ work.length }} matters with balances</span></div></article>
+  <article class="card metric"><span class="metric-icon red"><app-icon name="billing" [size]="18" /></span><div><small>Overdue invoices</small><b>{{ overdue.length }}</b><span>Invoices past their due date</span></div></article>
+  <article class="card metric"><span class="metric-icon green"><app-icon name="trust" [size]="18" /></span><div><small>Trust balances</small><b>R {{ trustTotal | number:'1.2-2' }}</b><span>Across {{ trust.length }} matters</span></div></article>
+</div>
+
+<nav class="report-tabs" aria-label="Reports">
+  <button type="button" [class.active]="tab === 'work'" (click)="select('work')">Work in progress</button>
+  <button type="button" [class.active]="tab === 'overdue'" (click)="select('overdue')">Overdue invoices</button>
+  <button type="button" [class.active]="tab === 'trust'" (click)="select('trust')">Trust balances</button>
+  <button type="button" [class.active]="tab === 'activity'" (click)="select('activity')">Activity log</button>
+</nav>
+
+<section class="card report-panel">
+  @if (error) { <p class="message error">{{ error }}</p> }
+  @if (loading) { <div class="empty">Loading reports…</div> }
+  @else {
+    @if (tab === 'work') {
+      <div class="panel-heading"><div><h2>Unbilled work by matter</h2><p>Fee and disbursement balances that can be reviewed for draft invoicing.</p></div></div>
+      @if (!work.length) { <div class="empty">There is no unbilled work to report.</div> } @else { <div class="wip-list">@for (row of work; track row.matterId) {
+        <article class="wip-row"><div class="wip-info"><div><b>{{ row.matterReference }}</b><span>{{ row.matterTitle }} · {{ row.clientName }}</span></div><strong>R {{ row.total | number:'1.2-2' }}</strong></div><div class="bar-track"><span [style.width.%]="row.total / maxWork * 100"></span></div><div class="wip-detail"><span>Fees R {{ row.unbilledFees | number:'1.2-2' }}</span><span>Expenses R {{ row.unbilledDisbursements | number:'1.2-2' }}</span></div></article>
+      }</div> }
+    }
+    @if (tab === 'overdue') {
+      <div class="panel-heading"><div><h2>Overdue invoices</h2><p>Issued invoices that remain unpaid after their due dates.</p></div></div>
+      @if (!overdue.length) { <div class="empty">There are no overdue invoices.</div> } @else { <div class="table-wrap"><table class="table"><thead><tr><th>Invoice</th><th>Client</th><th>Due date</th><th>Overdue</th><th class="num">Balance</th></tr></thead><tbody>@for (row of overdue; track row.invoiceId) { <tr><td><b>{{ row.number }}</b></td><td>{{ row.clientName }}</td><td>{{ row.dueDate | date:'d MMM y' }}</td><td><span class="late-badge">{{ row.daysOverdue }} days</span></td><td class="num">R {{ row.balanceDue | number:'1.2-2' }}</td></tr> }</tbody></table></div> }
+    }
+    @if (tab === 'trust') {
+      <div class="panel-heading"><div><h2>Client trust balances</h2><p>Trust funds remain separate from business account balances.</p></div></div>
+      @if (!trust.length) { <div class="empty">There are no trust balances to report.</div> } @else { <div class="table-wrap"><table class="table"><thead><tr><th>Matter</th><th>Client</th><th>Title</th><th class="num">Trust balance</th></tr></thead><tbody>@for (row of trust; track row.matterId) { <tr><td><b>{{ row.matterReference }}</b></td><td>{{ row.clientName }}</td><td>{{ row.matterTitle }}</td><td class="num"><b>R {{ row.balance | number:'1.2-2' }}</b></td></tr> }</tbody></table></div> }
+    }
+    @if (tab === 'activity') {
+      <div class="panel-heading"><div><h2>Firm activity</h2><p>Audit entries from the last 30 days.</p></div></div>
+      @if (!activity.length) { <div class="empty">No activity entries are available for this period.</div> } @else { <div class="activity-list">@for (row of activity; track row.id) { <article class="activity-row"><span class="activity-dot"></span><div><b>{{ row.action }}</b><p>{{ row.actorName }} · {{ row.category }} · {{ row.entityName }}</p></div><time>{{ row.createdAtUtc | date:'d MMM, HH:mm' }}</time></article> }</div> }
+    }
+  }
+</section>

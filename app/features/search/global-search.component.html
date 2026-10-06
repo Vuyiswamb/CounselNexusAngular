@@ -1,0 +1,56 @@
+<div class="page-header">
+      <h1 class="page-title">Search</h1>
+    </div>
+
+    <div class="search-bar">
+      <app-icon name="search" [size]="18" />
+      <input
+        type="text"
+        placeholder="Search contacts and matters..."
+        [(ngModel)]="query"
+        (ngModelChange)="run()"
+      />
+    </div>
+
+    @if (query.trim()) {
+      <div class="results-grid">
+        <!-- Contacts -->
+        <div class="card panel">
+          <h3 class="card-title">Contacts ({{ contacts.length }})</h3>
+          @for (c of contacts; track c.id) {
+            <div class="result-row" (click)="openContact(c)">
+              <span class="avatar" style="width: 30px; height: 30px; font-size: 11px; background: #2563eb;">
+                {{ initials(c.fullName) }}
+              </span>
+              <div>
+                <div class="result-title">{{ c.fullName }}</div>
+                <div class="result-sub">{{ c.type }}@if (c.email) { · {{ c.email }} }</div>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty">No matching contacts.</div>
+          }
+        </div>
+
+        <!-- Matters -->
+        <div class="card panel">
+          <h3 class="card-title">Matters ({{ matters.length }})</h3>
+          @for (m of matters; track m.id) {
+            <div class="result-row" (click)="openMatter(m)">
+              <app-icon name="matters" [size]="16" />
+              <div>
+                <div class="result-title">{{ m.reference }} — {{ m.title }}</div>
+                <div class="result-sub">{{ m.clientName }} · {{ m.practiceArea }} · {{ statusUi(m.status) }}</div>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty">No matching matters.</div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="card hint">
+        <app-icon name="search" [size]="22" />
+        <p>Type to search across contacts and matters.</p>
+      </div>
+    }

@@ -1,0 +1,79 @@
+<div class="page-header users-heading">
+      <div>
+        <span class="page-eyebrow">Administration</span>
+        <h1 class="page-title">Users</h1>
+        <p class="page-description">Manage firm users, roles and access.</p>
+      </div>
+      <button class="btn btn-primary" type="button" (click)="showCreate = true">
+        <app-icon name="plus" [size]="15" /> New User
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <app-icon name="results" [size]="15" />
+        <input type="text" placeholder="Search users..." [(ngModel)]="search" (ngModelChange)="load()" />
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Role</th><th>Last Login</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          @for (u of users; track u.id) {
+            <tr>
+              <td>
+                <div class="name-cell">
+                  <span class="avatar" style="width: 32px; height: 32px; font-size: 12px; background: #0f766e;">
+                    {{ initials(u.fullName) }}
+                  </span>
+                  <span class="user-name">{{ u.fullName }}</span>
+                </div>
+              </td>
+              <td>{{ u.email }}</td>
+              <td><span class="badge badge-blue">{{ u.roles[0] || '—' }}</span></td>
+              <td class="muted-cell">{{ u.lastLoginAtUtc ? (u.lastLoginAtUtc | date: 'dd MMM yyyy, HH:mm') : 'Never' }}</td>
+              <td><span class="badge badge-green">Active</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="empty">{{ loading ? 'Loading…' : 'No users found.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Create user modal -->
+    @if (showCreate) {
+      <div class="modal-backdrop" (click)="showCreate = false">
+        <div class="card modal" (click)="$event.stopPropagation()">
+          <h3 class="card-title">New User</h3>
+          <div class="field">
+            <label>Full Name</label>
+            <input class="input" type="text" [(ngModel)]="newName" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input class="input" type="email" [(ngModel)]="newEmail" />
+          </div>
+          <div class="field">
+            <label>Role</label>
+            <select class="select" [(ngModel)]="newRole">
+              @for (r of roles; track r) { <option [value]="r">{{ r }}</option> }
+            </select>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input class="input" type="password" [(ngModel)]="newPassword" />
+          </div>
+          @if (createError) { <div class="error-msg">{{ createError }}</div> }
+          <div class="modal-actions">
+            <button class="btn btn-secondary" type="button" (click)="showCreate = false">Cancel</button>
+            <button class="btn btn-primary" type="button" [disabled]="busy" (click)="create()">
+              {{ busy ? 'Creating…' : 'Create User' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }

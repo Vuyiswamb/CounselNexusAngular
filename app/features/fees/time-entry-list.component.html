@@ -1,0 +1,63 @@
+<div class="breadcrumb"><a routerLink="/dashboard">Workspace</a><span class="sep">›</span><span class="current">Fees &amp; time</span></div>
+<div class="page-header fees-header">
+  <div><h1 class="page-title">Fees &amp; time</h1><p class="page-subtitle">Record work against matters, review fee entries, and prepare unbilled time for billing.</p></div>
+  <button class="btn btn-primary" type="button" (click)="openNew()"><app-icon name="plus" [size]="15" /> Record time</button>
+</div>
+
+<div class="fees-summary">
+  <section class="card fee-summary-card"><span class="summary-symbol blue"><app-icon name="fees" [size]="18" /></span><div><b>{{ entries.length }}</b><small>Time entries</small></div></section>
+  <section class="card fee-summary-card"><span class="summary-symbol green"><app-icon name="diary" [size]="18" /></span><div><b>{{ unbilledHours | number:'1.2-2' }}</b><small>Unbilled hours</small></div></section>
+  <section class="card fee-summary-card"><span class="summary-symbol gold">R</span><div><b>R {{ unbilledTotal | number:'1.2-2' }}</b><small>Unbilled fees</small></div></section>
+</div>
+
+@if (showForm) {
+  <form class="card entry-form" (ngSubmit)="save()">
+    <div class="form-head"><div><h2>{{ editingId ? 'Edit time entry' : 'Record time' }}</h2><p>Time entries are linked to a matter and fee earner. Billed entries cannot be edited.</p></div><button class="btn btn-secondary" type="button" (click)="showForm=false" [disabled]="saving">Close</button></div>
+    <div class="entry-fields">
+      <label><span>Matter <i>*</i></span><select name="matterId" [(ngModel)]="matterId" required><option value="">Select a matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} — {{ matter.title }}</option> }</select></label>
+      <label><span>Fee earner <i>*</i></span><select name="feeEarnerId" [(ngModel)]="feeEarnerId" required>@for (user of users; track user.id) { <option [value]="user.id">{{ user.fullName }}</option> }</select></label>
+      <label><span>Work date <i>*</i></span><input name="workDate" type="date" [(ngModel)]="workDate" required /></label>
+      <label><span>Hours <i>*</i></span><input name="hours" type="number" min="0.01" max="9999999.99" step="0.01" [(ngModel)]="hours" required placeholder="0.00" /></label>
+      <label><span>Rate category</span><select name="rateCategory" [(ngModel)]="rateCategory" (ngModelChange)="updateRate()"><option value="partner">Partner</option><option value="feeEarner">Fee earner</option><option value="paralegal">Paralegal</option><option value="assistant">Legal assistant</option><option value="custom">Custom rate</option></select></label>
+      <label><span>Hourly rate (R) <i>*</i></span><input name="rate" type="number" min="0" max="999999999999999" step="0.01" [(ngModel)]="rate" required placeholder="Enter rate" /></label>
+      <label class="description-field"><span>Work description <i>*</i></span><textarea name="description" rows="3" maxlength="1000" [(ngModel)]="description" required placeholder="Describe the work performed"></textarea>
+        <small class="voice-note">Voice dictation uses your browser microphone to turn speech into text; the app does not save an audio recording.</small>
+      </label>
+    </div>
+    <div class="capture-tools">
+      <div class="timer-box"><span class="timer-readout">{{ timerLabel }}</span><button class="btn btn-secondary" type="button" (click)="toggleTimer()">{{ timerRunning ? 'Stop timer & use time' : 'Start timer' }}</button><button class="timer-reset" type="button" (click)="resetTimer()" [disabled]="timerRunning">Reset</button></div>
+      <button class="btn" [class.btn-danger]="voiceListening" [class.btn-secondary]="!voiceListening" type="button" (click)="toggleVoice()"><app-icon name="mic" [size]="15" /> {{ voiceListening ? 'Stop dictation' : 'Dictate description' }}</button>
+      <button class="btn btn-primary" type="submit" [disabled]="saving || !matterId || !feeEarnerId || !description.trim() || !hours || rate == null">{{ saving ? 'Saving…' : editingId ? 'Save changes' : 'Save time entry' }}</button>
+    </div>
+    @if (voiceError) { <p class="inline-error" role="status">{{ voiceError }}</p> }
+  </form>
+}
+
+@if (error) { <div class="card page-error" role="alert">{{ error }}</div> }
+
+<div class="card entries-card">
+  <div class="entries-toolbar">
+    <label class="search-field"><app-icon name="search" [size]="15" /><input name="entrySearch" [(ngModel)]="search" placeholder="Search descriptions, matters or fee earners" /></label>
+    <select name="matterFilter" [(ngModel)]="matterFilter"><option value="">All matters</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} — {{ matter.title }}</option> }</select>
+    <select name="billingFilter" [(ngModel)]="billedFilter"><option value="">All billing states</option><option value="unbilled">Unbilled</option><option value="billed">Billed</option></select>
+  </div>
+  <div class="table-scroll"><table class="table entries-table">
+    <thead><tr><th>Work date</th><th>Matter</th><th>Description</th><th>Fee earner</th><th class="numeric">Hours</th><th class="numeric">Rate</th><th class="numeric">Amount</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      @if (loading) { <tr><td colspan="9" class="empty">Loading time entries…</td></tr> }
+      @else {
+        @for (entry of filteredEntries; track entry.id) {
+          <tr>
+            <td>{{ entry.workDate | date:'dd MMM yyyy' }}</td>
+            <td><a class="matter-link" [routerLink]="['/matters', entry.matterId]">{{ entry.matterReference }}<small>{{ entry.matterTitle }}</small></a></td>
+            <td class="description-cell">{{ entry.description }}</td><td>{{ entry.feeEarnerName }}</td>
+            <td class="numeric">{{ entry.hours | number:'1.2-2' }}</td><td class="numeric">R {{ entry.rate | number:'1.2-2' }}</td><td class="numeric amount-cell">R {{ entry.amount | number:'1.2-2' }}</td>
+            <td><span class="badge" [class.badge-green]="entry.isBilled" [class.badge-amber]="!entry.isBilled">{{ entry.isBilled ? 'Billed' : 'Unbilled' }}</span></td>
+            <td class="actions"><button class="row-action" type="button" (click)="edit(entry)" [disabled]="entry.isBilled || !!entry.reversesTimeEntryId" aria-label="Edit time entry"><app-icon name="edit" [size]="14" /></button><button class="row-action danger" type="button" (click)="remove(entry)" [disabled]="entry.isBilled || !!entry.reversesTimeEntryId" aria-label="Remove time entry"><app-icon name="trash" [size]="14" /></button></td>
+          </tr>
+        } @empty { <tr><td colspan="9" class="empty">No time entries match these filters.</td></tr> }
+      }
+    </tbody>
+  </table></div>
+  <footer class="entries-footer">Showing {{ filteredEntries.length }} of {{ entries.length }} entries <span>Unbilled total: <b>R {{ unbilledTotal | number:'1.2-2' }}</b></span></footer>
+</div>

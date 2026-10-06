@@ -1,0 +1,61 @@
+<div class="breadcrumb">
+      <a routerLink="/contacts">Contacts</a><span class="sep">›</span><span class="current">New Contact</span>
+    </div>
+
+    <div class="page-header">
+      <h1 class="page-title">New Contact</h1>
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" (click)="cancel()">Cancel</button>
+        <button class="btn btn-primary" type="button" [disabled]="busy" (click)="save()">{{ busy ? 'Saving…' : 'Save' }}</button>
+      </div>
+    </div>
+
+    <div class="card form-card">
+      <div class="columns">
+        <!-- Basic Information -->
+        <section>
+          <h3 class="card-title">Basic Information</h3>
+          <div class="field">
+            <label for="name">Full Name <span class="req">*</span></label>
+            <input id="name" class="input" type="text" [(ngModel)]="name" />
+          </div>
+          <div class="field">
+            <label for="type">Type <span class="req">*</span></label>
+            <select id="type" class="select" [(ngModel)]="type">
+              @for (t of contactTypes; track t) { <option [value]="t">{{ t }}</option> }
+            </select>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" class="input" type="email" [(ngModel)]="email" />
+          </div>
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input id="phone" class="input" type="tel" [(ngModel)]="phone" />
+          </div>
+        </section>
+
+        <!-- Additional Information -->
+        <section>
+          <h3 class="card-title">Additional Information</h3>
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status" class="select" [(ngModel)]="status">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="address">Address</label>
+            <textarea id="address" class="textarea" [(ngModel)]="address"></textarea>
+          </div>
+          <div class="field">
+            <label for="notes">Notes</label>
+            <textarea id="notes" class="textarea" [(ngModel)]="notes"></textarea>
+          </div>
+        </section>
+      </div>
+      @if (error) {
+        <div class="error-msg">{{ error }}</div>
+      }
+    </div>

@@ -1,0 +1,22 @@
+<div class="page-header">
+      <h1 class="page-title">Roles</h1>
+    </div>
+
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr><th>Role</th><th>Description</th><th>Users</th></tr>
+        </thead>
+        <tbody>
+          @for (r of roles; track r.id) {
+            <tr>
+              <td><span class="badge badge-blue">{{ r.name }}</span></td>
+              <td class="muted-cell">{{ r.description || '—' }}</td>
+              <td>{{ userCount(r.name) }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="3" class="empty">{{ loading ? 'Loading…' : 'No roles found.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>

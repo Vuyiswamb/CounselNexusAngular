@@ -1,0 +1,25 @@
+.header-card {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .header-main { display: flex; align-items: center; gap: 16px; }
+    .title-row { display: flex; align-items: center; gap: 10px; }
+
+    .grid { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
+    .panel { padding: 20px 22px; }
+    .pre-line { white-space: pre-line; }
+
+    .notes { display: flex; flex-direction: column; gap: 12px; }
+    .note { padding: 14px 18px; }
+    .note-meta { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+    .note-text { font-size: 13.5px; }
+
+    .doc-cell { display: flex; align-items: center; gap: 8px; }
+    .muted-cell { color: var(--muted); }
+    .empty { text-align: center; color: var(--muted); padding: 28px 16px; }
+    .not-found { padding: 40px; text-align: center; }
+
+    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }

@@ -1,0 +1,428 @@
+@if (matter) {
+      <div class="breadcrumb">
+        <a routerLink="/matters">Matters</a><span class="sep">›</span><span class="current">{{ matter.reference }}</span>
+      </div>
+
+      <!-- Header -->
+      <div class="card header-card">
+        <div>
+          <div class="title-row">
+            <h1 class="page-title">{{ matter.reference }} - {{ matter.title }}</h1>
+            <span class="badge" [class]="matter.status === 'Active' ? 'badge-green' : 'badge-amber'">{{ statusUi(matter.status) }}</span>
+            @if (matter.archiveDate) { <span class="badge badge-gray">Archived</span> }
+          </div>
+          <div class="page-subtitle">
+            {{ matter.practiceArea }} &nbsp;•&nbsp; {{ matter.clientName }} &nbsp;•&nbsp; {{ matter.feeEarnerName }} (Fee Earner)
+          </div>
+        </div>
+        <div class="header-actions">
+          @if (!matter.archiveDate) {
+            <button class="btn btn-primary" type="button" (click)="editMatter()">
+              <app-icon name="edit" [size]="14" /> Edit
+            </button>
+          }
+          @if (matter.archiveDate) {
+            <button class="btn btn-secondary" type="button" (click)="restoreMatter()" [disabled]="archiveSaving">
+              {{ archiveSaving ? 'Restoring…' : 'Restore matter' }}
+            </button>
+          } @else {
+            <button class="btn btn-secondary" type="button" (click)="archiveMatter()" [disabled]="archiveSaving">
+              {{ archiveSaving ? 'Archiving…' : 'Archive matter' }}
+            </button>
+          }
+        </div>
+      </div>
+      @if (archiveError) { <div class="note-error archive-error" role="alert">{{ archiveError }}</div> }
+      @if (matter.archiveDate) { <div class="card archived-notice">Archived on {{ matter.archiveDate | date:'d MMM y' }}. This matter is hidden from the default list.</div> }
+
+      <!-- Tabs -->
+      <div class="tabs">
+        @for (tab of tabs; track tab.key) {
+          <button type="button" [class.active]="activeTab === tab.key" (click)="activeTab = tab.key">
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+
+      <!-- ============ Overview (live) ============ -->
+      @if (activeTab === 'overview') {
+        <section class="card workflow-card" aria-labelledby="matter-workflow-title">
+          <div class="workflow-heading">
+            <div><span class="workflow-eyebrow">MATTER LIFECYCLE</span><h2 id="matter-workflow-title">Matter workflow</h2><p>Track the matter from initial enquiry through work, billing and closure.</p></div>
+            <span class="workflow-current"><i></i>{{ matter.status === 'Closed' ? 'Matter closed' : matter.status === 'OnHold' ? 'Matter on hold' : 'Matter in progress' }}</span>
+          </div>
+          <div class="workflow-start">
+            <div class="workflow-node complete"><span class="workflow-check">✓</span><b>New enquiry</b></div>
+            <span class="workflow-connector done"></span>
+            <div class="workflow-node complete"><span class="workflow-check">✓</span><b>Conflict check</b></div>
+            <span class="workflow-connector done"></span>
+            <div class="workflow-node complete"><span class="workflow-check">✓</span><b>Client onboarding</b></div>
+            <span class="workflow-connector done"></span>
+            <div class="workflow-node complete"><span class="workflow-check">✓</span><b>Client created</b></div>
+            <span class="workflow-connector done"></span>
+            <div class="workflow-node active"><span class="workflow-step">05</span><b>Matter opened</b><small>{{ matter.openDate | date: 'dd MMM yyyy' }}</small></div>
+          </div>
+          <div class="workflow-focus">
+            <div class="workflow-focus-title"><span class="workflow-step">06</span><div><b>Matter workflow</b><small>Manage the work and activity linked to this matter</small></div></div>
+            <div class="workflow-branches">
+              <button type="button" (click)="openWorkflowStep('parties')"><span>01</span><b>Parties</b><small>{{ matter.parties.length }} linked</small></button>
+              <button type="button" (click)="openWorkflowStep('documents')"><span>02</span><b>Documents</b><small>Open documents</small></button>
+              <button type="button" (click)="openWorkflowStep('notes')"><span>03</span><b>Notes</b><small>View file notes</small></button>
+              <button type="button" (click)="openWorkflowStep('tasks')"><span>04</span><b>Tasks</b><small>Assignments and deadlines</small></button>
+              <button type="button" (click)="openWorkflowStep('diary')"><span>05</span><b>Calendar / deadlines</b><small>View diary</small></button>
+              <div class="workflow-branch-static"><span>06</span><b>Emails</b><small>Correspondence workflow</small></div>
+              <button type="button" (click)="openWorkflowStep('fees')"><span>07</span><b>Time recording</b><small>{{ timeEntries.length }} entries · R {{ timeUnbilledTotal | number: '1.2-2' }} unbilled</small></button>
+              <button type="button" (click)="openWorkflowStep('disbursements')"><span>08</span><b>Expenses</b><small>View disbursements</small></button>
+              <button type="button" (click)="openWorkflowStep('invoices')"><span>09</span><b>Billing</b><small>{{ invoices.length }} invoices</small></button>
+              <button type="button" (click)="openWorkflowStep('trust')"><span>10</span><b>Payments / finance</b><small>View trust ledger</small></button>
+            </div>
+          </div>
+          <div class="workflow-end">
+            <div class="workflow-node upcoming"><span class="workflow-step">07</span><b>Outcome</b></div>
+            <span class="workflow-connector"></span>
+            <div class="workflow-node upcoming"><span class="workflow-step">08</span><b>Closure checklist</b></div>
+            <span class="workflow-connector"></span>
+            <div class="workflow-node" [class.complete]="matter.status === 'Closed'" [class.upcoming]="matter.status !== 'Closed'"><span class="workflow-step">09</span><b>{{ matter.status === 'Closed' ? 'Matter closed' : 'Matter closed' }}</b></div>
+            <span class="workflow-connector"></span>
+            <div class="workflow-node upcoming"><span class="workflow-step">10</span><b>Archive</b></div>
+          </div>
+        </section>
+        <div class="grid">
+          <section class="card panel">
+            <h3 class="card-title">Matter Information</h3>
+            <div class="dl">
+              <div><div class="dt">Reference</div><div class="dd">{{ matter.reference }}</div></div>
+              <div><div class="dt">Title</div><div class="dd">{{ matter.title }}</div></div>
+              <div><div class="dt">Practice Area</div><div class="dd">{{ matter.practiceArea }}</div></div>
+              <div><div class="dt">Status</div><div class="dd"><span class="badge" [class]="matter.status === 'Active' ? 'badge-green' : 'badge-amber'">{{ statusUi(matter.status) }}</span></div></div>
+              <div><div class="dt">Fee Earner</div><div class="dd">{{ matter.feeEarnerName }}</div></div>
+              <div><div class="dt">Opened</div><div class="dd">{{ matter.openDate }}</div></div>
+              <div class="span-2"><div class="dt">Description</div><div class="dd">{{ matter.description || '—' }}</div></div>
+            </div>
+          </section>
+
+          <section class="card panel">
+            <h3 class="card-title">Quick Actions</h3>
+            <div class="quick-actions">
+              <a href="javascript:void(0)" (click)="openAddNote()"><app-icon name="notes" [size]="16" /> Add Note</a>
+              <a href="javascript:void(0)"><app-icon name="calendar-plus" [size]="16" /> Add Diary Event</a>
+              <a href="javascript:void(0)" (click)="openWorkflowStep('fees')"><app-icon name="fees" [size]="16" /> Record Time</a>
+              <a href="javascript:void(0)"><app-icon name="doc-add" [size]="16" /> Add Document</a>
+              <a href="javascript:void(0)"><app-icon name="billing" [size]="16" /> Create Invoice</a>
+              <a href="javascript:void(0)"><app-icon name="trust" [size]="16" /> Trust Transaction</a>
+            </div>
+          </section>
+        </div>
+      }
+
+      <!-- ============ Parties (live) ============ -->
+      @if (activeTab === 'parties') {
+        <div class="card">
+          <table class="table">
+            <thead><tr><th>Role</th><th>Name</th></tr></thead>
+            <tbody>
+              @for (p of matter.parties; track p.contactId + p.role) {
+                <tr>
+                  <td><span class="badge" [class]="partyBadge(p.role)">{{ p.role }}</span></td>
+                  <td>{{ p.contactName }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="2" class="empty">No parties linked to this matter.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- ============ Notes (live) ============ -->
+      @if (activeTab === 'notes') {
+        <div class="notes">
+          <div class="notes-toolbar">
+            <div>
+              <h2>File notes</h2>
+              <p>Keep a dated record of advice, calls and work on this matter.</p>
+            </div>
+            @if (!showNoteForm) {
+              <button class="btn btn-primary" type="button" (click)="openAddNote()">
+                <app-icon name="notes" [size]="16" /> Add note
+              </button>
+            }
+            <label class="archived-notes-toggle">
+              <input type="checkbox" name="includeArchivedNotes" [(ngModel)]="includeArchivedNotes" (ngModelChange)="setIncludeArchivedNotes($event)" />
+              Include archived
+            </label>
+          </div>
+
+          @if (showNoteForm) {
+            <form class="card note-form" (ngSubmit)="saveNote()">
+              <div class="note-form-heading">
+                <div><h3>New matter note</h3><p>This note will be saved to this matter’s file.</p></div>
+              </div>
+              <div class="note-form-fields">
+                <label class="field">
+                  <span>Note type</span>
+                  <select class="input" name="noteKind" [(ngModel)]="noteKind">
+                    <option value="Note">Note</option>
+                    <option value="FileNote">File note</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Subject</span>
+                  <input class="input" name="noteSubject" [(ngModel)]="noteSubject" maxlength="200" placeholder="e.g. Call with client" required />
+                </label>
+                <label class="field note-body-field">
+                  <span>Note</span>
+                  <textarea class="input" name="noteBody" [(ngModel)]="noteBody" rows="5" placeholder="Enter the details of the note…" required></textarea>
+                </label>
+              </div>
+              @if (noteError) { <p class="note-error" role="alert">{{ noteError }}</p> }
+              <div class="note-form-actions">
+                <button class="btn btn-secondary" type="button" (click)="cancelNote()" [disabled]="noteSaving">Cancel</button>
+                <button class="btn btn-primary" type="submit" [disabled]="noteSaving || !noteSubject.trim() || !noteBody.trim()">
+                  {{ noteSaving ? 'Saving…' : 'Save note' }}
+                </button>
+              </div>
+            </form>
+          }
+
+          @if (notesLoading) {
+            <div class="card empty">Loading matter notes…</div>
+          } @else if (noteError && !showNoteForm) {
+            <div class="card note-error" role="alert">{{ noteError }}</div>
+          } @else {
+            @for (n of notes; track n.id) {
+              <article class="card note">
+                <div class="note-heading">
+                  <div class="note-heading-main"><span class="note-kind">{{ n.kind === 'FileNote' ? 'File note' : 'Note' }}</span><h3>{{ n.subject }}</h3></div>
+                  <div class="note-actions">
+                    @if (n.isPrivileged) { <span class="badge badge-amber">Privileged</span> }
+                    @if (n.archiveDate) {
+                      <span class="badge badge-gray">Archived</span>
+                      <button class="btn btn-secondary note-action" type="button" (click)="restoreNote(n)">Restore</button>
+                    } @else {
+                      <button class="btn btn-secondary note-action" type="button" (click)="archiveNote(n)">Archive</button>
+                    }
+                  </div>
+                </div>
+                <div class="note-meta"><b>{{ n.authorName || 'Matter team' }}</b> · {{ n.createdAtUtc | date:'d MMM y, HH:mm' }}@if (n.archiveDate) { · Archived {{ n.archiveDate | date:'d MMM y' }} }</div>
+                <div class="note-text">{{ n.body }}</div>
+              </article>
+            } @empty {
+              <div class="card empty">No notes on this matter yet. Add the first note to keep the file up to date.</div>
+            }
+          }
+        </div>
+      }
+
+      <!-- ============ Diary (mock) ============ -->
+      @if (activeTab === 'diary') {
+        <div class="card">
+          <table class="table">
+            <thead><tr><th>Date</th><th>Time</th><th>Event</th></tr></thead>
+            <tbody>
+              @for (e of diary; track e.id) {
+                <tr>
+                  <td>{{ e.date }}</td>
+                  <td>{{ e.time }}</td>
+                  <td>{{ e.title }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="3" class="empty">No diary events for this matter.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- ============ Fees and time recording (live API) ============ -->
+      @if (activeTab === 'fees') {
+        <div class="card">
+          <form class="time-entry-form" (ngSubmit)="recordTime()">
+            <div class="time-form-heading"><div><h2>Record time</h2><p>Capture work against {{ matter.reference }}. The matter’s fee earner is assigned automatically.</p></div><span class="time-matter-chip">{{ matter.reference }}</span></div>
+            <label class="time-field time-description"><span>Work description</span><textarea name="timeDescription" rows="2" [(ngModel)]="timeDescription" required maxlength="1000" placeholder="Describe the work completed"></textarea><small>Dictation converts speech to text in your browser; no audio recording is saved.</small></label>
+            <label class="time-field"><span>Work date</span><input name="timeWorkDate" type="date" [(ngModel)]="timeWorkDate" required /></label>
+            <label class="time-field"><span>Hours</span><input name="timeHours" type="number" [(ngModel)]="timeHours" min="0.01" step="0.01" required placeholder="0.00" /></label>
+            <label class="time-field"><span>Rate category</span><select name="timeRateCategory" [(ngModel)]="timeRateCategory" (ngModelChange)="updateTimeRate()"><option value="partner">Partner</option><option value="feeEarner">Fee earner</option><option value="paralegal">Paralegal</option><option value="assistant">Legal assistant</option><option value="custom">Custom rate</option></select></label>
+            <label class="time-field"><span>Rate (R / hour)</span><input name="timeRate" type="number" [(ngModel)]="timeRate" min="0" max="999999.9999" step="0.01" required placeholder="Enter rate" /></label>
+            <div class="time-capture-tools"><span class="time-clock">{{ timeTimerLabel }}</span><button class="btn btn-secondary" type="button" (click)="toggleTimeTimer()">{{ timerRunning ? 'Stop & use time' : 'Start timer' }}</button><button class="btn btn-secondary" type="button" (click)="resetTimeTimer()" [disabled]="timerRunning">Reset</button><button class="btn btn-secondary dictation-button" type="button" (click)="toggleTimeDictation()"><span class="microphone-indicator" [class.listening]="voiceListening" [class.starting]="voiceStarting"><span></span></span>{{ voiceStarting ? 'Requesting microphone…' : voiceListening ? 'Stop dictation' : 'Dictate description' }}</button><button class="btn btn-primary time-submit" type="submit" [disabled]="timeSaving || !timeDescription.trim() || !timeHours || timeRate == null"><app-icon name="plus" [size]="14" /> {{ timeSaving ? 'Saving…' : 'Save time' }}</button></div>
+            @if (voiceListening) { <small class="microphone-status" role="status"><span class="microphone-status-dot"></span> Microphone is working — speak now</small> }
+            @if (voiceError) { <small class="time-voice-error" role="status">{{ voiceError }}</small> }
+          </form>
+          @if (timeError) { <div class="invoice-error" role="alert">{{ timeError }}</div> }
+          <table class="table">
+            <thead>
+              <tr><th>Date</th><th>Description</th><th>Fee Earner</th><th class="num">Hours</th><th class="num">Rate</th><th class="num">Amount</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              @for (t of fees; track t.id) {
+                <tr>
+                  <td>{{ t.workDate | date: 'dd MMM yyyy' }}</td>
+                  <td>{{ t.description }}</td>
+                  <td>{{ t.feeEarnerName }}</td>
+                  <td class="num">{{ t.hours | number: '1.1-1' }}</td>
+                  <td class="num">R {{ t.rate | number: '1.2-2' }}</td>
+                  <td class="num">R {{ t.hours * t.rate | number: '1.2-2' }}</td>
+                  <td><span class="badge" [class]="t.isBilled ? 'badge-green' : 'badge-amber'">{{ t.isBilled ? 'Billed' : 'Unbilled' }}</span></td>
+                </tr>
+              } @empty {
+                @if (timeLoading) { <tr><td colspan="7" class="empty">Loading time entries…</td></tr> } @else {
+                <tr><td colspan="7" class="empty">No time recorded yet.</td></tr>
+                }
+              }
+            </tbody>
+          </table>
+          @if (fees.length) {
+            <div class="totals">
+              <span>Total unbilled: <b>R {{ unbilledFees | number: '1.2-2' }}</b></span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ============ Disbursements (mock) ============ -->
+      @if (activeTab === 'disbursements') {
+        <div class="card">
+          <table class="table">
+            <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              @for (d of disbursements; track d.id) {
+                <tr>
+                  <td>{{ d.date }}</td>
+                  <td>{{ d.description }}</td>
+                  <td class="num">R {{ d.amount | number: '1.2-2' }}</td>
+                  <td><span class="badge" [class]="d.billed ? 'badge-green' : 'badge-amber'">{{ d.billed ? 'Billed' : 'Unbilled' }}</span></td>
+                </tr>
+              } @empty {
+                <tr><td colspan="4" class="empty">No disbursements recorded.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- ============ Documents (live API) ============ -->
+      @if (activeTab === 'documents') {
+        <div class="card">
+          <div class="documents-toolbar"><div><h2>Documents</h2><p>Files stored securely against this matter.</p></div><label class="btn btn-primary upload-document-button"><app-icon name="upload" [size]="15" /> {{ documentUploading ? 'Uploading…' : 'Upload document' }}<input type="file" (change)="onDocumentSelected($event)" [disabled]="documentUploading" /></label></div>
+          @if (documentError) { <div class="invoice-error" role="alert">{{ documentError }}</div> }
+          @if (documentsLoading) { <div class="empty">Loading documents…</div> }
+          @else { <table class="table">
+            <thead><tr><th>Name</th><th>Uploaded By</th><th>Date</th><th>Size</th><th></th></tr></thead>
+            <tbody>
+              @for (doc of documents; track doc.id) {
+                <tr>
+                  <td><div class="doc-cell"><app-icon name="file" [size]="16" /><span>{{ doc.name }}</span></div></td>
+                  <td>{{ doc.uploadedByName }}</td>
+                  <td class="muted-cell">{{ doc.uploadedAtUtc | date: 'dd MMM yyyy HH:mm' }}</td>
+                  <td class="muted-cell">{{ formatDocumentSize(doc.length) }}</td>
+                  <td class="document-actions"><button class="btn btn-secondary document-action" type="button" (click)="downloadDocument(doc)">Download</button><button class="btn btn-secondary document-action delete" type="button" (click)="deleteDocument(doc)">Delete</button></td>
+                </tr>
+              } @empty { <tr><td colspan="5" class="empty">No documents uploaded.</td></tr> }
+            </tbody>
+          </table> }
+        </div>
+      }
+
+      <!-- ============ Tasks (live) ============ -->
+      @if (activeTab === 'tasks') {
+        <app-task-list [matterId]="matter.id" [compact]="true" />
+      }
+
+      <!-- ============ Invoices and process letterhead ============ -->
+      @if (activeTab === 'invoices') {
+        <div class="invoice-toolbar">
+          <div><h2>Process invoices</h2><p>Draft a bill from this process’s unbilled time and disbursements.</p></div>
+          <button class="btn btn-primary" type="button" [disabled]="invoiceSaving" (click)="createDraftInvoice()">
+            <app-icon name="plus" [size]="15" /> {{ invoiceSaving ? 'Preparing…' : 'Create draft invoice' }}
+          </button>
+        </div>
+        @if (invoiceError) { <div class="invoice-error" role="alert">{{ invoiceError }}</div> }
+        <article class="process-invoice-print" [style.--firm-primary]="firm?.brandPrimaryColor || '#173966'" [style.--firm-accent]="firm?.brandAccentColor || '#c7923e'">
+            @if (letterheadUrl) {
+              <img class="process-letterhead-image" [src]="letterheadUrl" [alt]="(firm?.name || 'Firm') + ' invoice letterhead'" />
+            } @else {
+              <div class="process-letterhead-default">
+                @if (logoUrl) { <img class="process-firm-logo" [src]="logoUrl" [alt]="(firm?.name || 'Firm') + ' logo'" /> }
+                <div class="process-firm-contact">
+                  <b>{{ firm?.name || 'Your law firm' }}</b>
+                  @if (firm?.tagline) { <small>{{ firm?.tagline }}</small> }
+                  <span>{{ firm?.address || 'Add your firm address in firm settings' }}</span>
+                  <span>{{ firm?.phone || 'Phone not set' }}{{ firm?.email ? ' · ' + firm?.email : '' }}</span>
+                  @if (firm?.website) { <span>{{ firm?.website }}</span> }
+                </div>
+              </div>
+            }
+            <div class="process-invoice-rule"></div>
+            <div class="process-invoice-context"><span>Process {{ matter.reference }}</span><b>{{ matter.clientName }}</b><small>{{ matter.title }}</small></div>
+            @if (selectedInvoice) {
+            <div class="invoice-document-heading">
+              <div><span>Invoice</span><h3>{{ selectedInvoice.number }}</h3><small>{{ selectedInvoice.status }}</small></div>
+              <div class="invoice-document-dates"><span>Issue date <b>{{ selectedInvoice.invoiceDate | date: 'dd MMM yyyy' }}</b></span><span>Due date <b>{{ selectedInvoice.dueDate | date: 'dd MMM yyyy' }}</b></span></div>
+            </div>
+            <div class="invoice-client"><small>Bill to</small><b>{{ selectedInvoice.clientName }}</b><span>Process {{ matter.reference }} · {{ matter.title }}</span></div>
+            <table class="table invoice-lines-table">
+              <thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+              <tbody>@for (line of selectedInvoice.lines; track line.id) { <tr><td>{{ line.description }}</td><td class="num">{{ line.quantity | number: '1.0-2' }}</td><td class="num">{{ selectedInvoice.currency }} {{ line.unitPrice | number: '1.2-2' }}</td><td class="num">{{ selectedInvoice.currency }} {{ line.amount | number: '1.2-2' }}</td></tr> }</tbody>
+            </table>
+            <div class="invoice-total"><span>Subtotal</span><b>{{ selectedInvoice.currency }} {{ selectedInvoice.subtotal | number: '1.2-2' }}</b><span>Tax</span><b>{{ selectedInvoice.currency }} {{ selectedInvoice.taxAmount | number: '1.2-2' }}</b><strong>Total due</strong><strong>{{ selectedInvoice.currency }} {{ selectedInvoice.total | number: '1.2-2' }}</strong></div>
+            <footer class="invoice-contact-footer">{{ firm?.name }} <span>{{ firm?.address }}</span><span>{{ firm?.email }}</span><span>{{ firm?.phone }}</span><span>{{ firm?.website }}</span></footer>
+            <div class="invoice-print-actions"><button class="btn btn-secondary" type="button" (click)="printInvoice()">Print / Save PDF</button></div>
+            }
+        </article>
+        <div class="card invoice-list">
+          <div class="invoice-list-heading"><h2>Invoices for {{ matter.reference }}</h2><p>Choose an invoice to review its firm-branded print layout.</p></div>
+          @if (invoiceLoading) { <div class="invoice-loading">Loading invoices…</div> }
+          <table class="table">
+            <thead><tr><th>Number</th><th>Date</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              @for (inv of invoices; track inv.id) {
+                <tr>
+                  <td><button class="invoice-open" type="button" (click)="selectedInvoice = inv">{{ inv.number }}</button></td>
+                  <td>{{ inv.invoiceDate | date: 'dd MMM yyyy' }}</td>
+                  <td class="num">{{ inv.currency }} {{ inv.total | number: '1.2-2' }}</td>
+                  <td><span class="badge" [class]="invoiceBadge(inv.status)">{{ inv.status }}</span></td>
+                  <td><button class="btn btn-secondary invoice-view" type="button" (click)="selectedInvoice = inv">View</button></td>
+                </tr>
+              } @empty {
+                @if (!invoiceLoading) { <tr><td colspan="5" class="empty">No invoices have been created for this process.</td></tr> }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- ============ Trust (mock) ============ -->
+      @if (activeTab === 'trust') {
+        <div class="trust-grid">
+          <div class="card balance-card">
+            <div class="dt">Trust Balance</div>
+            <div class="balance">R {{ trustBalance | number: '1.2-2' }}</div>
+            <div class="muted" style="font-size: 12.5px;">Simplified ledger — LPC trust reports plug in here later.</div>
+          </div>
+          <div class="card">
+            <table class="table">
+              <thead><tr><th>Date</th><th>Type</th><th>Reference</th><th class="num">Amount</th></tr></thead>
+              <tbody>
+                @for (t of trustTxns; track t.id) {
+                  <tr>
+                    <td>{{ t.date }}</td>
+                    <td><span class="badge" [class]="t.type === 'Receipt' ? 'badge-green' : t.type === 'Payment' ? 'badge-red' : 'badge-blue'">{{ t.type }}</span></td>
+                    <td>{{ t.reference }}</td>
+                    <td class="num" [style.color]="t.amount >= 0 ? '#15803d' : '#b91c1c'">
+                      {{ t.amount >= 0 ? '+' : '−' }} R {{ abs(t.amount) | number: '1.2-2' }}
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="4" class="empty">No trust transactions.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="card not-found">
+        <p>{{ loading ? 'Loading…' : 'Matter not found.' }}</p>
+        <a routerLink="/matters">Back to matters</a>
+      </div>
+    }

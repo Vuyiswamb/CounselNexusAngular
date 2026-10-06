@@ -1,0 +1,193 @@
+.header-card {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 22px;
+      margin-bottom: 20px;
+}
+.workflow-card { margin-bottom: 16px; padding: 22px; overflow: hidden; }
+.workflow-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+.workflow-heading h2 { margin: 4px 0; color: var(--text); font-size: 18px; }
+.workflow-heading p { margin: 0; color: var(--muted); font-size: 12px; }
+.workflow-eyebrow { color: var(--primary); font-size: 9px; font-weight: 750; letter-spacing: .13em; }
+.workflow-current { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 999px; background: #ecfdf3; color: #167341; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.workflow-current i { width: 7px; height: 7px; border-radius: 50%; background: #22a35a; }
+.workflow-start,.workflow-end { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.workflow-node { display: flex; min-width: 95px; flex-direction: column; align-items: center; gap: 6px; color: var(--muted); text-align: center; }
+.workflow-node b { color: var(--text); font-size: 10px; }
+.workflow-node small { color: var(--muted); font-size: 9px; }
+.workflow-check,.workflow-step { display: grid; width: 27px; height: 27px; place-items: center; border: 1px solid #d9e0e8; border-radius: 50%; background: #f8fafc; color: #6e7d90; font-size: 9px; font-weight: 750; }
+.workflow-node.complete .workflow-check { border-color: #c9ebd4; background: #eaf8ee; color: #188447; }
+.workflow-node.active .workflow-step { border-color: var(--primary); background: var(--primary); color: white; box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 12%, transparent); }
+.workflow-node.active b { color: var(--primary); }
+.workflow-connector { height: 1px; min-width: 12px; flex: 1; background: #dce3eb; }
+.workflow-connector.done { background: #9ed8b1; }
+.workflow-focus { position: relative; margin: 22px 0; padding: 16px; border: 1px solid #dfe8f1; border-radius: 12px; background: linear-gradient(135deg,#f7fbff,#fbfdff); }
+.workflow-focus-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.workflow-focus-title .workflow-step { border-color: #c9daf5; background: #eaf2ff; color: #2864ad; }
+.workflow-focus-title div { display: flex; flex-direction: column; gap: 3px; }
+.workflow-focus-title b { color: var(--text); font-size: 12px; }
+.workflow-focus-title small { color: var(--muted); font-size: 10px; }
+.workflow-branches { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.workflow-branches button { display: grid; grid-template-columns: 25px 1fr; grid-template-rows: auto auto; align-items: center; gap: 3px 8px; padding: 10px; border: 1px solid var(--border); border-radius: 9px; background: #fff; text-align: left; cursor: pointer; transition: border-color .15s,transform .15s,box-shadow .15s; }
+.workflow-branches button:hover { transform: translateY(-1px); border-color: #a8c3e6; box-shadow: 0 5px 14px rgba(26,57,92,.07); }
+.workflow-branches button>span { grid-row: span 2; display: grid; width: 24px; height: 24px; place-items: center; border-radius: 7px; background: #f0f5fb; color: #48688f; font-size: 9px; font-weight: 750; }
+.workflow-branches button b { color: var(--text); font-size: 10px; }
+.workflow-branches button small { color: var(--muted); font-size: 9px; }
+.workflow-branch-static { display: grid; grid-template-columns: 25px 1fr; grid-template-rows: auto auto; align-items: center; gap: 3px 8px; padding: 10px; border: 1px dashed var(--border); border-radius: 9px; background: #fafbfd; }
+.workflow-branch-static>span { grid-row: span 2; display: grid; width: 24px; height: 24px; place-items: center; border-radius: 7px; background: #f0f2f5; color: #718096; font-size: 9px; font-weight: 750; }
+.workflow-branch-static b { color: var(--text); font-size: 10px; }
+.workflow-branch-static small { color: var(--muted); font-size: 9px; }
+.workflow-end { justify-content: center; }
+.workflow-end .workflow-node { min-width: 125px; }
+.workflow-node.upcoming .workflow-step { border-style: dashed; background: #fff; }
+.time-entry-form { display: grid; grid-template-columns: minmax(180px,2fr) repeat(4,minmax(120px,1fr)) auto; align-items: end; gap: 12px; padding: 18px; border-bottom: 1px solid var(--border); background: #f9fbfd; }
+.time-form-heading { grid-column: 1/-1; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 2px; }
+.time-form-heading h2 { margin: 0; color: var(--text); font-size: 15px; }
+.time-form-heading p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+.time-matter-chip { padding: 6px 9px; border-radius: 7px; background: #edf4ff; color: #315c91; font-size: 10px; font-weight: 700; }
+.time-field { display: flex; min-width: 0; flex-direction: column; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 650; }
+.time-field input,.time-field textarea { width: 100%; min-height: 36px; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--border); border-radius: 7px; background: white; color: var(--text); font: inherit; font-size: 11px; }
+.time-field textarea { resize: vertical; }
+.time-field input:focus,.time-field textarea:focus { outline: 2px solid color-mix(in srgb,var(--primary) 20%,transparent); border-color: var(--primary); }
+.time-capture-tools { grid-column: 1/-1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.time-capture-tools .time-submit { margin-left: auto; }
+.time-field select { width: 100%; min-height: 36px; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--border); border-radius: 7px; background: white; color: var(--text); font: inherit; font-size: 11px; }
+.time-field select:focus { outline: 2px solid color-mix(in srgb,var(--primary) 20%,transparent); border-color: var(--primary); }
+.time-submit { min-height: 36px; justify-content: center; white-space: nowrap; }
+    .title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .header-actions { display: flex; gap: 10px; flex: 0 0 auto; }
+    .archive-error { margin: 0 0 12px; }
+    .archived-notice { margin: 0 0 14px; padding: 12px 16px; border-color: #ead7a9; background: rgba(255,250,235,.92); color: #795b16; font-size: 12px; }
+
+    .grid { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
+    .panel { padding: 20px 22px; }
+
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .totals {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 16px;
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+
+    .notes { display: flex; flex-direction: column; gap: 12px; }
+    .notes-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .notes-toolbar h2 { margin: 0; color: var(--text); font-size: 17px; }
+    .notes-toolbar p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .notes-toolbar .btn { display: inline-flex; align-items: center; gap: 8px; }
+    .archived-notes-toggle { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; white-space: nowrap; cursor: pointer; }
+    .archived-notes-toggle input { accent-color: var(--primary); }
+    .note { padding: 16px 18px; }
+    .note-form { padding: 18px; }
+    .note-form-heading h3 { margin: 0; color: var(--text); font-size: 15px; }
+    .note-form-heading p { margin: 4px 0 14px; color: var(--muted); font-size: 11px; }
+    .note-form-fields { display: grid; grid-template-columns: minmax(160px,1fr) minmax(220px,2fr); gap: 12px; }
+    .note-form .field { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 650; }
+    .note-form .input { width: 100%; box-sizing: border-box; min-height: 38px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text); font: inherit; font-size: 12px; }
+    .note-form .input:focus { outline: 2px solid color-mix(in srgb,var(--primary) 18%,transparent); border-color: var(--primary); }
+    .note-body-field { grid-column: 1/-1; }
+    .note-body-field textarea { min-height: 120px; resize: vertical; }
+    .note-form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .note-form-actions button:disabled { opacity: .55; cursor: not-allowed; }
+    .note-error { margin: 0; padding: 10px 12px; border: 1px solid #f1c5c5; border-radius: 8px; background: #fff7f7; color: #a33333; font-size: 12px; }
+    .note-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
+    .note-heading-main { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .note-actions { display: flex; align-items: center; gap: 7px; }
+    .note-action { padding: 5px 9px; font-size: 10px; }
+    .note-heading h3 { margin: 0; color: var(--text); font-size: 14px; }
+    .note-kind { padding: 3px 7px; border-radius: 999px; background: #eef4ff; color: var(--primary); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .note-meta { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+    .note-text { color: var(--text); font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+
+    .doc-cell { display: flex; align-items: center; gap: 8px; }
+    .muted-cell { color: var(--muted); }
+    .done { text-decoration: line-through; color: var(--muted); }
+    .empty { text-align: center; color: var(--muted); padding: 28px 16px; }
+    .not-found { padding: 40px; text-align: center; }
+
+    .trust-grid { display: grid; grid-template-columns: 260px 1fr; gap: 16px; align-items: start; }
+    .balance-card { padding: 20px 22px; }
+    .balance-card .dt { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+    .balance { font-size: 26px; font-weight: 700; color: #059669; margin-bottom: 8px; }
+
+    .process-invoice { position: relative; overflow: hidden; margin-bottom: 16px; padding: 22px 25px 0; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.96); box-shadow: 0 8px 24px rgba(22,38,61,.06); }
+    .process-letterhead-image { display: block; width: 100%; max-height: 145px; object-fit: contain; object-position: left center; }
+    .process-letterhead-default { display: flex; min-height: 105px; align-items: center; gap: 18px; }
+    .process-firm-logo { max-width: 135px; max-height: 85px; object-fit: contain; }
+    .process-firm-contact { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 10px; }
+    .process-firm-contact b { color: var(--firm-primary); font-size: 18px; }
+    .process-firm-contact small { color: var(--firm-accent); font-size: 10px; }
+    .process-invoice-context { display: flex; justify-content: flex-end; gap: 42px; padding: 12px 0; border-top: 1px solid #edf0f4; }
+    .process-invoice-context div { display: flex; flex-direction: column; gap: 4px; }
+    .process-invoice-context span { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+    .process-invoice-context b { color: var(--firm-primary); font-size: 11px; }
+    .process-invoice-rule { height: 4px; margin: 0 -25px; background: linear-gradient(90deg,var(--firm-primary),var(--firm-accent)); }
+    .invoice-list-heading { padding: 15px 16px 0; }
+    .invoice-list-heading h2 { margin: 0; color: var(--text); font-size: 14px; }
+    .invoice-list-heading p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .invoice-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .invoice-toolbar h2 { margin: 0; color: var(--text); font-size: 16px; }
+    .invoice-toolbar p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .invoice-error { margin: 0 0 14px; padding: 10px 13px; border: 1px solid #f2caca; border-radius: 8px; background: #fff7f7; color: #a33333; font-size: 12px; }
+    .process-invoice-print { max-width: 980px; margin: 0 auto 18px; padding: 28px 34px 0; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 10px 28px rgba(22,38,61,.08); }
+    .process-letterhead-image { display: block; width: 100%; max-height: 160px; object-fit: contain; object-position: left center; }
+    .process-letterhead-default { display: flex; min-height: 105px; align-items: center; gap: 18px; }
+    .process-firm-logo { max-width: 150px; max-height: 90px; object-fit: contain; }
+    .process-firm-contact { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 10px; }
+    .process-firm-contact b { color: var(--firm-primary); font-size: 18px; }
+    .process-firm-contact small { color: var(--firm-accent); font-size: 10px; }
+    .process-invoice-rule { height: 4px; margin: 12px -34px 22px; background: linear-gradient(90deg,var(--firm-primary),var(--firm-accent)); }
+    .invoice-document-heading { display: flex; justify-content: space-between; gap: 24px; padding-bottom: 18px; }
+    .invoice-document-heading>div:first-child { display: flex; flex-direction: column; gap: 4px; }
+    .invoice-document-heading span,.invoice-client small { color: var(--muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+    .invoice-document-heading h3 { margin: 0; color: var(--firm-primary); font-size: 23px; }
+    .invoice-document-heading small { color: var(--muted); font-size: 10px; }
+    .invoice-document-dates { display: flex; flex-direction: column; gap: 8px; }
+    .invoice-document-dates span { display: flex; justify-content: space-between; gap: 22px; letter-spacing: 0; text-transform: none; }
+    .invoice-document-dates b { color: var(--text); font-size: 10px; }
+    .invoice-client { display: flex; flex-direction: column; gap: 5px; margin: 0 0 20px; padding: 12px 14px; border-left: 3px solid var(--firm-accent); background: #f8f9fb; }
+    .invoice-client b { color: var(--text); font-size: 12px; }
+    .invoice-client span { color: var(--muted); font-size: 10px; }
+    .invoice-lines-table { border: 1px solid var(--border); }
+    .invoice-total { display: grid; grid-template-columns: 1fr auto; gap: 8px 28px; width: min(320px,100%); margin: 16px 0 22px auto; color: var(--muted); font-size: 11px; }
+    .invoice-total b { color: var(--text); text-align: right; }
+    .invoice-total strong { padding-top: 9px; border-top: 1px solid var(--border); color: var(--firm-primary); font-size: 13px; }
+    .invoice-total strong:last-child { text-align: right; }
+    .invoice-contact-footer { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 12px 0; border-top: 1px solid var(--border); color: var(--firm-primary); font-size: 9px; font-weight: 650; }
+    .invoice-contact-footer span { color: var(--muted); font-weight: 400; }
+    .invoice-print-actions { display: flex; justify-content: flex-end; padding: 12px 0 16px; }
+    .invoice-list { margin-top: 16px; }
+    .invoice-list-heading { padding: 15px 16px 8px; }
+    .invoice-open { padding: 0; border: 0; background: transparent; color: var(--primary); font: inherit; font-weight: 650; cursor: pointer; }
+    .invoice-view { padding: 5px 10px; font-size: 11px; }
+    .invoice-loading { padding: 14px 16px; color: var(--muted); font-size: 11px; }
+
+    @media (max-width: 1000px) {
+      .grid, .trust-grid { grid-template-columns: 1fr; }
+      .time-entry-form { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .time-description { grid-column: span 2; }
+      .time-submit { grid-column: span 2; }
+    }
+    @media (max-width: 650px) {
+      .notes-toolbar { align-items: flex-start; flex-direction: column; }
+      .notes-toolbar .btn { width: 100%; justify-content: center; }
+      .note-heading { align-items: flex-start; flex-direction: column; }
+      .note-form-fields { grid-template-columns: 1fr; }
+      .note-body-field { grid-column: auto; }
+      .workflow-card { padding: 16px; }
+      .workflow-start,.workflow-end { align-items: stretch; flex-direction: column; }
+      .workflow-connector { width: 1px; height: 12px; min-height: 12px; margin: 0 auto; flex: none; }
+      .workflow-branches { grid-template-columns: 1fr; }
+      .workflow-node { min-width: 0; }
+      .workflow-heading { flex-direction: column; }
+      .time-entry-form { grid-template-columns: 1fr 1fr; padding: 14px; }
+      .time-description { grid-column: 1/-1; }
+      .time-form-heading { align-items: flex-start; flex-direction: column; }
+      .invoice-toolbar { align-items: flex-start; flex-direction: column; }
+      .process-invoice-print { padding: 18px 18px 0; }
+      .process-invoice-rule { margin-right: -18px; margin-left: -18px; }
+      .invoice-document-heading { flex-direction: column; }
+    }

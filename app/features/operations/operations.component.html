@@ -1,0 +1,35 @@
+<section class="operations-page">
+  <header class="page-heading">
+    <div><span class="eyebrow">WORKFLOW MANAGEMENT</span><h1>{{ config.title }}</h1><p>{{ config.description }}</p></div>
+    <button class="btn btn-primary" type="button" (click)="openForm()"><app-icon name="plus" [size]="15" /> Add {{ config.singular }}</button>
+  </header>
+  <div class="summary-grid">
+    <article class="summary-card"><span class="summary-icon"><app-icon name="tasks" [size]="19" /></span><div><strong>{{ records.length }}</strong><small>Total records</small></div></article>
+    <article class="summary-card"><span class="summary-icon active"><app-icon name="diary" [size]="19" /></span><div><strong>{{ activeCount }}</strong><small>Active</small></div></article>
+    <article class="summary-card"><span class="summary-icon done"><app-icon name="check" [size]="19" /></span><div><strong>{{ completedCount }}</strong><small>Completed</small></div></article>
+  </div>
+  @if (error) { <div class="operation-error">{{ error }}</div> }
+  @if (showForm) {
+    <form class="record-form card" (ngSubmit)="save()">
+      <div class="form-heading"><div><h2>Add {{ config.singular }}</h2><p>Capture the information needed to follow this workflow.</p></div><button type="button" class="close" (click)="closeForm()">Close</button></div>
+      <div class="form-grid">
+        <label>Reference<input name="reference" [(ngModel)]="form.reference" placeholder="e.g. DC-002" /></label>
+        <label>{{ config.primaryLabel }}<input name="person" [(ngModel)]="form.person" required /></label>
+        <label>Subject / description<input name="subject" [(ngModel)]="form.subject" required /></label>
+        <label>Date or next action<input name="date" [(ngModel)]="form.date" placeholder="e.g. 15 Oct 2026" /></label>
+        <label>Status<select name="status" [(ngModel)]="form.status">@for (status of config.statuses; track status) { <option [value]="status">{{ status }}</option> }</select></label>
+        @if (config.key === 'debt-collections') { <label>Amount<input name="amount" [(ngModel)]="form.amount" placeholder="e.g. R 25,000" /></label> }
+      </div>
+      <div class="form-actions"><button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button><button type="submit" class="btn btn-primary">Save {{ config.singular }}</button></div>
+    </form>
+  }
+  <section class="records-card card">
+    <div class="toolbar"><div class="search-box"><app-icon name="search" [size]="16" /><input [(ngModel)]="search" (ngModelChange)="load()" placeholder="Search records..." /></div><select [(ngModel)]="statusFilter" (ngModelChange)="load()"><option>All statuses</option>@for (status of config.statuses; track status) { <option [value]="status">{{ status }}</option> }</select></div>
+    <div class="table-wrap"><table><thead><tr>@for (column of config.columns; track column) { <th>{{ column }}</th> }<th>Actions</th></tr></thead><tbody>
+      @if (loading) { <tr><td [attr.colspan]="config.columns.length + 1" class="empty">Loading records...</td></tr> }
+      @for (record of filteredRecords; track record.id) { <tr><td><strong>{{ record.reference }}</strong></td><td><b>{{ record.person }}</b><small>{{ record.subject }}</small></td><td>{{ record.date }}</td><td><span class="status">{{ record.status }}</span></td><td>{{ record.amount || '-' }}</td><td><button class="table-action" type="button">Open</button></td></tr> }
+      @if (!loading && filteredRecords.length === 0) { <tr><td [attr.colspan]="config.columns.length + 1" class="empty">No {{ config.singular }} records found.</td></tr> }
+    </tbody></table></div>
+    <footer>Showing {{ filteredRecords.length }} of {{ records.length }} records</footer>
+  </section>
+</section>

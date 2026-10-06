@@ -1,0 +1,27 @@
+<header class="page-header"><div><p class="eyebrow">TIME &amp; FINANCE</p><h1 class="page-title">Trust ledger</h1><p class="page-subtitle">Track client money by matter with a separate, auditable trust balance.</p></div></header>
+
+<section class="trust-layout">
+  <div class="ledger-column">
+    <section class="card ledger-toolbar"><label class="field"><span>Matter</span><select class="select" [(ngModel)]="matterId" (ngModelChange)="load()" name="matterId"><option value="">Select a matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} · {{ matter.title }}</option> }</select></label>
+      <div class="balance-card"><span>Available trust balance</span><strong>R {{ balance | number:'1.2-2' }}</strong><small>{{ selectedMatterName }}</small></div>
+    </section>
+    <section class="card transactions">
+      <div class="section-heading"><div><h2>Transactions</h2><p>Receipts, payments, transfers, and reversing entries</p></div><button type="button" class="btn btn-secondary" (click)="load()"><app-icon name="refresh" [size]="15" /> Refresh</button></div>
+      @if (error) { <div class="message error" role="alert">{{ error }}</div> } @if (notice) { <div class="message success" role="status">{{ notice }}</div> }
+      @if (loading) { <div class="empty">Loading trust transactions…</div> }
+      @else if (!rows.length) { <div class="empty">No trust movements have been recorded for this matter.</div> }
+      @else { <div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Type</th><th>Reference</th><th>Entered by</th><th class="num">Amount</th><th class="num">Balance</th><th></th></tr></thead><tbody>@for (row of rows; track row.id) {
+        <tr><td>{{ row.createdAtUtc | date:'d MMM y, HH:mm' }}</td><td><span class="kind" [class.receipt]="row.kind === 'Receipt'" [class.payment]="row.kind === 'Payment'">{{ row.kind }}{{ row.kind === 'Transfer' ? ' ' + row.transferDirection : '' }}</span>@if (row.reversesTransactionId) { <small class="reversal-tag">Reversal</small> }</td><td><b>{{ row.reference }}</b>@if (row.description) { <small class="description">{{ row.description }}</small> }</td><td>{{ row.createdByName }}</td><td class="num">{{ row.transferDirection === 'Out' || row.kind === 'Payment' ? '−' : '+' }} R {{ row.amount | number:'1.2-2' }}</td><td class="num"><b>R {{ row.matterBalance | number:'1.2-2' }}</b></td><td><button class="text-action" type="button" [disabled]="alreadyReversed(row)" (click)="reverse(row)">{{ alreadyReversed(row) ? 'Reversed' : 'Reverse' }}</button></td></tr>
+      }</tbody></table></div> }
+    </section>
+  </div>
+
+  <section class="card movement-card"><div class="section-heading"><div><h2>Record movement</h2><p>Posted money movements are immutable. Correct them with a reversal.</p></div></div>
+    <label class="field"><span>Movement type</span><select class="select" [(ngModel)]="movementType" name="movementType"><option value="Receipt">Client receipt</option><option value="Payment">Client payment</option><option value="Transfer">Matter transfer</option></select></label>
+    @if (movementType === 'Transfer') { <label class="field"><span>Transfer to matter</span><select class="select" [(ngModel)]="targetMatterId" name="targetMatterId"><option value="">Choose destination</option>@for (matter of matters; track matter.id) { @if (matter.id !== matterId) { <option [value]="matter.id">{{ matter.reference }} · {{ matter.title }}</option> } }</select></label> }
+    <label class="field"><span>Amount (ZAR)</span><div class="amount-input"><b>R</b><input class="input" type="number" min="0.01" step="0.01" [(ngModel)]="amount" name="amount" placeholder="0.00" /></div></label>
+    <label class="field"><span>Reference</span><input class="input" [(ngModel)]="reference" name="reference" maxlength="100" placeholder="Bank or transaction reference" /></label>
+    <label class="field"><span>Description</span><textarea class="textarea" rows="3" [(ngModel)]="description" name="description" maxlength="1000" placeholder="Optional movement details"></textarea></label>
+    <button class="btn btn-primary" type="button" (click)="post()" [disabled]="saving || !matterId || !amount || amount <= 0 || !reference.trim()">{{ saving ? 'Posting…' : 'Post ' + movementType.toLowerCase() }}</button>
+  </section>
+</section>

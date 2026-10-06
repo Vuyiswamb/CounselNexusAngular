@@ -1,0 +1,149 @@
+<section class="welcome-row">
+  <div>
+    <p class="eyebrow">{{ todayLabel }}</p>
+    <h1>{{ greeting }}, {{ auth.user()?.fullName?.split(' ')?.[0] || 'Counsel' }}</h1>
+    <p class="welcome-copy">Here’s your firm’s workload and what needs attention.</p>
+  </div>
+  <div class="welcome-actions">
+    <a class="btn btn-secondary" routerLink="/fees"><app-icon name="fees" [size]="16" /> Record time</a>
+    <a class="btn btn-primary" routerLink="/matters/new"><app-icon name="plus" [size]="17" /> New matter</a>
+  </div>
+</section>
+
+@if (error) {
+  <div class="dashboard-error" role="alert">
+    <span>{{ error }}</span>
+    <button class="btn btn-secondary" type="button" (click)="load()">Try again</button>
+  </div>
+}
+
+@if (loading) {
+  <div class="loading-card card"><span class="spinner"></span><span>Loading your dashboard…</span></div>
+} @else if (summary) {
+  <section class="metrics" aria-label="Firm overview">
+    <a class="metric-card card" routerLink="/matters">
+      <span class="metric-icon blue"><app-icon name="matters" [size]="19" /></span>
+      <span class="metric-content"><b>{{ summary.activeMatters }}</b><small>Active matters</small></span>
+      <span class="metric-note">Across your firm</span>
+    </a>
+    <a class="metric-card card" routerLink="/tasks">
+      <span class="metric-icon violet"><app-icon name="tasks" [size]="19" /></span>
+      <span class="metric-content"><b>{{ summary.openTasks }}</b><small>Open tasks</small></span>
+      <span class="metric-note" [class.alert-note]="summary.overdueTasks > 0">{{ summary.overdueTasks }} overdue</span>
+    </a>
+    <a class="metric-card card" routerLink="/diary">
+      <span class="metric-icon teal"><app-icon name="diary" [size]="19" /></span>
+      <span class="metric-content"><b>{{ summary.diaryEventsToday }}</b><small>Diary events today</small></span>
+      <span class="metric-note">Next 14 days below</span>
+    </a>
+    <a class="metric-card card" routerLink="/fees">
+      <span class="metric-icon amber"><app-icon name="fees" [size]="19" /></span>
+      <span class="metric-content"><b>R {{ unbilledTotal | number:'1.2-2' }}</b><small>Unbilled work</small></span>
+      <span class="metric-note">Fees + disbursements</span>
+    </a>
+    <a class="metric-card card" routerLink="/billing">
+      <span class="metric-icon green"><app-icon name="billing" [size]="19" /></span>
+      <span class="metric-content"><b>{{ summary.draftInvoices }}</b><small>Draft invoices</small></span>
+      <span class="metric-note">Ready for review</span>
+    </a>
+    <a class="metric-card card" routerLink="/contacts">
+      <span class="metric-icon rose"><app-icon name="contacts" [size]="19" /></span>
+      <span class="metric-content"><b>{{ summary.activeContacts }}</b><small>Active contacts</small></span>
+      <span class="metric-note">Clients and other parties</span>
+    </a>
+  </section>
+
+  <section class="charts-grid" aria-label="Practice analytics">
+    <article class="card chart-card hours-card">
+      <div class="chart-heading">
+        <div><span class="section-kicker">TIME &amp; PRODUCTIVITY</span><h2>Hours recorded</h2><p>This week compared with last week</p></div>
+        <div class="hours-total"><b>{{ totalWeekHours | number:'1.1-1' }}h</b><small>this week</small></div>
+      </div>
+      <div class="chart-legend"><span><i class="legend-current"></i>This week</span><span><i class="legend-previous"></i>Last week</span></div>
+      <div class="hours-chart" role="img" aria-label="Bar chart comparing recorded hours by weekday for this week and last week">
+        @for (day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; track day; let i = $index) {
+          <div class="hours-column">
+            <div class="hours-bars">
+              <span class="hours-bar current-bar" [style.height.%]="barHeight(weekHours[i])" [attr.title]="weekHours[i] + ' hours this week'"></span>
+              <span class="hours-bar previous-bar" [style.height.%]="barHeight(previousWeekHours[i])" [attr.title]="previousWeekHours[i] + ' hours last week'"></span>
+            </div>
+            <small>{{ day }}</small>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="card chart-card task-chart-card">
+      <div class="chart-heading">
+        <div><span class="section-kicker">TEAM WORKLOAD</span><h2>Task status</h2><p>Current firm task distribution</p></div>
+        <a class="chart-link" routerLink="/tasks">View tasks <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="task-chart-content">
+        <div class="task-donut" [style.background]="taskRing" role="img" aria-label="Donut chart showing task status distribution">
+          <div><b>{{ taskCounts.total }}</b><small>tasks</small></div>
+        </div>
+        <div class="task-legend">
+          <div><i class="open-swatch"></i><span>Open</span><b>{{ taskCounts.open }}</b></div>
+          <div><i class="progress-swatch"></i><span>In progress</span><b>{{ taskCounts.inProgress }}</b></div>
+          <div><i class="complete-swatch"></i><span>Completed</span><b>{{ taskCounts.completed }}</b></div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="work-grid">
+    <article class="card work-panel agenda-panel">
+      <div class="panel-heading">
+        <div><span class="section-kicker">YOUR CALENDAR</span><h2>Upcoming events</h2></div>
+        <a routerLink="/diary">Open diary <span aria-hidden="true">→</span></a>
+      </div>
+      @if (upcomingEvents.length) {
+        <div class="agenda-list">
+          @for (event of upcomingEvents; track event.id) {
+            <div class="agenda-row">
+              <div class="agenda-date"><b>{{ eventTime(event.startsAtUtc, event.allDay) }}</b><small>{{ eventDate(event.startsAtUtc) }}</small></div>
+              <span class="agenda-marker" [class.court-marker]="event.kind === 'Court'" [class.reminder-marker]="event.kind === 'Reminder'"></span>
+              <div class="agenda-detail"><b>{{ event.title }}</b><small>{{ event.matterReference || 'Firm calendar' }}<span> · {{ event.ownerName }}</span></small></div>
+              <span class="kind-chip">{{ event.kind }}</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state"><span class="empty-icon"><app-icon name="diary" [size]="20" /></span><b>Your calendar is clear</b><small>No upcoming events in the next two weeks.</small></div>
+      }
+    </article>
+
+    <article class="card work-panel tasks-panel">
+      <div class="panel-heading">
+        <div><span class="section-kicker">NEXT ACTIONS</span><h2>Tasks to keep moving</h2></div>
+        <a routerLink="/tasks">All tasks <span aria-hidden="true">→</span></a>
+      </div>
+      @if (dueTasks.length) {
+        <div class="task-list">
+          @for (task of dueTasks; track task.id) {
+            <a class="task-row" [routerLink]="['/matters', task.matterId]">
+              <span class="task-check"><app-icon name="check" [size]="14" /></span>
+              <span class="task-detail"><b>{{ task.title }}</b><small>{{ task.matterReference }} · {{ task.assignedToName }}</small></span>
+              <span class="task-due" [class.overdue]="taskDue(task.dueAtUtc) === 'Overdue'">{{ taskDue(task.dueAtUtc) }}</span>
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="empty-state"><span class="empty-icon"><app-icon name="tasks" [size]="20" /></span><b>No dated tasks to show</b><small>Tasks with upcoming due dates will appear here.</small></div>
+      }
+    </article>
+  </section>
+
+  <section class="bottom-row">
+    <article class="card focus-card">
+      <div class="focus-mark"><app-icon name="reports" [size]="19" /></div>
+      <div><b>Work in progress</b><p>Review unbilled fees and expenses before preparing invoices.</p></div>
+      <a class="btn btn-secondary" routerLink="/billing">Review billing <span aria-hidden="true">→</span></a>
+    </article>
+    <article class="card focus-card contact-focus">
+      <div class="focus-mark"><app-icon name="contacts" [size]="19" /></div>
+      <div><b>Client and matter records</b><p>{{ summary.activeContacts }} active contacts linked to {{ summary.activeMatters }} open matters.</p></div>
+      <a class="btn btn-secondary" routerLink="/contacts">Browse contacts <span aria-hidden="true">→</span></a>
+    </article>
+  </section>
+}

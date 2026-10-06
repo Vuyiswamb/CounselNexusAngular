@@ -1,0 +1,157 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Practice setup</h1>
+    <p class="page-subtitle">Set your practice identity, logo, system colors, workspace appearance, invoice letterhead, and billing rates.</p>
+  </div>
+</div>
+
+<nav class="admin-nav" aria-label="Administration">
+  <a routerLink="/admin/users">Users</a>
+  <a routerLink="/admin/roles">Roles &amp; Permissions</a>
+  <a routerLink="/admin/settings" routerLinkActive="active">Practice setup</a>
+  <a routerLink="/admin/email" routerLinkActive="active">Email / SMTP</a>
+</nav>
+
+@if (loading) {
+  <section class="card loading">Loading company settings…</section>
+} @else {
+  <form class="branding-layout" #brandingForm="ngForm" (ngSubmit)="save()">
+    <section class="card form-card">
+      <div class="section-heading">
+        <span class="section-icon"><app-icon name="admin" [size]="18" /></span>
+        <div><h2>Firm contact details</h2><p>These details appear on firm invoices and matter records.</p></div>
+      </div>
+
+      <div class="field">
+        <label for="firm-name">Company / firm name <span class="req">*</span></label>
+        <input id="firm-name" class="input" name="name" [(ngModel)]="firm.name" required maxlength="200" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="firm-email">Company email</label>
+          <input id="firm-email" class="input" name="email" type="email" [(ngModel)]="firm.email" maxlength="200" />
+        </div>
+        <div class="field">
+          <label for="firm-phone">Phone</label>
+          <input id="firm-phone" class="input" name="phone" type="tel" [(ngModel)]="firm.phone" maxlength="40" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="firm-website">Website</label>
+        <input id="firm-website" class="input" name="website" type="url" [(ngModel)]="firm.website" placeholder="https://www.yourfirm.co.za" maxlength="300" />
+      </div>
+      <div class="field">
+        <label for="firm-tagline">Tagline</label>
+        <input id="firm-tagline" class="input" name="tagline" [(ngModel)]="firm.tagline" placeholder="A short description of your firm" maxlength="200" />
+      </div>
+      <div class="field">
+        <label for="firm-address">Address</label>
+        <textarea id="firm-address" class="textarea" name="address" [(ngModel)]="firm.address" rows="3" maxlength="500"></textarea>
+      </div>
+    </section>
+
+    <section class="card form-card brand-card">
+      <div class="section-heading">
+        <span class="section-icon"><app-icon name="edit" [size]="18" /></span>
+        <div><h2>System theme &amp; practice identity</h2><p>Saved colors and logo are applied across the signed-in workspace.</p></div>
+      </div>
+
+      <label class="logo-label" for="firm-logo">Company logo</label>
+      <div class="logo-box" [style.--preview-primary]="firm.brandPrimaryColor" [style.--preview-accent]="firm.brandAccentColor">
+        @if (logoUrl) {
+          <img [src]="logoUrl" [alt]="firm.name + ' logo'" />
+        } @else {
+          <span class="logo-placeholder" [style.background]="firm.brandPrimaryColor"><app-icon name="scales" [size]="25" /></span>
+          <span class="preview-name">{{ firm.name || 'Your firm' }}</span>
+        }
+      </div>
+      <div class="logo-actions">
+        <label class="btn btn-secondary upload-button" for="firm-logo">Choose logo</label>
+        <input id="firm-logo" class="file-input" type="file" accept="image/png,image/jpeg,image/webp" (change)="onLogoSelected($event)" />
+        @if (logoUrl) { <button class="text-button" type="button" (click)="removeLogo()">Remove logo</button> }
+      </div>
+      <small class="field-help">PNG, JPEG, or WebP. Maximum 2 MB. The image is stored in the database.</small>
+
+      <div class="letterhead-heading">
+        <div><label for="firm-letterhead">Invoice letterhead</label><small>Upload a wide letterhead image. It appears in each matter’s invoice area.</small></div>
+        <span class="letterhead-tag">INVOICE</span>
+      </div>
+      <div class="letterhead-preview" [style.--preview-primary]="firm.brandPrimaryColor" [style.--preview-accent]="firm.brandAccentColor">
+        @if (letterheadUrl) {
+          <img class="letterhead-art" [src]="letterheadUrl" [alt]="firm.name + ' letterhead'" />
+        } @else {
+          <div class="letterhead-default">
+            @if (logoUrl) { <img class="letterhead-logo" [src]="logoUrl" [alt]="firm.name + ' logo'" /> }
+            <div class="letterhead-contact">
+              <b>{{ firm.name || 'Your law firm' }}</b>
+              @if (firm.tagline) { <span>{{ firm.tagline }}</span> }
+              <small>{{ firm.address || 'Firm address' }}</small>
+              <small>{{ firm.phone || 'Phone' }}{{ firm.email ? ' · ' + firm.email : '' }}</small>
+              @if (firm.website) { <small>{{ firm.website }}</small> }
+            </div>
+          </div>
+        }
+        <span class="letterhead-rule"></span>
+      </div>
+      <div class="logo-actions">
+        <label class="btn btn-secondary upload-button" for="firm-letterhead">Choose letterhead</label>
+        <input id="firm-letterhead" class="file-input" type="file" accept="image/png,image/jpeg,image/webp" (change)="onLetterheadSelected($event)" />
+        @if (letterheadUrl) { <button class="text-button" type="button" (click)="removeLetterhead()">Remove letterhead</button> }
+      </div>
+      <small class="field-help">PNG, JPEG, or WebP. Maximum 4 MB. Stored in the database and displayed on matter invoices.</small>
+
+      <div class="letterhead-heading workspace-image-heading">
+        <div><label for="firm-workspace-background">Workspace background image</label><small>Use a firm office, library, or brand photograph behind the translucent workspace panels.</small></div>
+        <span class="letterhead-tag">WORKSPACE</span>
+      </div>
+      <div class="workspace-image-preview" [style.--preview-primary]="firm.brandPrimaryColor" [style.--preview-accent]="firm.brandAccentColor" [style.background-image]="workspaceBackgroundUrl ? 'url(' + workspaceBackgroundUrl + ')' : null">
+        <div class="glass-sample">
+          <span class="glass-sample-mark" [style.background]="firm.brandAccentColor">{{ firm.name ? firm.name.slice(0, 1) : 'F' }}</span>
+          <div><b>{{ firm.name || 'Your firm workspace' }}</b><small>Glassy workspace preview</small></div>
+        </div>
+      </div>
+      <div class="logo-actions">
+        <label class="btn btn-secondary upload-button" for="firm-workspace-background">Choose workspace image</label>
+        <input id="firm-workspace-background" class="file-input" type="file" accept="image/png,image/jpeg,image/webp" (change)="onWorkspaceBackgroundSelected($event)" />
+        @if (workspaceBackgroundUrl) { <button class="text-button" type="button" (click)="removeWorkspaceBackground()">Remove image</button> }
+      </div>
+      <small class="field-help">PNG, JPEG, or WebP. Maximum 6 MB. Stored in the database. Without an upload, the built-in workspace photo is used.</small>
+
+      <div class="color-grid">
+        <div class="field color-field">
+          <label for="primary-color">Primary color</label>
+          <div class="color-input"><input id="primary-color" type="color" name="brandPrimaryColor" [(ngModel)]="firm.brandPrimaryColor" /><span>{{ firm.brandPrimaryColor }}</span></div>
+        </div>
+        <div class="field color-field">
+          <label for="accent-color">Accent color</label>
+          <div class="color-input"><input id="accent-color" type="color" name="brandAccentColor" [(ngModel)]="firm.brandAccentColor" /><span>{{ firm.brandAccentColor }}</span></div>
+        </div>
+      </div>
+
+      <div class="rates-heading">
+        <div><h3>Hourly billing rates</h3><p>Set the firm’s default rates. Fee entry users can adjust a rate on an individual time record.</p></div>
+        <span class="letterhead-tag">R / HOUR</span>
+      </div>
+      <div class="firm-rates-grid">
+        <label class="field rate-field" for="partner-rate"><span>Partner</span><div class="rate-input"><b>R</b><input id="partner-rate" name="partnerHourlyRate" type="number" min="0" max="999999.9999" step="0.01" [(ngModel)]="firm.partnerHourlyRate" /></div></label>
+        <label class="field rate-field" for="fee-earner-rate"><span>Fee earner</span><div class="rate-input"><b>R</b><input id="fee-earner-rate" name="feeEarnerHourlyRate" type="number" min="0" max="999999.9999" step="0.01" [(ngModel)]="firm.feeEarnerHourlyRate" /></div></label>
+        <label class="field rate-field" for="paralegal-rate"><span>Paralegal</span><div class="rate-input"><b>R</b><input id="paralegal-rate" name="paralegalHourlyRate" type="number" min="0" max="999999.9999" step="0.01" [(ngModel)]="firm.paralegalHourlyRate" /></div></label>
+        <label class="field rate-field" for="assistant-rate"><span>Legal assistant</span><div class="rate-input"><b>R</b><input id="assistant-rate" name="legalAssistantHourlyRate" type="number" min="0" max="999999.9999" step="0.01" [(ngModel)]="firm.legalAssistantHourlyRate" /></div></label>
+      </div>
+
+      <div class="brand-preview" [style.--preview-primary]="firm.brandPrimaryColor" [style.--preview-accent]="firm.brandAccentColor">
+        <span class="preview-dot"></span>
+        <div><b>{{ firm.name || 'Your firm' }}</b><small>{{ firm.tagline || 'Company workspace preview' }}</small></div>
+        <span class="preview-action">Matter</span>
+      </div>
+    </section>
+
+    <div class="form-footer">
+      @if (error) { <div class="form-message error" role="alert">{{ error }}</div> }
+      @if (saved) { <div class="form-message success" role="status">Company profile and branding saved.</div> }
+      <button class="btn btn-primary" type="submit" [disabled]="saving || !brandingForm.valid">
+        {{ saving ? 'Saving…' : 'Save company branding' }}
+      </button>
+    </div>
+  </form>
+}

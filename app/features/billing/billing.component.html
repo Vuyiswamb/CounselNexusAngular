@@ -1,0 +1,69 @@
+<div class="breadcrumb"><a routerLink="/dashboard">Workspace</a><span class="sep">›</span><span class="current">Billing</span></div>
+<div class="page-header billing-header">
+  <div><h1 class="page-title">Billing</h1><p class="page-subtitle">Prepare invoices from unbilled matter work, review drafts and issue final invoices.</p></div>
+  <button class="btn btn-primary" type="button" (click)="openDraftForm()" [disabled]="!canIssue"><app-icon name="plus" [size]="15" /> Create draft invoice</button>
+</div>
+
+<div class="billing-summary">
+  <section class="card billing-stat"><span class="stat-icon draft-icon"><app-icon name="billing" [size]="18" /></span><div><b>{{ draftCount }}</b><small>Draft invoices</small><em>R {{ draftTotal | number:'1.2-2' }} in drafts</em></div></section>
+  <section class="card billing-stat"><span class="stat-icon issued-icon"><app-icon name="fees" [size]="18" /></span><div><b>R {{ outstandingTotal | number:'1.2-2' }}</b><small>Issued invoice total</small><em>Track issued balances</em></div></section>
+  <section class="card billing-stat"><span class="stat-icon overdue-icon"><app-icon name="diary" [size]="18" /></span><div><b>{{ overdueCount }}</b><small>Overdue invoices</small><em>Issued invoices past due date</em></div></section>
+</div>
+
+@if (showDraftForm) {
+  <form class="card draft-form" (ngSubmit)="createDraft()">
+    <div class="draft-heading"><div><h2>Create draft invoice</h2><p>All unbilled fees and disbursements for the selected matter will be added and marked as billed.</p></div><button class="btn btn-secondary" type="button" (click)="showDraftForm=false" [disabled]="saving">Close</button></div>
+    <div class="draft-fields">
+      <label><span>Matter <i>*</i></span><select name="matterId" [(ngModel)]="matterId" required><option value="">Choose a matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} — {{ matter.title }} ({{ matter.clientName }})</option> }</select></label>
+      <label><span>Invoice date <i>*</i></span><input name="invoiceDate" type="date" [(ngModel)]="invoiceDate" required /></label>
+      <label><span>Due date <i>*</i></span><input name="dueDate" type="date" [(ngModel)]="dueDate" [min]="invoiceDate" required /></label>
+      <label><span>Tax rate (%)</span><input name="taxRate" type="number" min="0" max="100" step="0.01" [(ngModel)]="taxRate" /></label>
+    </div>
+    <div class="draft-actions"><button class="btn btn-secondary" type="button" (click)="showDraftForm=false" [disabled]="saving">Cancel</button><button class="btn btn-primary" type="submit" [disabled]="saving || !matterId || dueDate < invoiceDate">{{ saving ? 'Preparing invoice…' : 'Prepare draft' }}</button></div>
+  </form>
+}
+
+@if (error) { <div class="card billing-error" role="alert">{{ error }}</div> }
+
+<section class="card invoice-workspace">
+  <div class="invoice-toolbar">
+    <label class="invoice-search"><app-icon name="search" [size]="15" /><input name="invoiceSearch" [(ngModel)]="search" placeholder="Search invoice, client or matter" /></label>
+    <select name="invoiceStatus" [(ngModel)]="statusFilter"><option value="">All statuses</option><option value="Draft">Draft</option><option value="Issued">Issued</option><option value="PartPaid">Part paid</option><option value="Paid">Paid</option><option value="Voided">Voided</option></select>
+    <button class="btn btn-secondary refresh-button" type="button" (click)="load()" [disabled]="loading"><app-icon name="refresh" [size]="14" /> Refresh</button>
+  </div>
+  <div class="invoice-table-scroll"><table class="table invoice-table">
+    <thead><tr><th>Invoice</th><th>Client / matter</th><th>Invoice date</th><th>Due date</th><th class="numeric">Total</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      @if (loading) { <tr><td colspan="7" class="empty">Loading invoices…</td></tr> }
+      @else {
+        @for (invoice of filteredInvoices; track invoice.id) {
+          <tr [class.selected-row]="selectedInvoice?.id === invoice.id">
+            <td><button class="invoice-number" type="button" (click)="selectedInvoice=invoice">{{ invoice.number }}</button></td>
+            <td><b>{{ invoice.clientName }}</b><small class="matter-subtitle">{{ invoice.lines[0].matterReference }} — {{ invoice.lines[0].matterTitle }}</small></td>
+            <td>{{ invoice.invoiceDate | date:'dd MMM yyyy' }}</td><td>{{ invoice.dueDate | date:'dd MMM yyyy' }}</td>
+            <td class="numeric amount">{{ invoice.currency }} {{ invoice.total | number:'1.2-2' }}</td>
+            <td><span class="badge" [class]="statusClass(invoice.status)">{{ invoice.status === 'PartPaid' ? 'Part paid' : invoice.status }}</span></td>
+            <td class="invoice-actions"><button class="btn btn-secondary compact-action" type="button" (click)="selectedInvoice=invoice">View</button>@if (invoice.status === 'Draft' && canIssue) { <button class="btn btn-primary compact-action" type="button" (click)="issue(invoice)" [disabled]="!!issuingId">{{ issuingId === invoice.id ? 'Issuing…' : 'Issue' }}</button> }</td>
+          </tr>
+        } @empty { <tr><td colspan="7" class="empty">{{ search || statusFilter ? 'No invoices match these filters.' : 'No invoices yet. Create a draft from a matter with unbilled fees or disbursements.' }}</td></tr> }
+      }
+    </tbody>
+  </table></div>
+  <footer class="invoice-footer">Showing {{ filteredInvoices.length }} of {{ invoices.length }} invoices <span>Draft total: <b>R {{ draftTotal | number:'1.2-2' }}</b></span></footer>
+</section>
+
+@if (selectedInvoice) {
+  <section class="card invoice-preview" [style.--firm-primary]="firm?.brandPrimaryColor || '#173966'" [style.--firm-accent]="firm?.brandAccentColor || '#c7923e'">
+    <div class="preview-toolbar"><div><span class="preview-kicker">INVOICE PREVIEW</span><h2>{{ selectedInvoice.number }}</h2></div><div class="preview-actions">@if (selectedInvoice.status === 'Draft' && canIssue) { <button class="btn btn-primary" type="button" (click)="issue(selectedInvoice)" [disabled]="!!issuingId">{{ issuingId === selectedInvoice.id ? 'Issuing…' : 'Issue invoice' }}</button> }<button class="btn btn-secondary" type="button" (click)="printInvoice()">Print / Save PDF</button></div></div>
+    <article class="invoice-paper">
+      @if (letterheadUrl) { <img class="invoice-letterhead" [src]="letterheadUrl" [alt]="(firm?.name || 'Firm') + ' letterhead'" /> }
+      @else { <div class="invoice-brand">@if (logoUrl) { <img [src]="logoUrl" [alt]="(firm?.name || 'Firm') + ' logo'" /> }<div><b>{{ firm?.name || 'Law firm' }}</b>@if (firm?.tagline) { <small>{{ firm?.tagline }}</small> }<small>{{ firm?.address }}</small><small>{{ firm?.phone }} {{ firm?.email ? '· ' + firm?.email : '' }}</small></div></div> }
+      <div class="paper-rule"></div>
+      <div class="paper-heading"><div><span>INVOICE</span><h3>{{ selectedInvoice.number }}</h3><em class="badge" [class]="statusClass(selectedInvoice.status)">{{ selectedInvoice.status }}</em></div><div class="paper-dates"><span>Invoice date <b>{{ selectedInvoice.invoiceDate | date:'dd MMM yyyy' }}</b></span><span>Due date <b>{{ selectedInvoice.dueDate | date:'dd MMM yyyy' }}</b></span></div></div>
+      <div class="bill-to"><small>BILL TO</small><b>{{ selectedInvoice.clientName }}</b><span>{{ selectedInvoice.lines[0].matterReference }} — {{ selectedInvoice.lines[0].matterTitle }}</span></div>
+      <div class="paper-lines-scroll"><table class="table paper-lines"><thead><tr><th>Work / expense</th><th class="numeric">Qty</th><th class="numeric">Rate</th><th class="numeric">Amount</th></tr></thead><tbody>@for (line of selectedInvoice.lines; track line.id) { <tr><td>{{ line.description }}<small>{{ line.matterReference }} — {{ line.matterTitle }}</small></td><td class="numeric">{{ line.quantity | number:'1.0-2' }}</td><td class="numeric">{{ selectedInvoice.currency }} {{ line.unitPrice | number:'1.2-2' }}</td><td class="numeric">{{ selectedInvoice.currency }} {{ line.amount | number:'1.2-2' }}</td></tr> }</tbody></table></div>
+      <div class="paper-totals"><span>Subtotal</span><b>{{ selectedInvoice.currency }} {{ selectedInvoice.subtotal | number:'1.2-2' }}</b><span>Tax</span><b>{{ selectedInvoice.currency }} {{ selectedInvoice.taxAmount | number:'1.2-2' }}</b><strong>Total due</strong><strong>{{ selectedInvoice.currency }} {{ selectedInvoice.total | number:'1.2-2' }}</strong></div>
+      <footer class="paper-contact">{{ firm?.name }} <span>{{ firm?.address }}</span><span>{{ firm?.email }}</span><span>{{ firm?.phone }}</span><span>{{ firm?.website }}</span></footer>
+    </article>
+  </section>
+}

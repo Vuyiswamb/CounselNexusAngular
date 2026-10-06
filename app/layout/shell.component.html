@@ -1,0 +1,86 @@
+<div class="shell" [style.--primary]="firm?.brandPrimaryColor || '#2563EB'" [style.--accent]="firm?.brandAccentColor || '#7C3AED'" [style.--primary-hover]="'color-mix(in srgb, var(--primary, #2563EB) 82%, #000)'" [style.--primary-soft]="'color-mix(in srgb, var(--primary, #2563EB) 10%, white)'" [style.--primary-light]="'color-mix(in srgb, var(--primary, #2563EB) 14%, white)'" [style.--workspace-background]="workspaceBackgroundUrl">
+      <!-- ===================== Sidenav ===================== -->
+      <aside class="sidenav">
+        <a class="brand" routerLink="/dashboard">
+          @if (firm?.logoBase64 && firm?.logoContentType) {
+            <img class="brand-logo" [src]="'data:' + firm!.logoContentType + ';base64,' + firm!.logoBase64" [alt]="firm!.name + ' logo'" />
+          } @else {
+            <span class="brand-mark"><app-icon name="scales" [size]="28" /></span>
+          }
+          <span class="brand-name">{{ firm?.name || 'CounselNexus' }}</span>
+        </a>
+
+        <nav class="nav">
+          @for (item of nav; track item.route) {
+            @if ($first || nav[$index - 1].section !== item.section) {
+              <div class="nav-section-label">{{ item.section }}</div>
+            }
+            <a
+              class="nav-item"
+              [routerLink]="item.route"
+              (click)="openNavigation(item.route, $event)"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: !!item.exact }"
+            >
+              <app-icon [name]="item.icon" [size]="18" />
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+
+        <a class="nav-item logout" (click)="signOut()">
+          <app-icon name="logout" [size]="18" />
+          <span>Sign out</span>
+        </a>
+      </aside>
+
+      <!-- ===================== Main ===================== -->
+      <div class="main">
+        <header class="topbar">
+          <div class="topbar-search">
+            <app-icon name="search" [size]="16" />
+            <input
+              type="text"
+              placeholder="Search matters, contacts, documents..."
+              [(ngModel)]="query"
+              (keyup.enter)="goSearch()"
+            />
+          </div>
+
+          <div class="topbar-right">
+            <button class="icon-btn" type="button" aria-label="Notifications">
+              <app-icon name="bell" [size]="18" />
+              <span class="dot"></span>
+            </button>
+            <div class="profile-menu">
+              <button class="user-chip" type="button" aria-haspopup="menu" [attr.aria-expanded]="userMenuOpen" (click)="toggleUserMenu()">
+                <span class="avatar" style="width: 34px; height: 34px; font-size: 12.5px;">
+                  {{ auth.initials() }}
+                </span>
+                <span class="user-meta">
+                  <span class="user-name">{{ auth.user()?.fullName || 'Not signed in' }}</span>
+                  <span class="user-role">{{ auth.user()?.roles?.[0] || '' }}</span>
+                </span>
+                <app-icon name="chevron-down" [size]="15" />
+              </button>
+              @if (userMenuOpen) {
+                <div class="user-dropdown" role="menu" aria-label="Account options">
+                  <div class="dropdown-identity">
+                    <strong>{{ auth.user()?.fullName }}</strong>
+                    <span>{{ auth.user()?.email }}</span>
+                  </div>
+                  <button class="dropdown-signout" type="button" role="menuitem" (click)="signOut()">
+                    <app-icon name="logout" [size]="17" />
+                    <span>Sign out</span>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </header>
+
+        <main class="content">
+          <router-outlet />
+        </main>
+      </div>
+    </div>

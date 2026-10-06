@@ -1,0 +1,99 @@
+@if (!compact) {
+  <div class="breadcrumb"><a routerLink="/dashboard">Workspace</a><span class="sep">›</span><span class="current">Tasks</span></div>
+  <div class="page-header task-page-header">
+    <div><h1 class="page-title">Tasks</h1><p class="page-subtitle">Assign, prioritize and track the work across your matters.</p></div>
+    <button class="btn btn-primary" type="button" (click)="openNew()"><app-icon name="plus" [size]="15" /> New task</button>
+  </div>
+  <div class="task-summary">
+    <div class="card summary-card"><span class="summary-icon open-icon"><app-icon name="tasks" [size]="18" /></span><div><b>{{ openCount }}</b><span>Open tasks</span></div></div>
+    <div class="card summary-card"><span class="summary-icon overdue-icon"><app-icon name="diary" [size]="18" /></span><div><b>{{ overdueCount }}</b><span>Overdue</span></div></div>
+    <div class="card summary-card"><span class="summary-icon done-icon"><app-icon name="check" [size]="18" /></span><div><b>{{ tasks.length - openCount }}</b><span>Completed or cancelled</span></div></div>
+  </div>
+} @else {
+  <div class="task-compact-heading">
+    <div><h2>Tasks for this matter</h2><p>Assign work, set a due date, and track progress.</p></div>
+    <button class="btn btn-primary" type="button" (click)="openNew()"><app-icon name="plus" [size]="15" /> New task</button>
+  </div>
+}
+
+@if (showForm) {
+  <form class="card task-form" (ngSubmit)="save()">
+    <div class="form-heading"><div><h2>{{ editingId ? 'Edit task' : 'Create task' }}</h2><p>Every task belongs to a matter and has a responsible team member.</p></div></div>
+    <div class="task-fields">
+      @if (!matterId) {
+        <label class="task-field"><span>Matter <i>*</i></span>
+          <select name="matterId" [(ngModel)]="selectedMatterId" required>
+            <option value="">Select a matter</option>
+            @for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} — {{ matter.title }}</option> }
+          </select>
+        </label>
+      }
+      <label class="task-field task-title-field"><span>Task title <i>*</i></span><input name="taskTitle" [(ngModel)]="title" maxlength="200" placeholder="e.g. Prepare court bundle" required /></label>
+      <label class="task-field"><span>Assigned to <i>*</i></span>
+        <select name="assignedToId" [(ngModel)]="assignedToId" required>
+          <option value="">Select a team member</option>
+          @for (user of users; track user.id) { <option [value]="user.id">{{ user.fullName }}</option> }
+        </select>
+      </label>
+      <label class="task-field"><span>Priority</span>
+        <select name="priority" [(ngModel)]="priority">
+          @for (item of priorities; track item) { <option [value]="item">{{ item }}</option> }
+        </select>
+      </label>
+      <label class="task-field"><span>Status</span>
+        <select name="status" [(ngModel)]="status">
+          @for (item of statuses; track item) { <option [value]="item">{{ statusLabel(item) }}</option> }
+        </select>
+      </label>
+      <label class="task-field"><span>Due date and time</span><input name="dueAt" type="datetime-local" [(ngModel)]="dueLocal" /></label>
+      <label class="task-field task-description-field"><span>Description</span><textarea name="description" rows="3" [(ngModel)]="description" maxlength="4000" placeholder="Add instructions or context for the assignee"></textarea></label>
+    </div>
+    @if (error) { <p class="task-error" role="alert">{{ error }}</p> }
+    <div class="task-form-actions">
+      <button class="btn btn-secondary" type="button" (click)="cancelForm()" [disabled]="saving">Cancel</button>
+      <button class="btn btn-primary" type="submit" [disabled]="saving || !title.trim() || !assignedToId || !selectedMatterId">{{ saving ? 'Saving…' : editingId ? 'Save changes' : 'Create task' }}</button>
+    </div>
+  </form>
+}
+
+@if (!compact) {
+  <div class="card task-toolbar">
+    <label class="task-search"><app-icon name="search" [size]="15" /><input name="taskSearch" [(ngModel)]="search" placeholder="Search task, matter or assignee" /></label>
+    <select class="task-filter" name="taskStatusFilter" [(ngModel)]="statusFilter"><option value="">All statuses</option>@for (item of statuses; track item) { <option [value]="item">{{ statusLabel(item) }}</option> }</select>
+    <select class="task-filter" name="taskAssigneeFilter" [(ngModel)]="assignmentFilter" (change)="load()"><option value="">All assignees</option>@for (user of users; track user.id) { <option [value]="user.id">{{ user.fullName }}</option> }</select>
+  </div>
+} @else {
+  <div class="compact-task-filters">
+    <input class="task-filter" name="taskSearch" [(ngModel)]="search" placeholder="Search tasks" />
+    <select class="task-filter" name="taskStatusFilter" [(ngModel)]="statusFilter"><option value="">All statuses</option>@for (item of statuses; track item) { <option [value]="item">{{ statusLabel(item) }}</option> }</select>
+  </div>
+}
+
+@if (error && !showForm) { <div class="card task-error" role="alert">{{ error }}</div> }
+
+<div class="card task-table-wrap">
+  <table class="table task-table">
+    <thead><tr><th class="check-col">Done</th>@if (!matterId) { <th>Matter</th> }<th>Task</th><th>Assignee</th><th>Due</th><th>Priority</th><th>Status</th><th class="action-col">Actions</th></tr></thead>
+    <tbody>
+      @if (loading) {
+        <tr><td [attr.colspan]="matterId ? 7 : 8" class="empty">Loading tasks…</td></tr>
+      } @else {
+        @for (task of visibleTasks; track task.id) {
+          <tr [class.task-row-done]="task.status === 'Completed'">
+            <td class="check-col"><input type="checkbox" [checked]="task.status === 'Completed'" [attr.aria-label]="task.status === 'Completed' ? 'Reopen task' : 'Mark task complete'" (change)="toggleComplete(task)" /></td>
+            @if (!matterId) { <td><button class="matter-ref" type="button" (click)="openMatter(task)">{{ task.matterReference }}</button></td> }
+            <td class="task-name-cell"><b>{{ task.title }}</b>@if (task.description) { <small>{{ task.description }}</small> }</td>
+            <td>{{ task.assignedToName }}</td>
+            <td [class.overdue]="isOverdue(task)">{{ task.dueAtUtc ? (task.dueAtUtc | date:'d MMM y, HH:mm') : 'No due date' }}</td>
+            <td><span class="priority-tag" [class]="priorityClass(task.priority)">{{ task.priority }}</span></td>
+            <td><span class="badge" [class]="statusClass(task.status)">{{ statusLabel(task.status) }}</span></td>
+            <td class="row-actions"><button class="row-action" type="button" (click)="edit(task)" aria-label="Edit task"><app-icon name="edit" [size]="15" /></button><button class="row-action delete-action" type="button" (click)="remove(task)" aria-label="Delete task"><app-icon name="trash" [size]="15" /></button></td>
+          </tr>
+        } @empty {
+          <tr><td [attr.colspan]="matterId ? 7 : 8" class="empty">{{ search || statusFilter ? 'No tasks match these filters.' : 'No tasks yet. Create a task to keep the matter work moving.' }}</td></tr>
+        }
+      }
+    </tbody>
+  </table>
+  <div class="task-table-footer">Showing {{ visibleTasks.length }} of {{ tasks.length }} tasks</div>
+</div>

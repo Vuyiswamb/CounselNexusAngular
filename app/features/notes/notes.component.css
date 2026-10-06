@@ -1,0 +1,24 @@
+.eyebrow { margin: 0 0 5px; color: var(--primary); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.notes-layout { display: grid; grid-template-columns: minmax(300px, .85fr) minmax(0, 1.5fr); gap: 18px; align-items: start; }
+.composer,.notes-panel { padding: 22px; }
+.section-title,.list-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.icon-box,.empty-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--primary-soft); color: var(--primary); flex: 0 0 auto; }
+h2 { margin: 0; font-size: 16px; } .section-title p,.list-heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin: 0 0 15px; color: var(--text); font-size: 12px; font-weight: 650; }
+.field-row { display: grid; grid-template-columns: .75fr 1.25fr; gap: 12px; }
+.check-row { display: inline-flex; align-items: center; gap: 8px; margin: 2px 0 16px; color: var(--muted); font-size: 12px; }
+.check-row input { accent-color: var(--primary); }
+.list-heading { justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+.archived-toggle { margin: 0; }
+.note-list { display: grid; gap: 12px; }
+.note-card { padding: 15px 16px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,.62); }
+.note-card.archived { opacity: .72; }
+.note-head,.note-card footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.note-head time,.note-card footer { color: var(--muted); font-size: 11px; }
+.kind-badge,.private-badge,.archived-badge { display: inline-block; margin-right: 6px; padding: 4px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-size: 10px; font-weight: 700; }
+.private-badge { background: #fff4df; color: #9a6412; }.archived-badge { background: #f1f3f6; color: #64748b; }
+.note-card h3 { margin: 10px 0 6px; font-size: 14px; }.note-body { margin: 0 0 14px; color: var(--text); font-size: 13px; line-height: 1.55; white-space: pre-wrap; }
+.note-card footer { border-top: 1px solid var(--border); padding-top: 10px; }.text-action { padding: 0; border: 0; background: none; color: var(--primary); font: inherit; font-weight: 650; cursor: pointer; }
+.empty { display: grid; justify-items: center; gap: 9px; padding: 44px 15px; color: var(--muted); text-align: center; font-size: 12px; }.empty b { color: var(--text); font-size: 14px; }.empty-icon { width: 48px; height: 48px; }
+.message.error { color: #a42d2d; font-size: 12px; }
+@media (max-width: 900px) { .notes-layout { grid-template-columns: 1fr; } }
