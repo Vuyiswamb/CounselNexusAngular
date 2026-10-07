@@ -1,94 +1,81 @@
-﻿<div class="login-shell"><header class="login-topnav"><a class="login-topnav-brand" routerLink="/home"><img src="/assets/images/logo-display.png" alt="CounselNexus" width="700" height="142"></a><nav aria-label="Public navigation"><a class="active" routerLink="/home">⌂ Home</a><a routerLink="/about">ⓘ About</a><a routerLink="/services">⊞ Services</a><a routerLink="/contact">⌕ Contact</a></nav><a class="login-topnav-cta" routerLink="/register">♙ Create account</a></header><main class="login-page">
-  <section class="brand-panel" aria-label="CounselNexus legal practice management">
-    <div class="brand-content">
-      <img class="brand-logo" src="/assets/images/logo-display.png" alt="CounselNexus logo" width="700" height="142">
-      <p class="brand-tagline">LEGAL PRACTICE MANAGEMENT</p>
-      <div class="brand-rule" aria-hidden="true"></div>
-      <h1>Modern Legal<br>Practice Management<br><span>Made Simple.</span></h1>
-      <p class="brand-subtitle">Manage your matters, clients, time, billing and documents &mdash; all in one secure, intuitive platform.</p>
-
-      <div class="feature-grid" aria-label="CounselNexus features">
-        <div class="feature">
-          <span class="feature-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><rect x="3.5" y="7" width="17" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12h17M10 12v2h4v-2"/></svg>
-          </span>
-          <span>Matters<br>Management</span>
-        </div>
-        <div class="feature">
-          <span class="feature-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 19v-1.4a4.7 4.7 0 0 1 4.7-4.7h3a4.7 4.7 0 0 1 4.7 4.7V19M16 5.2a3.1 3.1 0 0 1 0 5.9M17.2 13a4.5 4.5 0 0 1 4 4.5V19"/></svg>
-          </span>
-          <span>Client<br>Relationships</span>
-        </div>
-        <div class="feature">
-          <span class="feature-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17M8 13h2M14 13h2M8 17h2"/></svg>
-          </span>
-          <span>Time &amp;<br>Billing</span>
-        </div>
-        <div class="feature">
-          <span class="feature-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M6 3.5h8l4.5 4.5v13H6z"/><path d="M14 3.5V8h4.5M9 12h6M9 15.5h6M9 19h4"/></svg>
-          </span>
-          <span>Secure<br>Documents</span>
-        </div>
-      </div>
+<div class="login-shell cn-site">
+  <div class="cn-topbar">
+    <div class="cn-container">
+      <div class="cn-topbar-left"><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-pin"></use></svg> Built for South African law firms</span><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-shield"></use></svg> FICA · POPIA · Trust accounting ready</span></div>
+      <div class="cn-topbar-right"><a routerLink="/contact">Book a demo</a></div>
     </div>
-    <footer class="brand-footer">MATTERS. PEOPLE. TIME. TRUST.</footer>
-  </section>
+  </div>
+  <header class="cn-header">
+    <div class="cn-container">
+      <a class="cn-logo" routerLink="/home"><img src="/assets/images/logo-display.png" alt="CounselNexus" width="700" height="142"></a>
+      <nav class="cn-nav" aria-label="Public navigation"><a routerLink="/home">Home</a><a routerLink="/about">About</a><a routerLink="/services">Services</a><a routerLink="/contact">Contact</a></nav>
+      <div class="cn-header-actions"><a class="cn-login-link" routerLink="/login">Log in</a><a class="cn-btn sm" routerLink="/register">Create account</a></div>
+    </div>
+  </header>
 
-  <section class="form-panel" aria-label="Sign in to CounselNexus">
-    <div class="form-card">
-      <img class="form-logo" src="/assets/images/logo-display.png" alt="CounselNexus logo" width="700" height="142">
-      <p class="form-brand-tagline">LEGAL PRACTICE MANAGEMENT</p>
-      <h2>Welcome back</h2>
-      <p class="form-subtitle">Sign in to access your workspace</p>
+  <main class="login-page cn-auth">
+    <section class="brand-panel cn-auth-art" aria-label="CounselNexus legal practice management">
+      <span class="cn-sub left on-dark">Legal practice management</span>
+      <h1>Modern legal practice, <span>made simple.</span></h1>
+      <p>Manage your matters, clients, time, billing and documents — all in one secure, intuitive platform.</p>
+      <ul class="cn-auth-list" aria-label="CounselNexus features">
+        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-brief"></use></svg>Matters management</li>
+        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-users"></use></svg>Client relationships</li>
+        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-bill"></use></svg>Time &amp; billing</li>
+        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-lock"></use></svg>Secure documents</li>
+      </ul>
+    </section>
 
-      <form (ngSubmit)="signIn()" #loginForm="ngForm">
-        <div class="field">
-          <label for="email">Email address</label>
-          <div class="input-wrap">
-            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
-            <input id="email" class="input" type="email" name="email" autocomplete="username" placeholder="you@firm.co.za" [(ngModel)]="email" required />
-          </div>
-        </div>
+    <section class="form-panel cn-auth-panel" aria-label="Sign in to CounselNexus">
+      <div class="form-card cn-auth-card">
+        <img class="cn-auth-logo" src="/assets/images/logo-display.png" alt="CounselNexus logo" width="700" height="142">
+        <h2>Welcome back</h2>
+        <p class="cn-muted">Sign in to access your workspace</p>
 
-        <div class="field">
-          <label for="password">Password</label>
-          <div class="input-wrap">
-            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
-            <input id="password" class="input" [type]="showPassword ? 'text' : 'password'" name="password" autocomplete="current-password" placeholder="Enter your password" [(ngModel)]="password" required />
-            <button class="password-toggle" type="button" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showPassword">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg>
-            </button>
-          </div>
-        </div>
-
-        @if (requiresTwoFactor) {
-          <div class="field">
-            <label for="twoFactorCode">Authenticator code</label>
-            <div class="input-wrap">
-              <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>
-              <input id="twoFactorCode" class="input" type="text" name="twoFactorCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" [(ngModel)]="twoFactorCode" required />
+        <form class="cn-form single" (ngSubmit)="signIn()" #loginForm="ngForm">
+          <div class="cn-field">
+            <label for="email">Email address</label>
+            <div class="cn-input-wrap">
+              <svg class="cn-field-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+              <input id="email" class="input" type="email" name="email" autocomplete="username" placeholder="you@firm.co.za" [(ngModel)]="email" required />
             </div>
           </div>
-        }
 
-        <div class="form-row">
-          <label class="remember"><input type="checkbox" name="remember" [(ngModel)]="remember" /><span>Remember me</span></label>
-          <a class="forgot" routerLink="/forgot-password">Forgot your password?</a>
-        </div>
+          <div class="cn-field">
+            <label for="password">Password</label>
+            <div class="cn-input-wrap">
+              <svg class="cn-field-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+              <input id="password" class="input" [type]="showPassword ? 'text' : 'password'" name="password" autocomplete="current-password" placeholder="Enter your password" [(ngModel)]="password" required />
+              <button class="password-toggle cn-toggle" type="button" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showPassword">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+              </button>
+            </div>
+          </div>
 
-        @if (errorMessage) { <p class="login-error" role="alert">{{ errorMessage }}</p> }
-        <button class="btn-primary sign-in" type="submit" [disabled]="loginForm.invalid || busy">
-          {{ busy ? 'Signing in...' : requiresTwoFactor ? 'Verify code' : 'Sign in' }} <span aria-hidden="true">&rarr;</span>
-        </button>
-      </form>
+          @if (requiresTwoFactor) {
+            <div class="cn-field">
+              <label for="twoFactorCode">Authenticator code</label>
+              <div class="cn-input-wrap">
+                <svg class="cn-field-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>
+                <input id="twoFactorCode" class="input" type="text" name="twoFactorCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" [(ngModel)]="twoFactorCode" required />
+              </div>
+            </div>
+          }
 
-      <div class="divider"><span>New to CounselNexus?</span></div>
-      <a class="create-account" routerLink="/register">Create an account</a>
-    </div>
-    <footer class="form-footer">&copy; {{ currentYear }} CounselNexus. All rights reserved.</footer>
-  </section>
+          <div class="form-row cn-form-row">
+            <label class="remember cn-remember"><input type="checkbox" name="remember" [(ngModel)]="remember" /><span>Remember me</span></label>
+            <a class="forgot cn-link" routerLink="/forgot-password">Forgot your password?</a>
+          </div>
+
+          @if (errorMessage) { <p class="login-error cn-error" role="alert">{{ errorMessage }}</p> }
+          <button class="sign-in cn-btn block" type="submit" [disabled]="loginForm.invalid || busy">
+            {{ busy ? 'Signing in...' : requiresTwoFactor ? 'Verify code' : 'Sign in' }} <span aria-hidden="true">&rarr;</span>
+          </button>
+        </form>
+
+        <p class="cn-auth-alt">New to CounselNexus? <a class="create-account cn-link" routerLink="/register">Create an account</a></p>
+      </div>
+      <footer class="form-footer cn-auth-foot">&copy; {{ currentYear }} CounselNexus. All rights reserved.</footer>
+    </section>
   </main>
 </div>
