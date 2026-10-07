@@ -1,7 +1,7 @@
 <div class="register-shell cn-site">
   <div class="cn-topbar">
     <div class="cn-container">
-      <div class="cn-topbar-left"><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-pin"></use></svg> Built for South African law firms</span><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-shield"></use></svg> FICA · POPIA · Trust accounting ready</span></div>
+      <div class="cn-topbar-left"><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-pin"></use></svg> Built for South African law firms</span><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-shield"></use></svg> FICA, POPIA and trust accounting covered</span></div>
       <div class="cn-topbar-right"><a routerLink="/contact">Book a demo</a></div>
     </div>
   </div>
@@ -16,12 +16,12 @@
   <main class="register-page cn-auth">
     <section class="register-brand cn-auth-art" aria-label="CounselNexus legal practice management">
       <span class="cn-sub left on-dark">Legal practice management</span>
-      <h1>Bring your legal practice <span>into focus.</span></h1>
-      <p>Set up your firm's workspace and keep matters, clients, time and billing connected.</p>
+      <h1>Get your firm <span>set up.</span></h1>
+      <p>Create your firm's account, then add your team, clients and matters.</p>
       <ul class="cn-auth-list" aria-label="CounselNexus features">
-        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-brief"></use></svg>Matters management</li>
+        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-brief"></use></svg>Matter management</li>
         <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-users"></use></svg>Client relationships</li>
-        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-bill"></use></svg>Time &amp; billing</li>
+        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-bill"></use></svg>Time and billing</li>
         <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-lock"></use></svg>Secure documents</li>
       </ul>
     </section>
@@ -61,7 +61,7 @@
           <p class="password-hint cn-hint full">Use at least 8 characters, including uppercase, lowercase and a number.</p>
           @if (errorMessage) { <p class="form-error cn-error full" role="alert">{{ errorMessage }}</p> }
           <button class="submit-button cn-btn block full" type="submit" [disabled]="registrationForm.invalid || busy || password !== confirmPassword">
-            {{ busy ? 'Creating your firm...' : 'Create firm and continue' }} <span aria-hidden="true">&rarr;</span>
+            {{ busy ? 'Creating your firm...' : 'Create firm and continue' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg>
           </button>
         </form>
 

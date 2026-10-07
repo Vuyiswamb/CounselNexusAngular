@@ -1,7 +1,7 @@
 <div class="login-shell cn-site">
   <div class="cn-topbar">
     <div class="cn-container">
-      <div class="cn-topbar-left"><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-pin"></use></svg> Built for South African law firms</span><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-shield"></use></svg> FICA · POPIA · Trust accounting ready</span></div>
+      <div class="cn-topbar-left"><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-pin"></use></svg> Built for South African law firms</span><span><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-shield"></use></svg> FICA, POPIA and trust accounting covered</span></div>
       <div class="cn-topbar-right"><a routerLink="/contact">Book a demo</a></div>
     </div>
   </div>
@@ -16,12 +16,12 @@
   <main class="login-page cn-auth">
     <section class="brand-panel cn-auth-art" aria-label="CounselNexus legal practice management">
       <span class="cn-sub left on-dark">Legal practice management</span>
-      <h1>Modern legal practice, <span>made simple.</span></h1>
-      <p>Manage your matters, clients, time, billing and documents — all in one secure, intuitive platform.</p>
+      <h1>Practice management <span>for law firms.</span></h1>
+      <p>Manage matters, clients, time, billing and documents in one secure system.</p>
       <ul class="cn-auth-list" aria-label="CounselNexus features">
-        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-brief"></use></svg>Matters management</li>
+        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-brief"></use></svg>Matter management</li>
         <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-users"></use></svg>Client relationships</li>
-        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-bill"></use></svg>Time &amp; billing</li>
+        <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-bill"></use></svg>Time and billing</li>
         <li><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-lock"></use></svg>Secure documents</li>
       </ul>
     </section>
@@ -57,7 +57,7 @@
               <label for="twoFactorCode">Authenticator code</label>
               <div class="cn-input-wrap">
                 <svg class="cn-field-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>
-                <input id="twoFactorCode" class="input" type="text" name="twoFactorCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" [(ngModel)]="twoFactorCode" required />
+                <input id="twoFactorCode" class="input" type="text" name="twoFactorCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6 digit code" [(ngModel)]="twoFactorCode" required />
               </div>
             </div>
           }
@@ -69,7 +69,7 @@
 
           @if (errorMessage) { <p class="login-error cn-error" role="alert">{{ errorMessage }}</p> }
           <button class="sign-in cn-btn block" type="submit" [disabled]="loginForm.invalid || busy">
-            {{ busy ? 'Signing in...' : requiresTwoFactor ? 'Verify code' : 'Sign in' }} <span aria-hidden="true">&rarr;</span>
+            {{ busy ? 'Signing in...' : requiresTwoFactor ? 'Verify code' : 'Sign in' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg>
           </button>
         </form>
 
