@@ -138,6 +138,42 @@ export interface PracticeWorkflowSaveRequest {
   notes?: string | null;
 }
 
+export interface RafClaimDto {
+  id: string;
+  firmId: string | null;
+  matterId: string;
+  clientId: string;
+  claimNumber: string;
+  rafReference: string | null;
+  claimType: string;
+  accidentDate: string;
+  prescriptionDate: string | null;
+  claimAmount: number | null;
+  settlementAmount: number | null;
+  nextAction: string | null;
+  nextActionDate: string | null;
+  status: string;
+  responsibleAttorneyId: string | null;
+  createdAtUtc: string;
+  updatedAtUtc: string;
+}
+
+export interface RafClaimRequest {
+  matterId: string;
+  clientId: string;
+  claimNumber: string;
+  rafReference?: string | null;
+  claimType: string;
+  accidentDate: string;
+  prescriptionDate?: string | null;
+  claimAmount?: number | null;
+  settlementAmount?: number | null;
+  nextAction?: string | null;
+  nextActionDate?: string | null;
+  status: string;
+  responsibleAttorneyId?: string | null;
+}
+
 export interface UserDto {
   id: string;
   fullName: string;

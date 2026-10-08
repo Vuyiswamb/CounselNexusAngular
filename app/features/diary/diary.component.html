@@ -1,4 +1,18 @@
-<header class="page-header"><div><p class="eyebrow">MATTER WORK</p><h1 class="page-title">Diary &amp; appointments</h1><p class="page-subtitle">Schedule client meetings, court appearances, limitation dates, and reminders.</p></div></header>
+<header class="page-header"><div><p class="eyebrow">MATTER WORK</p><h1 class="page-title">Legal Calendar &amp; Court Diary</h1><p class="page-subtitle">Keep every matter, court date, filing deadline and reminder visible in one calendar.</p></div></header>
+
+<section class="card calendar-card">
+  <div class="calendar-heading"><div><h2>{{ monthLabel }}</h2><p>{{ matters.length }} matter{{ matters.length === 1 ? '' : 's' }} available on the calendar</p></div><div class="calendar-actions"><button class="btn btn-secondary" type="button" (click)="previousMonth()" aria-label="Previous month">‹</button><button class="btn btn-secondary" type="button" (click)="today()">Today</button><button class="btn btn-secondary" type="button" (click)="nextMonth()" aria-label="Next month">›</button></div></div>
+  <div class="calendar-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+  <div class="calendar-grid">
+    @for (day of calendarDays; track day.key) {
+      <div class="calendar-day" [class.outside-month]="!day.inMonth" [class.today]="day.key === todayKey">
+        <span class="day-number">{{ day.date | date:'d' }}</span>
+        @for (matter of mattersOn(day); track matter.id) { <button class="calendar-chip matter-chip matter-link" type="button" title="Open matter" (click)="openMatter(matter)">{{ matter.reference }}</button> }
+        @for (event of eventsOn(day); track event.id) { <span class="calendar-chip" [class.court-chip]="event.kind === 'Hearing'" [class.deadline-chip]="event.kind === 'Limitation'" [title]="event.title">{{ event.title }}</span> }
+      </div>
+    }
+  </div>
+</section>
 
 <div class="diary-layout">
   <section class="card event-form">
@@ -15,11 +29,16 @@
   </section>
 
   <section class="card agenda">
-    <div class="agenda-heading"><div><h2>Upcoming appointments</h2><p>Showing the next 90 days</p></div><button class="btn btn-secondary refresh" type="button" (click)="load()"><app-icon name="refresh" [size]="15" /> Refresh</button></div>
+    <div class="agenda-heading"><div><h2>Upcoming appointments &amp; court dates</h2><p>Showing the next 90 days</p></div><button class="btn btn-secondary refresh" type="button" (click)="load()"><app-icon name="refresh" [size]="15" /> Refresh</button></div>
     @if (loading) { <div class="empty">Loading diary…</div> }
     @else if (!events.length) { <div class="empty"><span class="empty-icon"><app-icon name="diary" [size]="22" /></span><b>Your diary is clear</b><span>New appointments and deadlines will appear here.</span></div> }
     @else { <div class="event-list">@for (item of events; track item.id) {
       <article class="event-row"><div class="date-block"><b>{{ item.startsAtUtc | date:'d' }}</b><span>{{ item.startsAtUtc | date:'MMM' }}</span></div><div class="event-copy"><div class="event-title-row"><h3>{{ item.title }}</h3><span class="type-badge" [class.hearing]="item.kind === 'Hearing'" [class.deadline]="item.kind === 'Limitation'">{{ item.kind }}</span></div><p>{{ item.startsAtUtc | date:'EEE, d MMM y · HH:mm' }} – {{ item.endsAtUtc | date:'HH:mm' }} <span>· {{ item.allDay ? 'All day' : item.ownerName }}</span></p>@if (item.matterReference) { <small>{{ item.matterReference }}</small> }@if (item.description) { <p class="description">{{ item.description }}</p> }</div><div class="event-actions"><button type="button" aria-label="Edit event" (click)="edit(item)"><app-icon name="edit" [size]="15" /></button><button type="button" aria-label="Delete event" (click)="remove(item)"><app-icon name="trash" [size]="15" /></button></div></article>
     }</div> }
+  </section>
+
+  <section class="card reminders-card">
+    <div class="section-title"><span class="icon-box"><app-icon name="bell" [size]="18" /></span><div><h2>Reminders</h2><p>Events with a reminder set</p></div></div>
+    @if (!reminders().length) { <div class="empty compact">No reminders have been scheduled.</div> } @else { @for (item of reminders(); track item.id) { <div class="reminder-row"><span class="reminder-dot"></span><div><b>{{ item.title }}</b><small>{{ item.reminderAtUtc | date:'d MMM y, HH:mm' }}</small>@if (item.matterReference) { <small>{{ item.matterReference }}</small> }</div></div> } }
   </section>
 </div>

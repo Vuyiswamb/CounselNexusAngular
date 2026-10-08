@@ -14,6 +14,7 @@ import {
   FirmSettingsDto, FirmSettingsUpdate,
   CaseResearchAiResponse, CaseResearchRequest, LegalCaseDocumentDto, LegalCaseSearchResult,
   PracticeWorkflowRecordDto, PracticeWorkflowSaveRequest,
+  RafClaimDto, RafClaimRequest,
 } from './api.models';
 
 /** Thin typed wrappers over the /api/v1 endpoints. */
@@ -149,6 +150,25 @@ export class PracticeOperationsService {
   create(moduleKey: string, request: PracticeWorkflowSaveRequest): Observable<PracticeWorkflowRecordDto> {
     return this.http.post<PracticeWorkflowRecordDto>(`${this.base}/${moduleKey}`, request);
   }
+}
+
+@Injectable({ providedIn: 'root' })
+export class RafClaimsService {
+  private http = inject(HttpClient);
+  private base = `${inject(API_BASE_URL)}/api/v1/raf/claims`;
+
+  list(params: { search?: string; status?: string; claimType?: string; highRiskPrescription?: boolean } = {}): Observable<RafClaimDto[]> {
+    const query: Record<string, string> = {};
+    if (params.search) query['search'] = params.search;
+    if (params.status && params.status !== 'All statuses') query['status'] = params.status;
+    if (params.claimType && params.claimType !== 'All claim types') query['claimType'] = params.claimType;
+    if (params.highRiskPrescription) query['highRiskPrescription'] = 'true';
+    return this.http.get<RafClaimDto[]>(this.base, { params: query });
+  }
+
+  get(id: string): Observable<RafClaimDto> { return this.http.get<RafClaimDto>(`${this.base}/${id}`); }
+  create(request: RafClaimRequest): Observable<RafClaimDto> { return this.http.post<RafClaimDto>(this.base, request); }
+  update(id: string, request: RafClaimRequest): Observable<RafClaimDto> { return this.http.put<RafClaimDto>(`${this.base}/${id}`, request); }
 }
 
 @Injectable({ providedIn: 'root' })

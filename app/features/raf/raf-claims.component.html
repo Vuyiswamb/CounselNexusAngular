@@ -1,0 +1,39 @@
+<section class="raf-page">
+  <header class="page-heading">
+    <div><span class="eyebrow">ROAD ACCIDENT FUND</span><h1>RAF Claims</h1><p>Manage Road Accident Fund claims linked to existing clients and matters.</p></div>
+    <button class="btn btn-primary" type="button" (click)="openForm()"><app-icon name="plus" [size]="15" /> New RAF claim</button>
+  </header>
+
+  <div class="kpi-grid">
+    <article class="kpi"><strong>{{ claims.length }}</strong><span>Total claims</span></article>
+    <article class="kpi"><strong>{{ newCount }}</strong><span>New</span></article>
+    <article class="kpi"><strong>{{ investigationCount }}</strong><span>Under investigation</span></article>
+    <article class="kpi"><strong>{{ lodgedCount }}</strong><span>Lodged</span></article>
+    <article class="kpi"><strong>{{ completedCount }}</strong><span>Completed</span></article>
+  </div>
+
+  @if (error) { <div class="error">{{ error }}</div> }
+  <section class="card">
+    <div class="toolbar">
+      <div class="search"><app-icon name="search" [size]="16" /><input [(ngModel)]="search" (ngModelChange)="load()" placeholder="Claim number or RAF reference" /></div>
+      <select [(ngModel)]="status" (ngModelChange)="load()"><option>All statuses</option>@for (item of statuses; track item) { <option [value]="item">{{ item }}</option> }</select>
+      <select [(ngModel)]="claimType" (ngModelChange)="load()"><option>All claim types</option>@for (item of claimTypes; track item) { <option [value]="item">{{ item }}</option> }</select>
+      <label class="risk-filter"><input type="checkbox" [(ngModel)]="highRiskPrescription" (ngModelChange)="load()" /> Prescription risk</label>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Claim</th><th>Client / matter</th><th>Accident</th><th>Type</th><th>Status</th><th>Prescription</th><th>Claim value</th><th>Next action</th></tr></thead><tbody>
+      @if (loading) { <tr><td colspan="8" class="empty">Loading RAF claims...</td></tr> }
+      @for (claim of claims; track claim.id) {
+        <tr><td><strong>{{ claim.claimNumber }}</strong><small>{{ claim.rafReference || 'RAF reference pending' }}</small></td><td><b>{{ clientLabel(claim.clientId) }}</b><small>{{ matterLabel(claim.matterId) }}</small></td><td>{{ claim.accidentDate | date:'dd MMM yyyy' }}</td><td>{{ claim.claimType }}</td><td><span class="status">{{ claim.status }}</span></td><td><span [class]="'prescription ' + prescriptionClass(claim.prescriptionDate)">{{ prescriptionLabel(claim.prescriptionDate) }}</span><small>{{ claim.prescriptionDate ? (claim.prescriptionDate | date:'dd MMM yyyy') : 'Attorney review required' }}</small></td><td>{{ claim.claimAmount == null ? '-' : ('R ' + claim.claimAmount.toFixed(2)) }}</td><td>{{ claim.nextAction || '-' }}<small>{{ claim.nextActionDate ? (claim.nextActionDate | date:'dd MMM yyyy') : '' }}</small></td></tr>
+      }
+      @if (!loading && claims.length === 0) { <tr><td colspan="8" class="empty">No RAF claims found.</td></tr> }
+    </tbody></table></div>
+  </section>
+
+  @if (showForm) {
+    <div class="modal-backdrop" (click)="closeForm()"><form class="modal card" (click)="$event.stopPropagation()" (ngSubmit)="save()">
+      <div class="modal-heading"><div><span class="eyebrow">PHASE 1 INTAKE</span><h2>Create RAF claim</h2><p>Link the claim to an existing client and matter before continuing.</p></div><button type="button" class="close" (click)="closeForm()">Close</button></div>
+      <div class="form-grid"><label>Existing client<select name="clientId" [(ngModel)]="form.clientId" required><option value="">Select client</option>@for (client of clients; track client.id) { <option [value]="client.id">{{ client.fullName }}</option> }</select></label><label>Existing RAF matter<select name="matterId" [(ngModel)]="form.matterId" required><option value="">Select RAF matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} · {{ matter.title }}</option> }@if (matters.length === 0) { <option value="" disabled>No RAF matters found</option> }</select><small>Only active RAF-related matters are shown.</small></label><label>Claim number<input name="claimNumber" [(ngModel)]="form.claimNumber" placeholder="e.g. RAF-2026-001" required /></label><label>Claim type<select name="claimType" [(ngModel)]="form.claimType">@for (item of claimTypes; track item) { <option [value]="item">{{ item }}</option> }</select></label><label>Accident date<input name="accidentDate" type="date" [(ngModel)]="form.accidentDate" required /></label><label>Prescription date<input name="prescriptionDate" type="date" [(ngModel)]="form.prescriptionDate" /><small>System calculated – attorney verification required.</small></label><label>RAF reference<input name="rafReference" [(ngModel)]="form.rafReference" placeholder="If already allocated" /></label><label>Estimated claim amount<input name="claimAmount" type="number" min="0" step="0.01" [(ngModel)]="form.claimAmount" placeholder="R 0.00" /></label><label>Next action<input name="nextAction" [(ngModel)]="form.nextAction" placeholder="e.g. Request accident report" /></label></div>
+      <div class="modal-actions"><button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button><button type="submit" class="btn btn-primary" [disabled]="saving">{{ saving ? 'Saving…' : 'Create RAF claim' }}</button></div>
+    </form></div>
+  }
+</section>

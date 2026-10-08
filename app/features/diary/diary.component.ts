@@ -1,9 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DiaryService, MattersService } from '../../core/api-services';
 import { DiaryEventDto, DiaryEventRequest, MatterListItemDto } from '../../core/api.models';
 import { IconComponent } from '../../shared/icon.component';
+
+interface CalendarDay {
+  date: Date;
+  key: string;
+  inMonth: boolean;
+}
 
 @Component({
   selector: 'app-diary',
@@ -14,6 +21,7 @@ import { IconComponent } from '../../shared/icon.component';
 export class DiaryComponent implements OnInit {
   private diaryApi = inject(DiaryService);
   private mattersApi = inject(MattersService);
+  private router = inject(Router);
   events: DiaryEventDto[] = [];
   matters: MatterListItemDto[] = [];
   loading = true;
@@ -30,6 +38,26 @@ export class DiaryComponent implements OnInit {
   reminderLocal = '';
   readonly rangeStart = new Date();
   readonly rangeEnd = new Date(Date.now() + 90 * 86400000);
+  calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+  get monthLabel(): string {
+    return this.calendarMonth.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+  }
+
+  get todayKey(): string {
+    return this.dateKey(new Date());
+  }
+
+  get calendarDays(): CalendarDay[] {
+    const first = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth(), 1);
+    const start = new Date(first);
+    start.setDate(first.getDate() - first.getDay());
+    return Array.from({ length: 42 }, (_, index) => {
+      const date = new Date(start);
+      date.setDate(start.getDate() + index);
+      return { date, key: this.dateKey(date), inMonth: date.getMonth() === this.calendarMonth.getMonth() };
+    });
+  }
 
   ngOnInit(): void {
     this.mattersApi.list({ pageSize: 100 }).subscribe({
@@ -44,6 +72,35 @@ export class DiaryComponent implements OnInit {
       next: (items) => { this.events = items; this.loading = false; },
       error: (err) => { this.error = err?.error?.detail || err?.error?.title || 'Could not load diary events.'; this.loading = false; },
     });
+  }
+
+  previousMonth(): void {
+    this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() - 1, 1);
+  }
+
+  nextMonth(): void {
+    this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + 1, 1);
+  }
+
+  today(): void {
+    const now = new Date();
+    this.calendarMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+
+  eventsOn(day: CalendarDay): DiaryEventDto[] {
+    return this.events.filter((event) => this.dateKey(new Date(event.startsAtUtc)) === day.key);
+  }
+
+  mattersOn(day: CalendarDay): MatterListItemDto[] {
+    return this.matters.filter((matter) => matter.openDate?.slice(0, 10) === day.key);
+  }
+
+  openMatter(matter: MatterListItemDto): void {
+    void this.router.navigate(['/matters', matter.id]);
+  }
+
+  reminders(): DiaryEventDto[] {
+    return this.events.filter((event) => event.reminderAtUtc).sort((a, b) => (a.reminderAtUtc ?? '').localeCompare(b.reminderAtUtc ?? '')).slice(0, 5);
   }
 
   save(): void {
@@ -92,5 +149,12 @@ export class DiaryComponent implements OnInit {
   private localValue(value: Date): string {
     const adjusted = new Date(value.getTime() - value.getTimezoneOffset() * 60000);
     return adjusted.toISOString().slice(0, 16);
+  }
+
+  private dateKey(value: Date): string {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

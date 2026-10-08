@@ -193,6 +193,7 @@ export const routes: Routes = [
           import('./features/reports/reports.component').then((m) => m.ReportsComponent),
       },
       { path: 'debt-collections', data: { operation: 'debt-collections' }, loadComponent: () => import('./features/operations/operations.component').then((m) => m.OperationsComponent) },
+      { path: 'raf-claims', loadComponent: () => import('./features/raf/raf-claims.component').then((m) => m.RafClaimsComponent) },
       { path: 'evictions', data: { operation: 'evictions' }, loadComponent: () => import('./features/operations/operations.component').then((m) => m.OperationsComponent) },
       { path: 'drivers-appointments', data: { operation: 'drivers-appointments' }, loadComponent: () => import('./features/operations/operations.component').then((m) => m.OperationsComponent) },
       { path: 'summons-management', data: { operation: 'summons-management' }, loadComponent: () => import('./features/operations/operations.component').then((m) => m.OperationsComponent) },

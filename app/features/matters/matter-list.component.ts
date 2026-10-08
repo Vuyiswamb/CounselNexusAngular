@@ -13,7 +13,7 @@ import { MatterListItemDto, MatterStatus, UserDto, matterStatusUi } from '../../
   styleUrls: ['./matter-list.component.css'],
 })
 export class MatterListComponent implements OnInit {
-  readonly practiceAreas = ['Litigation', 'Family', 'Conveyancing', 'Commercial', 'Estates'];
+  readonly practiceAreas = ['Litigation', 'Family', 'Conveyancing', 'Commercial', 'Estates', 'RAF Claim'];
 
   matters: MatterListItemDto[] = [];
   users: UserDto[] = [];

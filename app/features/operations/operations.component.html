@@ -10,18 +10,20 @@
   </div>
   @if (error) { <div class="operation-error">{{ error }}</div> }
   @if (showForm) {
-    <form class="record-form card" (ngSubmit)="save()">
-      <div class="form-heading"><div><h2>Add {{ config.singular }}</h2><p>Capture the information needed to follow this workflow.</p></div><button type="button" class="close" (click)="closeForm()">Close</button></div>
-      <div class="form-grid">
-        <label>Reference<input name="reference" [(ngModel)]="form.reference" placeholder="e.g. DC-002" /></label>
-        <label>{{ config.primaryLabel }}<input name="person" [(ngModel)]="form.person" required /></label>
-        <label>Subject / description<input name="subject" [(ngModel)]="form.subject" required /></label>
-        <label>Date or next action<input name="date" [(ngModel)]="form.date" placeholder="e.g. 15 Oct 2026" /></label>
-        <label>Status<select name="status" [(ngModel)]="form.status">@for (status of config.statuses; track status) { <option [value]="status">{{ status }}</option> }</select></label>
-        @if (config.key === 'debt-collections') { <label>Amount<input name="amount" [(ngModel)]="form.amount" placeholder="e.g. R 25,000" /></label> }
-      </div>
-      <div class="form-actions"><button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button><button type="submit" class="btn btn-primary">Save {{ config.singular }}</button></div>
-    </form>
+    <div class="modal-backdrop" (click)="closeForm()">
+      <form class="record-form card" role="dialog" aria-modal="true" [attr.aria-label]="'Add ' + config.singular" (click)="$event.stopPropagation()" (ngSubmit)="save()">
+        <div class="form-heading"><div><h2>Add {{ config.singular }}</h2><p>Capture the information needed to follow this workflow.</p></div><button type="button" class="close" (click)="closeForm()">Close</button></div>
+        <div class="form-grid">
+          <label>Reference<input name="reference" [(ngModel)]="form.reference" placeholder="e.g. DC-002" /></label>
+          <label>{{ config.primaryLabel }}<input name="person" [(ngModel)]="form.person" required /></label>
+          <label>Subject / description<input name="subject" [(ngModel)]="form.subject" required /></label>
+          <label>Date or next action<input name="date" [(ngModel)]="form.date" placeholder="e.g. 15 Oct 2026" /></label>
+          <label>Status<select name="status" [(ngModel)]="form.status">@for (status of config.statuses; track status) { <option [value]="status">{{ status }}</option> }</select></label>
+          @if (config.key === 'debt-collections') { <label>Amount<input name="amount" [(ngModel)]="form.amount" placeholder="e.g. R 25,000" /></label> }
+        </div>
+        <div class="form-actions"><button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button><button type="submit" class="btn btn-primary">Save {{ config.singular }}</button></div>
+      </form>
+    </div>
   }
   <section class="records-card card">
     <div class="toolbar"><div class="search-box"><app-icon name="search" [size]="16" /><input [(ngModel)]="search" (ngModelChange)="load()" placeholder="Search records..." /></div><select [(ngModel)]="statusFilter" (ngModelChange)="load()"><option>All statuses</option>@for (status of config.statuses; track status) { <option [value]="status">{{ status }}</option> }</select></div>

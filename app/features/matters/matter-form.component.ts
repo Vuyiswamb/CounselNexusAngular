@@ -13,7 +13,7 @@ import { ContactDto, MatterDetailDto, MatterStatus, PartyDto, UserDto } from '..
   styleUrls: ['./matter-form.component.css'],
 })
 export class MatterFormComponent implements OnInit {
-  readonly practiceAreas = ['Litigation', 'Family', 'Conveyancing', 'Commercial', 'Estates'];
+  readonly practiceAreas = ['Litigation', 'Family', 'Conveyancing', 'Commercial', 'Estates', 'RAF Claim'];
 
   reference = '';
   title = '';
