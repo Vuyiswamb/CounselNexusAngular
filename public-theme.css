@@ -361,3 +361,18 @@
 @media (max-width: 860px) { .cn-topbar-left span:nth-child(3) { display: none; } }
 @media (max-width: 560px) { .cn-topbar-left { gap: 14px; font-size: 12px; } .cn-topbar-left a:first-child svg { display: none; } }
 @media (max-width: 400px) { .cn-topbar-left a:first-child { display: none; } }
+
+/* ---------- Legal pages ---------- */
+.cn-banner.legal { padding: 90px 0; background-image: linear-gradient(rgba(2,10,31,.86), rgba(7,26,61,.86)), url('/assets/images/site/library.jpg'); }
+.cn-legal { max-width: 860px; margin: 0 auto; color: #333b4d; font-size: 15.5px; }
+.cn-legal-date { display: inline-block; margin-bottom: 26px !important; padding: 6px 16px; border-radius: 50px; background: var(--cn-tint); color: var(--cn-muted); font-size: 13.5px; }
+.cn-legal h2 { margin: 38px 0 12px; padding-top: 22px; border-top: 1px solid var(--cn-border); font-size: 21px; }
+.cn-legal h2:first-of-type { border-top: 0; padding-top: 0; margin-top: 10px; }
+.cn-legal p { margin: 0 0 14px; }
+.cn-legal ul { display: grid; gap: 10px; margin: 0 0 16px; padding: 0; list-style: none; }
+.cn-legal li { position: relative; padding-left: 22px; }
+.cn-legal li::before { content: ""; position: absolute; left: 2px; top: 10px; width: 7px; height: 7px; background: var(--cn-blue); transform: rotate(45deg); }
+.cn-legal a { color: var(--cn-blue); font-weight: 500; }
+.cn-legal b { color: var(--cn-ink); }
+.cn-foot-legal { display: inline-flex; flex-wrap: wrap; gap: 8px 22px; }
+.cn-foot-legal a:hover { color: #fff; }

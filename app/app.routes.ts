@@ -34,6 +34,24 @@ export const routes: Routes = [
       import('./features/packages/packages.component').then((m) => m.PackagesComponent),
   },
   {
+    path: 'terms',
+    loadComponent: () =>
+      import('./features/legal/legal.component').then((m) => m.LegalComponent),
+    data: { doc: 'terms' },
+  },
+  {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./features/legal/legal.component').then((m) => m.LegalComponent),
+    data: { doc: 'privacy' },
+  },
+  {
+    path: 'cookies',
+    loadComponent: () =>
+      import('./features/legal/legal.component').then((m) => m.LegalComponent),
+    data: { doc: 'cookies' },
+  },
+  {
     path: 'register',
     loadComponent: () =>
       import('./features/auth/register.component').then((m) => m.RegisterComponent),
