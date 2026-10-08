@@ -29,6 +29,11 @@ export const routes: Routes = [
     data: { page: 'contact' },
   },
   {
+    path: 'packages',
+    loadComponent: () =>
+      import('./features/packages/packages.component').then((m) => m.PackagesComponent),
+  },
+  {
     path: 'register',
     loadComponent: () =>
       import('./features/auth/register.component').then((m) => m.RegisterComponent),

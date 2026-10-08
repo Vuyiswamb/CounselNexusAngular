@@ -310,3 +310,40 @@
   .cn-form-row { flex-wrap: wrap; }
 }
 .cn-success + .cn-btn { margin-top: 18px; }
+
+/* ---------- Packages page ---------- */
+.cn-banner.packages { background-image: linear-gradient(rgba(2,10,31,.82), rgba(7,26,61,.82)), url('/assets/images/site/justice-stone.jpg'); }
+.cn-pkg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; align-items: stretch; }
+.cn-pkg { position: relative; display: flex; flex-direction: column; padding: 40px 34px; border: 1px solid var(--cn-border); border-radius: var(--cn-radius); background: #fff; transition: box-shadow .3s, transform .3s; }
+.cn-pkg:hover { transform: translateY(-6px); box-shadow: var(--cn-shadow); }
+.cn-pkg.featured { border: 2px solid var(--cn-blue); box-shadow: var(--cn-shadow); }
+.cn-pkg-tag { position: absolute; top: -14px; left: 34px; padding: 5px 14px; border-radius: 50px; background: var(--cn-blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.cn-pkg h3 { font-size: 26px; }
+.cn-pkg-blurb { margin-top: 10px !important; color: var(--cn-muted); min-height: 54px; }
+.cn-pkg-price { margin: 22px 0 !important; padding: 14px 0; border-top: 1px solid var(--cn-border); border-bottom: 1px solid var(--cn-border); color: var(--cn-blue); font-size: 20px; font-weight: 700; }
+.cn-pkg-list { flex: 1; display: grid; gap: 12px; align-content: start; margin: 0 0 30px; padding: 0; list-style: none; font-size: 14.5px; }
+.cn-pkg-list li { display: flex; gap: 10px; align-items: flex-start; }
+.cn-pkg-list li svg.cn-i { width: 20px; height: 20px; margin-top: 2px; color: var(--cn-blue); }
+.cn-pkg-list li.out { padding-left: 30px; color: #a3abbb; text-decoration: line-through; }
+.cn-btn.outline { background: transparent; color: var(--cn-blue) !important; }
+.cn-btn.outline:hover { background: var(--cn-blue); color: #fff !important; }
+.cn-cmp-wrap { overflow-x: auto; border: 1px solid var(--cn-border); border-radius: var(--cn-radius); background: #fff; }
+.cn-cmp { width: 100%; min-width: 720px; border-collapse: collapse; }
+.cn-cmp th, .cn-cmp td { padding: 18px 22px; border-bottom: 1px solid var(--cn-border); text-align: center; vertical-align: middle; font-size: 14.5px; }
+.cn-cmp thead th { background: var(--cn-navy); color: #fff; font-size: 16px; font-weight: 600; }
+.cn-cmp thead th:first-child { text-align: left; }
+.cn-cmp thead th.featured { background: var(--cn-blue); }
+.cn-cmp tbody th { text-align: left; font-weight: 400; }
+.cn-cmp tbody tr:hover { background: var(--cn-tint); }
+.cn-cmp tfoot th, .cn-cmp tfoot td { border-bottom: 0; font-weight: 700; color: var(--cn-blue); }
+.cn-cmp tfoot th { text-align: left; color: var(--cn-ink); }
+.cn-cmp-mod { display: flex; gap: 14px; align-items: flex-start; }
+.cn-cmp-mod > svg.cn-i { width: 22px; height: 22px; margin-top: 3px; color: var(--cn-blue); }
+.cn-cmp-mod b { display: block; font-weight: 600; }
+.cn-cmp-mod small { display: block; color: var(--cn-muted); font-size: 13px; }
+.cn-yes { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--cn-blue); color: #fff; }
+.cn-yes svg.cn-i { width: 18px; height: 18px; }
+.cn-no { color: #a3abbb; font-size: 13px; }
+@media (max-width: 960px) { .cn-pkg-grid { grid-template-columns: 1fr; max-width: 520px; margin-inline: auto; } .cn-pkg-blurb { min-height: 0; } }
+
+@media (max-width: 560px) { .cn-nav { flex-wrap: wrap; gap: 8px 18px; } .cn-nav a { font-size: 14px; } }
