@@ -19,6 +19,7 @@
           <label>Subject / description<input name="subject" [(ngModel)]="form.subject" required /></label>
           <label>Date or next action<input name="date" [(ngModel)]="form.date" placeholder="e.g. 15 Oct 2026" /></label>
           <label>Status<select name="status" [(ngModel)]="form.status">@for (status of config.statuses; track status) { <option [value]="status">{{ status }}</option> }</select></label>
+          @if (config.key === 'debt-collections' || config.key === 'summons-management') { <label>Current matter<select name="matterId" [(ngModel)]="form.matterId" required><option value="">Select active matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} - {{ matter.title }}</option> }</select></label> }
           @if (config.key === 'debt-collections') { <label>Amount<input name="amount" [(ngModel)]="form.amount" placeholder="e.g. R 25,000" /></label> }
         </div>
         <div class="form-actions"><button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button><button type="submit" class="btn btn-primary">Save {{ config.singular }}</button></div>
@@ -29,9 +30,29 @@
     <div class="toolbar"><div class="search-box"><app-icon name="search" [size]="16" /><input [(ngModel)]="search" (ngModelChange)="load()" placeholder="Search records..." /></div><select [(ngModel)]="statusFilter" (ngModelChange)="load()"><option>All statuses</option>@for (status of config.statuses; track status) { <option [value]="status">{{ status }}</option> }</select></div>
     <div class="table-wrap"><table><thead><tr>@for (column of config.columns; track column) { <th>{{ column }}</th> }<th>Actions</th></tr></thead><tbody>
       @if (loading) { <tr><td [attr.colspan]="config.columns.length + 1" class="empty">Loading records...</td></tr> }
-      @for (record of filteredRecords; track record.id) { <tr><td><strong>{{ record.reference }}</strong></td><td><b>{{ record.person }}</b><small>{{ record.subject }}</small></td><td>{{ record.date }}</td><td><span class="status">{{ record.status }}</span></td><td>{{ record.amount || '-' }}</td><td><button class="table-action" type="button">Open</button></td></tr> }
+      @for (record of filteredRecords; track record.id) { <tr><td><strong>{{ record.reference }}</strong></td><td><b>{{ record.person }}</b><small>{{ record.subject }}</small></td><td>{{ record.date }}</td><td><span class="status">{{ record.status }}</span></td><td>{{ record.amount || '-' }}</td><td><button class="table-action" type="button">Open</button>@if (config.key === 'summons-management') { <button class="table-action document-action" type="button" (click)="openSummonsDocuments(record)"><app-icon name="upload" [size]="13" /> Files</button> }</td></tr> }
       @if (!loading && filteredRecords.length === 0) { <tr><td [attr.colspan]="config.columns.length + 1" class="empty">No {{ config.singular }} records found.</td></tr> }
     </tbody></table></div>
     <footer>Showing {{ filteredRecords.length }} of {{ records.length }} records</footer>
   </section>
+  @if (selectedSummons) {
+    <div class="modal-backdrop" (click)="closeSummonsDocuments()">
+      <section class="documents-modal card" role="dialog" aria-modal="true" aria-label="Summons documents" (click)="$event.stopPropagation()">
+        <div class="form-heading"><div><span class="eyebrow">{{ selectedSummons.reference }}</span><h2>Summons documents</h2><p>Upload and download documents linked to {{ selectedSummons.matterLabel || 'the current matter' }}.</p></div><button type="button" class="close" (click)="closeSummonsDocuments()">Close</button></div>
+        @if (documentError) { <div class="operation-error">{{ documentError }}</div> }
+        <label class="upload-documents btn btn-primary" [class.uploading]="documentUploading"><app-icon name="upload" [size]="15" /> {{ documentUploading ? 'Uploading...' : 'Upload summons documents' }}<input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" (change)="uploadSummonsDocuments($event)" [disabled]="documentUploading" /></label>
+        <p class="upload-help">Select one or more PDF, Word or image files. Maximum 50 MB each.</p>
+        @if (documentsLoading) { <div class="documents-empty">Loading summons documents...</div> }
+        @else if (summonsDocuments.length) {
+          <div class="document-list">
+            @for (document of summonsDocuments; track document.id) {
+              <div class="document-row"><div class="document-meta"><span class="document-icon"><app-icon name="file" [size]="16" /></span><span><b>{{ document.name.replace('Summons - ', '') }}</b><small>{{ document.uploadedAtUtc | date: 'dd MMM yyyy HH:mm' }} · {{ document.length / 1024 / 1024 | number:'1.1-1' }} MB</small></span></div><button type="button" class="table-action" (click)="downloadSummonsDocument(document)"><app-icon name="download" [size]="13" /> Download</button></div>
+            }
+          </div>
+        } @else {
+          <div class="documents-empty">No summons documents uploaded yet.</div>
+        }
+      </section>
+    </div>
+  }
 </section>

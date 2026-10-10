@@ -1,8 +1,13 @@
-<section class="welcome-row">
+<section class="dashboard-hero">
   <div>
     <p class="eyebrow">{{ todayLabel }}</p>
-    <h1>{{ greeting }}, {{ auth.user()?.fullName?.split(' ')?.[0] || 'Counsel' }}</h1>
+    <h1>{{ greeting }}, <span>{{ auth.user()?.fullName?.split(' ')?.[0] || 'Counsel' }}</span></h1>
     <p class="welcome-copy">Here’s your firm’s workload and what needs attention.</p>
+    <div class="hero-benefits" aria-label="Dashboard benefits">
+      <span><i class="benefit-icon benefit-green">✓</i> Stay organised</span>
+      <span><i class="benefit-icon benefit-violet">ϟ</i> Work smarter</span>
+      <span><i class="benefit-icon benefit-blue">•</i> Better client service</span>
+    </div>
   </div>
   <div class="welcome-actions">
     <a class="btn btn-secondary" routerLink="/fees"><app-icon name="fees" [size]="16" /> Record time</a>
