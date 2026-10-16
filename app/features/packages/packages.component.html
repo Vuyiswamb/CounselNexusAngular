@@ -15,6 +15,7 @@
         <a routerLink="/home">Home</a>
         <a routerLink="/about">About</a>
         <a routerLink="/services">Services</a>
+        <a href="/legal-market" routerLink="/legal-market">Legal Market Place</a>
         <a routerLink="/packages" routerLinkActive="current">Packages</a>
         <a routerLink="/contact">Contact</a>
       </nav>
@@ -26,40 +27,37 @@
   </header>
 
   <main>
-    <section class="cn-banner packages">
+    <section class="cn-banner packages packages-hero-redesign">
       <div class="cn-container">
-        <h1>Packages</h1>
-        <p>Three packages, each building on the one before. Pick the one that fits how your firm works today and move up when you need more.</p>
+        <div class="packages-hero-copy"><span class="packages-eyebrow">COUNSELNEXUS PLANS</span><h1>Choose the right package <span>for your firm</span></h1><p>Start with the essentials, grow with confidence, and unlock the tools your practice needs.</p></div>
         <div class="cn-crumb"><a routerLink="/home">Home</a> / <span>Packages</span></div>
       </div>
     </section>
 
     <section class="cn-pad">
       <div class="cn-container">
-        <div class="cn-head"><span class="cn-sub">Choose a package</span><h2 class="cn-title">What each package <span>includes</span></h2><p>Pricing depends on the size of your firm and the number of users, so we quote each firm directly. Get in touch and we will send you a quote.</p></div>
-        <div class="cn-pkg-grid">
-            <article class="cn-pkg">
-              <h3>Essential</h3>
-              <p class="cn-pkg-blurb">The core of a practice: clients, matters, trust and billing.</p>
-              <p class="cn-pkg-price">Price on request</p>
-              <ul class="cn-pkg-list"><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Client &amp; Contact Management</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Matter &amp; Case Management</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Trust Accounting</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Billing &amp; Time</span></li><li class="out"><span>Documents &amp; Email</span></li><li class="out"><span>Compliance, Conflicts &amp; Security</span></li><li class="out"><span>Portal, Reporting &amp; AI</span></li></ul>
-              <a class="cn-btn block outline" routerLink="/contact">Ask about Essential <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg></a>
-            </article>
-            <article class="cn-pkg">
-              <h3>Professional</h3>
-              <p class="cn-pkg-blurb">Everything in Essential, plus documents, email and compliance tools.</p>
-              <p class="cn-pkg-price">Price on request</p>
-              <ul class="cn-pkg-list"><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Client &amp; Contact Management</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Matter &amp; Case Management</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Trust Accounting</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Billing &amp; Time</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Documents &amp; Email</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Compliance, Conflicts &amp; Security</span></li><li class="out"><span>Portal, Reporting &amp; AI</span></li></ul>
-              <a class="cn-btn block outline" routerLink="/contact">Ask about Professional <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg></a>
-            </article>
-            <article class="cn-pkg featured">
-              <span class="cn-pkg-tag">Full suite</span><h3>Premium</h3>
-              <p class="cn-pkg-blurb">The full system, including the client portal, reporting and AI assistance.</p>
-              <p class="cn-pkg-price">Price on request</p>
-              <ul class="cn-pkg-list"><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Client &amp; Contact Management</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Matter &amp; Case Management</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Trust Accounting</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Billing &amp; Time</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Documents &amp; Email</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Compliance, Conflicts &amp; Security</span></li><li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>Portal, Reporting &amp; AI</span></li></ul>
-              <a class="cn-btn block" routerLink="/contact">Ask about Premium <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg></a>
-            </article>
-        </div>
+        <div class="cn-head packages-heading"><span class="cn-sub">Simple, flexible plans</span><h2 class="cn-title">What each package <span>includes</span></h2><p>Choose a plan that fits the way your firm works today. You can upgrade as your team and practice grow.</p><div class="package-heading-rule"><i></i><b></b><b></b></div></div>
+        @if (loading) { <div class="cn-packages-status">Loading packages…</div> }
+        @if (error) { <div class="cn-packages-status error">{{ error }}</div> }
+        @if (!loading && !error && packages.length === 0) { <div class="cn-packages-status">No packages are currently available.</div> }
+        @if (!loading && !error) {
+          <div class="cn-pkg-grid">
+            @for (item of packages; track item.id; let first = $first; let index = $index) {
+              <article class="cn-pkg package-card" [class.featured]="first" [class.package-card-trial]="index === 0" [class.package-card-starter]="index === 1" [class.package-card-standard]="index === 2" [class.disabled-package]="renewalMode && item.code.toUpperCase() === 'TRIAL'">
+                @if (index === 2) { <span class="cn-pkg-tag package-popular">★ &nbsp;POPULAR</span> }
+                <div class="package-card-top"><div class="package-icon">@if (index === 0) { 🚀 } @else if (index === 1) { 👥 } @else { ♜ }</div><div><h3>{{ item.name }}</h3><p class="cn-pkg-blurb">{{ packageDescription(item) }}</p></div><span class="package-card-art">▱</span></div>
+                <p class="cn-pkg-price">{{ item.monthlyPrice | currency:item.currency:'symbol':'1.2-2' }} <small>/ month per firm</small></p>
+                <ul class="cn-pkg-list package-features">
+                  @for (component of item.components; track component.id) {
+                    <li class="in"><svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-check"></use></svg><span>{{ component.name }}</span></li>
+                  }
+                </ul>
+                <button class="cn-btn block package-cta" [class.outline]="!first" type="button" [disabled]="renewalMode && item.code.toUpperCase() === 'TRIAL'" (click)="choosePackage(item)">{{ renewalMode && item.code.toUpperCase() === 'TRIAL' ? 'Trial expired' : (first ? 'Get started' : 'Contact us for a quote') }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg></button>
+                <small class="package-card-note">{{ first ? 'No commitment. Explore the system.' : 'Pricing depends on your firm size and users.' }}</small>
+              </article>
+            }
+          </div>
+        }
       </div>
     </section>
 
@@ -105,6 +103,27 @@
       </div>
     </section>
   </main>
+
+  @if (selectedPackage) {
+    <div class="package-checkout-backdrop" role="presentation" (click)="closeCheckout($event)">
+      <section class="package-checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+        <button class="package-checkout-close" type="button" aria-label="Close" (click)="closeCheckout()">×</button>
+        <span class="cn-sub">Secure subscription payment</span>
+        <h2 id="checkout-title">{{ selectedPackage.name }}</h2>
+        <p>Choose how many months you would like to pay. Your subscription end date will be extended after PayFast confirms the payment.</p>
+        <label class="checkout-months">Number of months
+          <input type="number" min="1" max="36" [(ngModel)]="months" />
+        </label>
+        <label class="checkout-months">Firm account email
+          <input type="email" autocomplete="email" placeholder="you@yourfirm.co.za" [(ngModel)]="checkoutEmail" />
+        </label>
+        <div class="checkout-total">Estimated total: <strong>{{ (selectedPackage.monthlyPrice * months) | currency:selectedPackage.currency:'symbol':'1.2-2' }}</strong></div>
+        @if (checkoutError) { <p class="cn-error" role="alert">{{ checkoutError }}</p> }
+        <div class="checkout-actions"><button class="cn-btn outline" type="button" (click)="closeCheckout()">Cancel</button><button class="cn-btn" type="button" [disabled]="checkoutBusy" (click)="continueCheckout()">{{ checkoutBusy ? 'Preparing payment...' : 'Continue to PayFast' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg></button></div>
+        <small class="checkout-login-note">After successful payment, you will be redirected to sign in.</small>
+      </section>
+    </div>
+  }
 
   <footer class="cn-footer">
     <div class="cn-container cn-foot-grid">

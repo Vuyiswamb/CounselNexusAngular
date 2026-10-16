@@ -10,11 +10,13 @@ import {
   TaskDto, TaskRequest, DashboardSummaryDto, DiaryEventDto,
   DiaryEventRequest, TrustTransactionDto, TrustMovementRequest, TrustTransferRequest,
   WorkInProgressDto, OverdueInvoiceDto, TrustBalanceReportDto, ActivityReportItemDto,
-  SmtpSettingsDto, SmtpSettingsUpdateRequest, DocumentDto,
+    SmtpSettingsDto, SmtpSettingsUpdateRequest, PlatformGatewaySettingsDto, PlatformGatewaySettingsUpdateRequest, DocumentDto,
   FirmSettingsDto, FirmSettingsUpdate,
   CaseResearchAiResponse, CaseResearchRequest, LegalCaseDocumentDto, LegalCaseSearchResult,
   PracticeWorkflowRecordDto, PracticeWorkflowSaveRequest,
   RafClaimDto, RafClaimRequest,
+  PermissionDto, MatterAccessDto, MatterAccessUpdateRequest, UserPermissionDto, UserPermissionsUpdateRequest, UpdateProfileRequest, ChangePasswordRequest,
+  PlatformFirmDto, PlatformFirmReportDto, PlatformUserDto, CreatePlatformUserRequest, UpdatePlatformUserRequest, PlatformSubscriptionDto, PlatformPaymentDto, PlatformPaymentRequest, PlatformTransactionDto, PlatformComponentDto, PlatformPackageDto, PlatformPackageRequest,
 } from './api.models';
 
 /** Thin typed wrappers over the /api/v1 endpoints. */
@@ -185,6 +187,30 @@ export class UsersService {
   create(body: CreateUserRequest): Observable<UserDto> {
     return this.http.post<UserDto>(this.base, body);
   }
+
+  matterAccess(userId: string): Observable<MatterAccessDto[]> {
+    return this.http.get<MatterAccessDto[]>(`${this.base.replace('/users', '/admin/users')}/${userId}/matter-access`);
+  }
+
+  saveMatterAccess(userId: string, body: MatterAccessUpdateRequest): Observable<MatterAccessDto[]> {
+    return this.http.put<MatterAccessDto[]>(`${this.base.replace('/users', '/admin/users')}/${userId}/matter-access`, body);
+  }
+
+  permissions(userId: string): Observable<UserPermissionDto[]> {
+    return this.http.get<UserPermissionDto[]>(`${this.base.replace('/users', '/admin/users')}/${userId}/permissions`);
+  }
+
+  savePermissions(userId: string, body: UserPermissionsUpdateRequest): Observable<UserPermissionDto[]> {
+    return this.http.put<UserPermissionDto[]>(`${this.base.replace('/users', '/admin/users')}/${userId}/permissions`, body);
+  }
+
+  updateMyProfile(body: UpdateProfileRequest): Observable<UserDto> {
+    return this.http.put<UserDto>(`${this.base}/me/profile`, body);
+  }
+
+  changeMyPassword(body: ChangePasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.base}/me/password`, body);
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -194,6 +220,63 @@ export class RolesService {
 
   list(): Observable<RoleDto[]> {
     return this.http.get<RoleDto[]>(this.base);
+  }
+
+  permissions(roleId: string): Observable<PermissionDto[]> {
+    return this.http.get<PermissionDto[]>(`${this.base.replace('/roles', '/admin/roles')}/${roleId}/permissions`);
+  }
+
+  savePermissions(roleId: string, permissionIds: string[]): Observable<PermissionDto[]> {
+    return this.http.put<PermissionDto[]>(`${this.base.replace('/roles', '/admin/roles')}/${roleId}/permissions`, { permissionIds });
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class PlatformService {
+  private http = inject(HttpClient);
+  private base = `${inject(API_BASE_URL)}/api/v1/platform`;
+
+  firms(): Observable<PlatformFirmDto[]> { return this.http.get<PlatformFirmDto[]>(`${this.base}/firms`); }
+  firmReports(): Observable<PlatformFirmReportDto[]> { return this.http.get<PlatformFirmReportDto[]>(`${this.base}/reports/firms`); }
+  users(firmId: string): Observable<PlatformUserDto[]> { return this.http.get<PlatformUserDto[]>(`${this.base}/firms/${firmId}/users`); }
+  platformUsers(): Observable<PlatformUserDto[]> { return this.http.get<PlatformUserDto[]>(`${this.base}/users`); }
+  createPlatformUser(request: CreatePlatformUserRequest): Observable<PlatformUserDto> { return this.http.post<PlatformUserDto>(`${this.base}/users`, request); }
+  updatePlatformUser(userId: string, request: UpdatePlatformUserRequest): Observable<PlatformUserDto> { return this.http.put<PlatformUserDto>(`${this.base}/users/${userId}`, request); }
+  sendPlatformUserPasswordReset(userId: string): Observable<{ message: string }> { return this.http.post<{ message: string }>(`${this.base}/users/${userId}/password-reset`, {}); }
+  setFirmStatus(firmId: string, enabled: boolean): Observable<void> { return this.http.patch<void>(`${this.base}/firms/${firmId}/status`, { enabled }); }
+  subscription(firmId: string): Observable<PlatformSubscriptionDto> { return this.http.get<PlatformSubscriptionDto>(`${this.base}/firms/${firmId}/subscription`); }
+  payments(firmId: string): Observable<PlatformPaymentDto[]> { return this.http.get<PlatformPaymentDto[]>(`${this.base}/firms/${firmId}/payments`); }
+  addPayment(firmId: string, request: PlatformPaymentRequest): Observable<PlatformPaymentDto> { return this.http.post<PlatformPaymentDto>(`${this.base}/firms/${firmId}/payments`, request); }
+  transactions(filters: { firmId?: string; status?: string; fromUtc?: string; toUtc?: string } = {}): Observable<PlatformTransactionDto[]> {
+    const params: Record<string, string> = {};
+    Object.entries(filters).forEach(([key, value]) => { if (value) params[key] = value; });
+    return this.http.get<PlatformTransactionDto[]>(`${this.base}/transactions`, { params });
+  }
+  components(): Observable<PlatformComponentDto[]> { return this.http.get<PlatformComponentDto[]>(`${this.base}/subscription-components`); }
+  packages(): Observable<PlatformPackageDto[]> { return this.http.get<PlatformPackageDto[]>(`${this.base}/subscription-packages`); }
+  createPackage(request: PlatformPackageRequest): Observable<{ id: string }> { return this.http.post<{ id: string }>(`${this.base}/subscription-packages`, request); }
+  updatePackage(planId: string, request: PlatformPackageRequest): Observable<void> { return this.http.put<void>(`${this.base}/subscription-packages/${planId}`, request); }
+  setPackageComponents(planId: string, componentIds: string[]): Observable<void> { return this.http.put<void>(`${this.base}/subscription-packages/${planId}/components`, { componentIds }); }
+  assignPackage(firmId: string, planId: string): Observable<void> { return this.http.patch<void>(`${this.base}/firms/${firmId}/subscription/package`, { planId }); }
+}
+
+@Injectable({ providedIn: 'root' })
+export class PublicPackagesService {
+  private http = inject(HttpClient);
+  private base = `${inject(API_BASE_URL)}/api/v1/public/packages`;
+
+  list(): Observable<PlatformPackageDto[]> {
+    return this.http.get<PlatformPackageDto[]>(this.base);
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class SubscriptionCheckoutService {
+  private http = inject(HttpClient);
+  private base = `${inject(API_BASE_URL)}/api/v1/subscriptions`;
+
+  checkout(planId: string, months: number, email: string): Observable<import('./api.models').SubscriptionCheckoutResponse> {
+    return this.http.post<import('./api.models').SubscriptionCheckoutResponse>(`${this.base}/checkout`, { planId, months, email });
   }
 }
 
@@ -213,6 +296,14 @@ export class SmtpSettingsService {
   sendTest(recipientEmail: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/test`, { recipientEmail });
   }
+}
+
+@Injectable({ providedIn: 'root' })
+export class PlatformGatewaySettingsService {
+  private http = inject(HttpClient);
+  private base = `${inject(API_BASE_URL)}/api/v1/platform/gateways`;
+  get(): Observable<PlatformGatewaySettingsDto> { return this.http.get<PlatformGatewaySettingsDto>(this.base); }
+  save(body: PlatformGatewaySettingsUpdateRequest): Observable<PlatformGatewaySettingsDto> { return this.http.put<PlatformGatewaySettingsDto>(this.base, body); }
 }
 
 @Injectable({ providedIn: 'root' })

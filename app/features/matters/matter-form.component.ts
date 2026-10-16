@@ -25,12 +25,16 @@ export class MatterFormComponent implements OnInit {
   clientId = '';
 
   clients: ContactDto[] = [];
+  contacts: ContactDto[] = [];
   users: UserDto[] = [];
   busy = false;
   loadingMatter = false;
   error = '';
   matterId = '';
   private partyLinks: PartyDto[] = [];
+  partyDialogOpen = false;
+  partyContactId = '';
+  partyRole: PartyDto['role'] = 'Opponent';
 
   private api = inject(MattersService);
   private contactsApi = inject(ContactsService);
@@ -39,10 +43,12 @@ export class MatterFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   get isEdit(): boolean { return !!this.matterId; }
+  get parties(): PartyDto[] { return this.partyLinks.filter((party) => party.role !== 'Client'); }
 
   ngOnInit(): void {
     // Only Client-type contacts can instruct a matter.
     this.contactsApi.list({ type: 'Client', pageSize: 100 }).subscribe((r) => (this.clients = r.items));
+    this.contactsApi.list({ pageSize: 200 }).subscribe((r) => (this.contacts = r.items));
     this.usersApi.list().subscribe((u) => {
       this.users = u;
       if (!this.feeEarnerId && u.length) this.feeEarnerId = u[0].id;
@@ -112,5 +118,25 @@ export class MatterFormComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/matters']);
+  }
+
+  openPartyDialog(): void {
+    this.partyContactId = '';
+    this.partyRole = 'Opponent';
+    this.partyDialogOpen = true;
+  }
+
+  closePartyDialog(): void { this.partyDialogOpen = false; }
+
+  addParty(): void {
+    const contact = this.contacts.find((item) => item.id === this.partyContactId);
+    if (!contact) return;
+    this.partyLinks = [...this.partyLinks.filter((party) => party.contactId !== contact.id), { contactId: contact.id, contactName: contact.fullName, role: this.partyRole }];
+    this.closePartyDialog();
+    this.error = '';
+  }
+
+  removeParty(party: PartyDto): void {
+    this.partyLinks = this.partyLinks.filter((item) => !(item.contactId === party.contactId && item.role === party.role));
   }
 }

@@ -1,0 +1,37 @@
+<div class="platform-assignments-page">
+  <header class="assignments-hero">
+    <div class="assignments-hero-icon">⚙</div>
+    <div><p class="eyebrow">PLATFORM CONTROL</p><h1>Firm package <span>assignments</span></h1><p>Assign a subscription package to a law firm. Billing remains per firm, never per user.</p></div>
+    <button class="btn btn-secondary assignments-refresh" type="button" (click)="load()"><span>⟳</span> Refresh</button>
+  </header>
+
+  @if (error) { <div class="message error">{{ error }}</div> }
+  @if (notice) { <div class="message success">{{ notice }}</div> }
+
+  <section class="assignment-workspace">
+    <div class="assignment-form-panel">
+      <div class="assignment-heading"><span class="assignment-heading-icon">♜</span><div><h2>Assign to a law firm</h2><p>Select a law firm and the package it should use.</p></div></div>
+      @if (loading) { <div class="assignment-loading">Loading firms and packages...</div> }
+      @else {
+        <div class="assignment-fields">
+          <label class="assignment-field"><span>Law firm <b>*</b></span><select class="assignment-select" [(ngModel)]="selectedFirmId" (ngModelChange)="onFirmChange()"><option value="">Select a law firm</option>@for (firm of firms; track firm.id) { <option [value]="firm.id">{{ firm.name }} — {{ firm.subscriptionStatus || 'No subscription' }}</option> }</select><small>Choose the firm whose subscription you want to manage.</small></label>
+          <label class="assignment-field"><span>Subscription package <b>*</b></span><select class="assignment-select" [(ngModel)]="selectedPackageId"><option value="">Select a package</option>@for (item of packages; track item.id) { <option [value]="item.id">{{ item.name }} — {{ item.currency }} {{ item.monthlyPrice | number:'1.2-2' }}</option> }</select><small>Select the package and included modules for this firm.</small></label>
+        </div>
+        <div class="billing-notice"><span>i</span><div><strong>Billing information</strong><p>The subscription is billed per firm, not per user.</p></div></div>
+        <div class="assignment-actions"><button class="btn btn-primary assign-button" type="button" [disabled]="busy || !selectedFirmId || !selectedPackageId" (click)="assign()"><span>✓</span> {{ busy ? 'Assigning...' : 'Assign package' }}</button><button class="btn btn-secondary" type="button" (click)="selectedFirmId = ''; selectedPackageId = ''; notice = ''">× Cancel</button></div>
+      }
+    </div>
+
+    <aside class="current-plan-panel">
+      <div class="current-plan-heading"><span class="plan-heading-icon">▤</span><div><h2>Current plan</h2><p>Details for the selected firm.</p></div></div>
+      @if (selectedFirm) {
+        <div class="plan-details">
+          <div class="plan-detail-row"><span class="plan-detail-icon">▥</span><div><small>Law firm</small><strong>{{ selectedFirm.name }}</strong></div></div>
+          <div class="plan-detail-row"><span class="plan-detail-icon">◇</span><div><small>Subscription package</small><strong>{{ selectedPackage?.name || selectedFirm.planName || selectedFirm.subscriptionStatus || 'Not assigned' }}</strong></div></div>
+          <div class="plan-detail-row"><span class="plan-detail-icon">R</span><div><small>Monthly price</small><strong>{{ selectedPackage?.currency || selectedFirm.currency || 'ZAR' }} {{ selectedPackage?.monthlyPrice ?? selectedFirm.monthlyPrice ?? 0 | number:'1.2-2' }}</strong></div></div>
+          <div class="plan-detail-row"><span class="plan-detail-icon">□</span><div><small>Billing type</small><strong>Per firm (not per user)</strong></div></div>
+        </div>
+      } @else { <div class="plan-empty">Select a law firm to view its current plan.</div> }
+    </aside>
+  </section>
+</div>

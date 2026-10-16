@@ -147,8 +147,8 @@
     </section>
 
     <div class="form-footer">
-      @if (error) { <div class="form-message error" role="alert">{{ error }}</div> }
-      @if (saved) { <div class="form-message success" role="status">Company profile and branding saved.</div> }
+      @if (error) { <div class="settings-toast error" role="alert"><span class="toast-icon">!</span><span><strong>Something went wrong</strong><small>{{ error }}</small></span><button type="button" (click)="error = ''" aria-label="Dismiss error">×</button></div> }
+      @if (saved) { <div class="settings-toast success" role="status"><span class="toast-icon">✓</span><span><strong>Changes saved</strong><small>Company profile and branding saved.</small></span><button type="button" (click)="saved = false" aria-label="Dismiss confirmation">×</button></div> }
       <button class="btn btn-primary" type="submit" [disabled]="saving || !brandingForm.valid">
         {{ saving ? 'Saving…' : 'Save company branding' }}
       </button>

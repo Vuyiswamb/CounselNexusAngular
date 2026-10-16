@@ -1,0 +1,54 @@
+<div class="platform-packages-page">
+  <header class="packages-hero">
+    <div class="packages-hero-icon">⌑</div>
+    <div>
+      <p class="eyebrow">PLATFORM CONTROL</p>
+      <h1>Subscription <span>Packages</span></h1>
+      <p>Create packages and decide which modules each package includes.</p>
+    </div>
+    <button class="btn btn-secondary refresh-button" type="button" (click)="load()"><span>⟳</span> Refresh</button>
+  </header>
+
+  @if (error) { <div class="message error">{{ error }}</div> }
+
+  <div class="packages-layout">
+    <section class="packages-list-card">
+      <div class="packages-list-heading">
+        <div><h2>Available Packages</h2><p>{{ packages.length }} available subscription package{{ packages.length === 1 ? '' : 's' }}</p></div>
+        <button class="btn btn-primary" type="button" (click)="code = ''; name = ''; price = 0; selectedPackageId = ''"><span>＋</span> Create New</button>
+      </div>
+
+      <div class="package-cards">
+        @for (item of packages; track item.id; let index = $index) {
+          <button type="button" class="package-card" [class.selected]="selectedPackageId === item.id" (click)="select(item)">
+            <span class="package-icon" [class.orange]="index % 2 === 1">◆</span>
+            <span class="package-card-main"><span class="package-card-title"><strong>{{ item.name }}</strong><em [class.trial]="item.code.toLowerCase() === 'trial'">{{ item.isActive ? (item.code.toLowerCase() === 'trial' ? 'TRIAL' : 'ACTIVE') : 'INACTIVE' }}</em></span><small>{{ item.code }} package</small><span class="package-price">{{ item.currency }} <strong>{{ item.monthlyPrice | number:'1.2-2' }}</strong><i>/ month</i></span></span>
+            <span class="package-card-side"><strong>{{ item.components.length }}</strong><small>modules</small><span class="view-details">View details →</span></span>
+          </button>
+        } @empty { <div class="packages-empty"><strong>No packages yet</strong><span>Create your first subscription package.</span></div> }
+      </div>
+      <div class="packages-list-footer"><span class="footer-box">◇</span><strong>Create custom subscription packages</strong><small>Mix and match modules to suit different firm needs.</small></div>
+    </section>
+
+    <section class="package-editor-card">
+      <div class="editor-banner"><span class="editor-plus">＋</span><div><h2>{{ selectedPackageId ? 'Package details' : 'Create Package' }}</h2><p>{{ selectedPackageId ? 'Review and manage the modules included in this package.' : 'Set up a new subscription package with selected modules.' }}</p></div></div>
+      <div class="editor-body">
+        <div class="package-form-grid">
+          <label class="package-field"><span>Package code <b>*</b></span><div class="field-input"><span>◇</span><input placeholder="e.g. PREMIUM" [(ngModel)]="code" /></div><small>Unique code for the package (e.g. BASIC, PREMIUM)</small></label>
+          <label class="package-field"><span>Package name <b>*</b></span><div class="field-input"><span>▱</span><input placeholder="Enter package name" [(ngModel)]="name" /></div><small>Display name for this package</small></label>
+          <label class="package-field price-field"><span>Monthly price (ZAR) <b>*</b></span><div class="field-input"><span>R</span><input type="number" min="0" placeholder="0.00" [(ngModel)]="price" /></div><small>Set the subscription price (ZAR)</small></label>
+        </div>
+
+        <div class="modules-heading"><div class="modules-title"><span class="modules-icon">▦</span><div><h3>Included modules</h3><p>Select which modules are included in this package.</p></div></div><div class="module-actions"><button type="button" [class.active]="allComponentsSelected" (click)="selectAllComponents()">☑ Select all</button><button type="button" (click)="clearAllComponents()">□ Clear all</button></div></div>
+
+        <div class="module-grid">
+          @for (component of components; track component.id; let index = $index) {
+            <label class="module-option" [class.checked]="hasComponent(component.id)"><input type="checkbox" [checked]="hasComponent(component.id)" (change)="toggleComponent(component.id)" /><span class="module-check">{{ hasComponent(component.id) ? '✓' : '' }}</span><span class="module-colour colour-{{ index % 6 }}">{{ component.name.charAt(0) }}</span><span class="module-copy"><strong>{{ component.name }}</strong><small>{{ component.code }}</small></span></label>
+          }
+        </div>
+
+        <div class="editor-actions">@if (selectedPackageId) { <button class="btn btn-primary create-package-button" type="button" [disabled]="packageSaveBusy || !code.trim() || !name.trim()" (click)="saveChanges()">▣ {{ packageSaveBusy ? 'Saving...' : 'Save changes' }}</button> } @else { <button class="btn btn-primary create-package-button" type="button" [disabled]="busy || !code.trim() || !name.trim()" (click)="create()">▣ {{ busy ? 'Creating...' : 'Create package' }}</button> }</div>
+      </div>
+    </section>
+  </div>
+</div>

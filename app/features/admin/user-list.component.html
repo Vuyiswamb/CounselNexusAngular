@@ -9,6 +9,13 @@
       </button>
     </div>
 
+    <nav class="admin-nav" aria-label="Administration">
+      <a routerLink="/admin/users" routerLinkActive="active" aria-current="page">Users</a>
+      <a routerLink="/admin/roles">Roles &amp; Permissions</a>
+      <a routerLink="/admin/settings">Practice setup</a>
+      <a routerLink="/admin/email">Email / SMTP</a>
+    </nav>
+
     <div class="toolbar">
       <div class="search-wrap">
         <app-icon name="results" [size]="15" />
@@ -19,7 +26,7 @@
     <div class="card">
       <table class="table">
         <thead>
-          <tr><th>Name</th><th>Email</th><th>Role</th><th>Last Login</th><th>Status</th></tr>
+          <tr><th>Name</th><th>Email</th><th>Role</th><th>Last Login</th><th>Status</th><th></th></tr>
         </thead>
         <tbody>
           @for (u of users; track u.id) {
@@ -36,9 +43,10 @@
               <td><span class="badge badge-blue">{{ u.roles[0] || '—' }}</span></td>
               <td class="muted-cell">{{ u.lastLoginAtUtc ? (u.lastLoginAtUtc | date: 'dd MMM yyyy, HH:mm') : 'Never' }}</td>
               <td><span class="badge badge-green">Active</span></td>
+              <td><button class="table-action" type="button" (click)="openAccess(u)">Module access</button></td>
             </tr>
           } @empty {
-            <tr><td colspan="5" class="empty">{{ loading ? 'Loading…' : 'No users found.' }}</td></tr>
+            <tr><td colspan="6" class="empty">{{ loading ? 'Loading…' : 'No users found.' }}</td></tr>
           }
         </tbody>
       </table>
@@ -48,31 +56,61 @@
     @if (showCreate) {
       <div class="modal-backdrop" (click)="showCreate = false">
         <div class="card modal" (click)="$event.stopPropagation()">
+          <form (ngSubmit)="create()" novalidate>
           <h3 class="card-title">New User</h3>
           <div class="field">
             <label>Full Name</label>
-            <input class="input" type="text" [(ngModel)]="newName" />
+            <input class="input" type="text" name="fullName" [(ngModel)]="newName" required />
           </div>
           <div class="field">
             <label>Email</label>
-            <input class="input" type="email" [(ngModel)]="newEmail" />
+            <input class="input" type="email" name="email" [(ngModel)]="newEmail" autocomplete="username" required />
           </div>
           <div class="field">
             <label>Role</label>
-            <select class="select" [(ngModel)]="newRole">
+            <select class="select" name="role" [(ngModel)]="newRole">
               @for (r of roles; track r) { <option [value]="r">{{ r }}</option> }
             </select>
           </div>
           <div class="field">
             <label>Password</label>
-            <input class="input" type="password" [(ngModel)]="newPassword" />
+            <input class="input" type="password" name="password" [(ngModel)]="newPassword" minlength="8" autocomplete="new-password" required />
+            <small class="field-help">At least 8 characters with uppercase, lowercase, and a number.</small>
           </div>
           @if (createError) { <div class="error-msg">{{ createError }}</div> }
           <div class="modal-actions">
             <button class="btn btn-secondary" type="button" (click)="showCreate = false">Cancel</button>
-            <button class="btn btn-primary" type="button" [disabled]="busy" (click)="create()">
+            <button class="btn btn-primary" type="submit" [disabled]="busy">
               {{ busy ? 'Creating…' : 'Create User' }}
             </button>
+          </div>
+          </form>
+        </div>
+      </div>
+    }
+
+    @if (showAccess && accessUser) {
+      <div class="modal-backdrop" (click)="showAccess = false">
+        <div class="card modal access-modal" (click)="$event.stopPropagation()">
+          <h3 class="card-title">Module access</h3>
+          <p class="modal-help">Choose which areas of CounselNexus {{ accessUser.fullName }} can access. Denied modules will not appear in their menu.</p>
+          <div class="module-access-list">
+            <div class="access-heading module-heading">
+              <span>Modules</span>
+              <label class="select-all"><span>Select all</span><input type="checkbox" [checked]="allModulesAllowed" (change)="setAllModules($any($event.target).checked)" /></label>
+            </div>
+            @if (modulesBusy) { <p class="muted-cell access-loading">Loading modules…</p> }
+            @for (module of moduleRows; track module.key) {
+              <label class="access-row module-row">
+                <span><strong>{{ module.label }}</strong><small>{{ module.allowed ? 'Allowed' : 'Denied' }}</small></span>
+                <input class="module-toggle" type="checkbox" [(ngModel)]="module.allowed" />
+              </label>
+            }
+          </div>
+          @if (accessError) { <div class="error-msg">{{ accessError }}</div> }
+          <div class="modal-actions">
+            <button class="btn btn-secondary" type="button" (click)="showAccess = false">Cancel</button>
+            <button class="btn btn-primary" type="button" [disabled]="accessBusy" (click)="saveAccess()">{{ accessBusy ? 'Saving…' : 'Save access' }}</button>
           </div>
         </div>
       </div>

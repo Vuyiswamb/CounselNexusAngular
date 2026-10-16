@@ -2,23 +2,24 @@
       <!-- ===================== Sidenav ===================== -->
       <aside class="sidenav">
         <a class="brand" routerLink="/dashboard">
-          @if (firm?.logoBase64 && firm?.logoContentType) {
+          @if (auth.isPlatformAdmin()) {
+            <img class="platform-brand-logo" src="/assets/images/logo-transparent.png" alt="CounselNexus" />
+          } @else if (firm?.logoBase64 && firm?.logoContentType) {
             <img class="brand-logo" [src]="'data:' + firm!.logoContentType + ';base64,' + firm!.logoBase64" [alt]="firm!.name + ' logo'" />
           } @else {
             <span class="brand-mark"><app-icon name="scales" [size]="28" /></span>
           }
-          <span class="brand-name">{{ firm?.name || 'CounselNexus' }}</span>
+          @if (!auth.isPlatformAdmin()) { <span class="brand-name">{{ firm?.name || 'CounselNexus' }}</span> }
         </a>
 
         <nav class="nav">
-          @for (item of nav; track item.route) {
-            @if ($first || nav[$index - 1].section !== item.section) {
+          @for (item of visibleNav; track item.route) {
+            @if ($first || visibleNav[$index - 1].section !== item.section) {
               <div class="nav-section-label">{{ item.section }}</div>
             }
             <a
               class="nav-item"
               [routerLink]="item.route"
-              (click)="openNavigation(item.route, $event)"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: !!item.exact }"
             >
@@ -69,15 +70,55 @@
                     <strong>{{ auth.user()?.fullName }}</strong>
                     <span>{{ auth.user()?.email }}</span>
                   </div>
+                  <button class="dropdown-profile" type="button" role="menuitem" (click)="openProfile()">
+                    <app-icon name="admin" [size]="17" />
+                    <span>My profile</span>
+                  </button>
                   <button class="dropdown-signout" type="button" role="menuitem" (click)="signOut()">
                     <app-icon name="logout" [size]="17" />
                     <span>Sign out</span>
                   </button>
                 </div>
               }
-            </div>
+          </div>
           </div>
         </header>
+
+        @if (profileOpen) {
+          <div class="profile-backdrop" (click)="profileOpen = false">
+            <form class="profile-modal" (click)="$event.stopPropagation()" (submit)="$event.preventDefault(); saveProfile()">
+              <aside class="profile-sidebar">
+                <button class="profile-close profile-close-mobile" type="button" aria-label="Close profile" (click)="profileOpen = false"><app-icon name="x" [size]="22" /></button>
+                <div class="profile-avatar-wrap"><div class="profile-avatar">{{ auth.initials() }}</div><span class="profile-camera"><app-icon name="camera" [size]="16" /></span></div>
+                <h2>{{ auth.user()?.fullName }}</h2><p>{{ auth.user()?.roles?.[0] || 'User' }}</p>
+                <span class="profile-status"><span></span> Active account</span>
+                <div class="profile-sidebar-rule"></div>
+                <button class="profile-side-item" [class.active]="profileSection === 'profile'" type="button" (click)="selectProfileSection('profile')"><app-icon name="user" [size]="18" /><span>My profile</span></button>
+                <button class="profile-side-item" [class.active]="profileSection === 'security'" type="button" (click)="selectProfileSection('security')"><app-icon name="lock" [size]="18" /><span>Security</span></button>
+              </aside>
+              <section class="profile-main" style="min-height:0">
+                <div class="profile-heading"><div><h2>{{ profileSection === 'profile' ? 'My profile' : 'Security' }}</h2><p>{{ profileSection === 'profile' ? 'Update your account information.' : 'Change your password securely.' }}</p></div><button class="profile-close" type="button" aria-label="Close profile" (click)="profileOpen = false"><app-icon name="x" [size]="24" /></button></div>
+                @if (profileSection === 'profile') {
+                <div class="profile-section">
+                  <div class="profile-section-heading"><span class="profile-section-icon account"><app-icon name="user" [size]="20" /></span><div><h3>Account information</h3><p>Keep your details up to date.</p></div></div>
+              <label class="profile-field"><span>Full name</span><span class="profile-input"><app-icon name="user" [size]="18" /><input [(ngModel)]="profileName" name="profileName" autocomplete="name" required /></span></label>
+              <label class="profile-field"><span>Email address</span><span class="profile-input readonly"><app-icon name="mail" [size]="18" /><input [value]="auth.user()?.email" name="email" autocomplete="email" readonly /></span></label>
+                </div>
+                } @else {
+                <div class="profile-section">
+                  <div class="profile-section-heading"><span class="profile-section-icon security"><app-icon name="lock" [size]="20" /></span><div><h3>Change password</h3><p>Use a strong password to keep your account secure.</p></div></div>
+              <label class="profile-field"><span>Current password</span><span class="profile-input"><app-icon name="lock" [size]="18" /><input type="password" [(ngModel)]="currentPassword" name="currentPassword" autocomplete="current-password" placeholder="Enter your current password" /></span></label>
+               <label class="profile-field"><span>New password</span><span class="profile-input"><app-icon name="lock" [size]="18" /><input type="password" [(ngModel)]="newPassword" name="newPassword" autocomplete="new-password" placeholder="Enter your new password" /></span></label>
+              <small class="profile-help"><app-icon name="info" [size]="16" /> Use at least 8 characters with uppercase, lowercase, a number, and a special character.</small>
+                </div>
+                }
+              @if (profileError) { <div class="error-msg">{{ profileError }}</div> }
+              @if (profileNotice) { <div class="success-msg">{{ profileNotice }}</div> }
+              <div class="profile-actions"><button class="btn btn-secondary" type="button" (click)="profileOpen = false">Cancel</button><button class="btn btn-primary" type="button" [disabled]="profileBusy" (click)="saveProfile()">{{ profileBusy ? 'Saving…' : 'Save changes' }}</button></div>
+              </section>
+            </form>
+          </div>
+        }
 
         <main class="content">
           <router-outlet />

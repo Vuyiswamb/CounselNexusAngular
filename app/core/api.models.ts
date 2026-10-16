@@ -190,6 +190,85 @@ export interface CreateUserRequest {
   sendWelcomeEmail: boolean;
 }
 
+export type MatterAccessLevel = 'View' | 'Edit' | 'Admin';
+
+export interface PermissionDto {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  isAssigned: boolean;
+}
+
+export interface UserPermissionDto {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  isAllowed: boolean;
+}
+
+export interface UpdateProfileRequest { fullName: string; }
+export interface ChangePasswordRequest { currentPassword: string; newPassword: string; }
+
+export interface PlatformFirmDto {
+  id: string; name: string; email: string | null; createdAtUtc: string; userCount: number; registeredContactName: string | null; registeredContactEmail: string | null; isEnabled: boolean;
+  subscriptionStatus: string | null; planName: string | null; monthlyPrice: number | null;
+  currency: string | null; renewsAtUtc: string | null; paidTotal: number;
+}
+
+export interface PlatformFirmReportDto {
+  id: string; name: string; email: string | null; createdAtUtc: string;
+  subscriptionStatus: string | null; planName: string | null; monthlyPrice: number | null;
+  currency: string | null; renewsAtUtc: string | null; paidTotal: number;
+}
+
+export interface PlatformUserDto {
+  id: string; firmId: string; fullName: string; email: string; roles: string[];
+  createdAtUtc: string; lastLoginAtUtc: string | null; isDeleted: boolean;
+}
+
+export interface CreatePlatformUserRequest { fullName: string; email: string; password: string; }
+export interface UpdatePlatformUserRequest { fullName: string; email: string; }
+
+export interface PlatformSubscriptionDto {
+  id: string; firmId: string; status: string; planCode: string; planName: string;
+  monthlyPrice: number; currency: string; startsAtUtc: string; endAtUtc: string; renewsAtUtc: string | null; cancelledAtUtc: string | null;
+}
+
+export interface PlatformPaymentDto {
+  id: string; firmId: string; firmSubscriptionId: string; amount: number; currency: string;
+  status: string; paidAtUtc: string | null; externalReference: string | null; notes: string | null;
+  createdAtUtc: string; createdBy: string | null;
+}
+
+export interface PlatformPaymentRequest {
+  firmSubscriptionId: string; amount: number; currency: string; status: string;
+  paidAtUtc: string | null; externalReference?: string | null; notes?: string | null;
+}
+
+export interface PlatformTransactionDto extends PlatformPaymentDto { firmName: string; }
+export interface PlatformComponentDto { id: string; code: string; name: string; isActive: boolean; }
+export interface PlatformPackageDto { id: string; code: string; name: string; monthlyPrice: number; currency: string; isActive: boolean; createdAtUtc: string; components: PlatformComponentDto[]; }
+export interface PlatformPackageRequest { code: string; name: string; monthlyPrice: number; currency: string; isActive: boolean; }
+export interface SubscriptionCheckoutResponse { action: string; fields: Record<string, string>; paymentId: string; amount: number; currency: string; proposedEndAtUtc: string; }
+
+export interface UserPermissionsUpdateRequest {
+  allowedPermissionIds: string[];
+  deniedPermissionIds: string[];
+}
+
+export interface MatterAccessDto {
+  matterId: string;
+  reference: string;
+  title: string;
+  accessLevel: MatterAccessLevel;
+}
+
+export interface MatterAccessUpdateRequest {
+  assignments: Array<{ matterId: string; accessLevel: MatterAccessLevel }>;
+}
+
 export interface RoleDto {
   id: string;
   name: string;
@@ -465,6 +544,46 @@ export interface SmtpSettingsUpdateRequest {
   password: string | null;
   fromAddress: string;
   fromName: string | null;
+}
+
+export interface PayFastEnvironmentDto {
+  enabled: boolean;
+  merchantId: string | null;
+  merchantKey: string | null;
+  passphrase: string | null;
+  processUrl: string | null;
+  returnUrl: string | null;
+  cancelUrl: string | null;
+}
+
+export interface PlatformGatewaySettingsDto {
+  payFastEnabled: boolean;
+  sandbox: PayFastEnvironmentDto;
+  live: PayFastEnvironmentDto;
+  smsEnabled: boolean;
+  smsProvider: string | null;
+  smsBaseUrl: string | null;
+  smsApiKeyConfigured: boolean;
+  smsApiSecretConfigured: boolean;
+  smsFrom: string | null;
+}
+
+export interface PlatformGatewaySettingsUpdateRequest {
+  environment: 'Sandbox' | 'Live';
+  payFastEnabled: boolean;
+  environmentEnabled: boolean;
+  payFastMerchantId: string | null;
+  payFastMerchantKey: string | null;
+  payFastPassphrase: string | null;
+  payFastProcessUrl: string | null;
+  payFastReturnUrl: string | null;
+  payFastCancelUrl: string | null;
+  smsEnabled: boolean;
+  smsProvider: string | null;
+  smsBaseUrl: string | null;
+  smsApiKey: string | null;
+  smsApiSecret: string | null;
+  smsFrom: string | null;
 }
 
 /** Map API 'OnHold' to the UI's 'On Hold' label. */

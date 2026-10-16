@@ -34,7 +34,14 @@ export class TrustComponent implements OnInit {
   ngOnInit(): void {
     this.mattersApi.list({ pageSize: 100 }).subscribe({
       next: (result) => { this.matters = result.items; this.matterId = this.matters[0]?.id ?? ''; this.loading = false; this.load(); },
-      error: () => { this.error = 'Could not load matters for the trust ledger.'; this.loading = false; },
+      error: (err) => {
+        this.error = err?.status === 403
+          ? 'You do not have access to the Matters module. Ask a Practice Administrator to enable Matters access before using the trust ledger.'
+          : err?.status === 401
+            ? 'Your session has expired. Please sign in again to load the trust ledger.'
+            : 'The matter list could not be loaded. Please refresh and try again.';
+        this.loading = false;
+      },
     });
   }
 

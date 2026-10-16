@@ -9,6 +9,7 @@ export interface CurrentUser {
   fullName: string;
   email: string;
   roles: string[];
+  permissions: string[];
 }
 
 export interface LoginResponse {
@@ -23,6 +24,13 @@ export interface LoginChallenge {
 
 export interface RegisterFirmRequest {
   firmName: string;
+  fullName: string;
+  email: string;
+  password: string;
+  phone?: string;
+}
+
+export interface RegisterClientRequest {
   fullName: string;
   email: string;
   password: string;
@@ -72,6 +80,12 @@ export class AuthService {
       .pipe(tap((response) => this.storeSession(response)));
   }
 
+  registerClient(request: RegisterClientRequest): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>(`${this.baseUrl}/api/v1/auth/register-client`, request)
+      .pipe(tap((response) => this.storeSession(response)));
+  }
+
   forgotPassword(email: string): Observable<ForgotPasswordResponse> {
     return this.http.post<ForgotPasswordResponse>(`${this.baseUrl}/api/v1/auth/forgot-password`, { email });
   }
@@ -99,10 +113,46 @@ export class AuthService {
     );
   }
 
+  /** Returns whether the current user may access a module/action. */
+  hasPermission(permission?: string): boolean {
+    if (!permission) return true;
+    const current = this.user();
+    if (!current) return false;
+    if (this.user()?.roles.some((role) => ['platformadmin', 'platformuser', 'superuser'].includes(role.toLowerCase()))) {
+      return ['platform.email', 'platform.control', 'platform.reports', 'platform.billing', 'platform.gateways'].includes(permission);
+    }
+    if (current.roles.some((role) => role.toLowerCase() === 'systemadmin')) return true;
+    return current.permissions.includes(permission);
+  }
+
+  isPlatformAdmin(): boolean {
+    return this.user()?.roles.some((role) => role.toLowerCase() === 'platformadmin') ?? false;
+  }
+
+  isClientUser(): boolean {
+    const roles = this.user()?.roles.map((role) => role.replace(/[\s_-]/g, '').toLowerCase()) ?? [];
+    const clientRole = roles.some((role) => ['client', 'clientuser', 'requester', 'customer'].includes(role));
+    const firmRole = roles.some((role) => ['partner', 'feeearner', 'lawyer', 'attorney', 'legalfirm', 'firmadmin', 'systemadmin'].includes(role));
+    return clientRole && !firmRole && !this.isPlatformAdmin();
+  }
+
+  updateProfile(user: CurrentUser): void {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.user.set(user);
+  }
+
   private restore(): CurrentUser | null {
     try {
       const raw = localStorage.getItem(USER_KEY);
-      return raw ? (JSON.parse(raw) as CurrentUser) : null;
+      if (!raw) return null;
+      const stored = JSON.parse(raw) as Partial<CurrentUser>;
+      return {
+        id: stored.id ?? '',
+        fullName: stored.fullName ?? '',
+        email: stored.email ?? '',
+        roles: stored.roles ?? [],
+        permissions: this.permissionsFromToken(localStorage.getItem(TOKEN_KEY)),
+      };
     } catch {
       return null;
     }
@@ -110,7 +160,23 @@ export class AuthService {
 
   private storeSession(response: LoginResponse): void {
     localStorage.setItem(TOKEN_KEY, response.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
-    this.user.set(response.user);
+    const user: CurrentUser = { ...response.user, permissions: this.permissionsFromToken(response.token) };
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.user.set(user);
+  }
+
+  private permissionsFromToken(token: string | null): string[] {
+    if (!token) return [];
+    try {
+      const encoded = token.split('.')[1];
+      if (!encoded) return [];
+      const payload = encoded.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=');
+      const claims = JSON.parse(atob(padded)) as { permission?: string | string[] };
+      const permissions = claims.permission;
+      return Array.isArray(permissions) ? permissions : permissions ? [permissions] : [];
+    } catch {
+      return [];
+    }
   }
 }

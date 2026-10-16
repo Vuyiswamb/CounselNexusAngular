@@ -2,10 +2,17 @@
       <h1 class="page-title">Roles</h1>
     </div>
 
+    <nav class="admin-nav" aria-label="Administration">
+      <a routerLink="/admin/users">Users</a>
+      <a routerLink="/admin/roles" routerLinkActive="active" aria-current="page">Roles &amp; Permissions</a>
+      <a routerLink="/admin/settings">Practice setup</a>
+      <a routerLink="/admin/email">Email / SMTP</a>
+    </nav>
+
     <div class="card">
       <table class="table">
         <thead>
-          <tr><th>Role</th><th>Description</th><th>Users</th></tr>
+          <tr><th>Role</th><th>Description</th><th>Users</th><th></th></tr>
         </thead>
         <tbody>
           @for (r of roles; track r.id) {
@@ -13,6 +20,7 @@
               <td><span class="badge badge-blue">{{ r.name }}</span></td>
               <td class="muted-cell">{{ r.description || '—' }}</td>
               <td>{{ userCount(r.name) }}</td>
+              <td><button class="table-action" type="button" (click)="editPermissions(r)">Permissions</button></td>
             </tr>
           } @empty {
             <tr><td colspan="3" class="empty">{{ loading ? 'Loading…' : 'No roles found.' }}</td></tr>
@@ -20,3 +28,31 @@
         </tbody>
       </table>
     </div>
+
+    @if (showPermissions && selectedRole) {
+      <div class="permissions-backdrop" role="presentation" (click)="showPermissions = false">
+        <div class="card modal permissions-modal" (click)="$event.stopPropagation()">
+          <div class="permissions-modal-header">
+            <div>
+              <span class="permissions-eyebrow">ROLE ACCESS</span>
+              <h3 class="card-title">{{ selectedRole.name }} permissions</h3>
+            </div>
+            <button class="permissions-close" type="button" aria-label="Close permissions" (click)="showPermissions = false">×</button>
+          </div>
+          <p class="modal-help">These permissions apply to every user assigned this role.</p>
+          <div class="permission-list">
+            @for (permission of permissions; track permission.id) {
+              <label class="permission-row">
+                <input type="checkbox" [(ngModel)]="permission.isAssigned" />
+                <span><strong>{{ permission.name }}</strong><small>{{ permission.description || permission.key }}</small></span>
+              </label>
+            } @empty { <p class="empty">No permissions available.</p> }
+          </div>
+          @if (error) { <div class="error-msg">{{ error }}</div> }
+          <div class="modal-actions">
+            <button class="btn btn-secondary" type="button" (click)="showPermissions = false">Cancel</button>
+            <button class="btn btn-primary" type="button" [disabled]="saving" (click)="savePermissions()">{{ saving ? 'Saving…' : 'Save permissions' }}</button>
+          </div>
+        </div>
+      </div>
+    }

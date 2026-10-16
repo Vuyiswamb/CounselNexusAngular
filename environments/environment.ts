@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5101',
+  apiUrl: 'https://api.counselnexus.co.za',  
+  // apiUrl: 'https://localhost:7276',
 };

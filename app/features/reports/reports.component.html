@@ -1,4 +1,12 @@
-<header class="page-header"><div><p class="eyebrow">MANAGEMENT</p><h1 class="page-title">Reports</h1><p class="page-subtitle">Monitor work in progress, outstanding invoices, client funds, and firm activity.</p></div><button class="btn btn-secondary refresh" type="button" (click)="load()"><app-icon name="refresh" [size]="15" /> Refresh reports</button></header>
+@if (isPlatformAdmin) {
+<header class="page-header"><div><p class="eyebrow">PLATFORM REPORTS</p><h1 class="page-title">Firm reports</h1><p class="page-subtitle">Subscription and payment reporting per law firm. User accounts are not billing units.</p></div><button class="btn btn-secondary refresh" type="button" (click)="loadPlatform()"><app-icon name="refresh" [size]="15" /> Refresh reports</button></header>
+@if (error) { <div class="message error">{{ error }}</div> }
+@if (loading) { <section class="card report-panel"><div class="empty">Loading firm reports…</div></section> }
+@else {
+<div class="report-metrics"><article class="card metric"><span class="metric-icon blue"><app-icon name="admin" [size]="18" /></span><div><small>Law firms</small><b>{{ platformFirms.length }}</b><span>{{ platformActiveCount }} active subscriptions</span></div></article><article class="card metric"><span class="metric-icon green"><app-icon name="billing" [size]="18" /></span><div><small>Monthly subscription value</small><b>R {{ platformMonthlyValue | number:'1.2-2' }}</b><span>One subscription per firm</span></div></article><article class="card metric"><span class="metric-icon red"><app-icon name="fees" [size]="18" /></span><div><small>Payments recorded</small><b>R {{ platformPaidTotal | number:'1.2-2' }}</b><span>Firm subscription payments</span></div></article></div>
+<section class="card report-panel"><div class="panel-heading"><div><h2>Subscriptions by law firm</h2><p>Each row represents one firm subscription. Users are excluded from the billing calculation.</p></div></div>@if (!platformFirms.length) { <div class="empty">There are no firms to report.</div> } @else { <div class="table-wrap"><table class="table"><thead><tr><th>Law firm</th><th>Plan</th><th>Status</th><th>Renews</th><th class="num">Monthly value</th><th class="num">Paid to date</th></tr></thead><tbody>@for (firm of platformFirms; track firm.id) { <tr><td><b>{{ firm.name }}</b><br><small>{{ firm.email || 'No email' }}</small></td><td>{{ firm.planName || 'Not assigned' }}</td><td><span class="subscription-badge">{{ firm.subscriptionStatus || 'No subscription' }}</span></td><td>{{ firm.renewsAtUtc ? (firm.renewsAtUtc | date:'d MMM y') : '—' }}</td><td class="num">{{ firm.currency || 'ZAR' }} {{ firm.monthlyPrice ?? 0 | number:'1.2-2' }}</td><td class="num">{{ firm.currency || 'ZAR' }} {{ firm.paidTotal | number:'1.2-2' }}</td></tr> }</tbody></table></div> }</section>
+}
+} @else {
 
 <div class="report-metrics">
   <article class="card metric"><span class="metric-icon blue"><app-icon name="fees" [size]="18" /></span><div><small>Work in progress</small><b>R {{ totalWork | number:'1.2-2' }}</b><span>{{ work.length }} matters with balances</span></div></article>
@@ -37,3 +45,4 @@
     }
   }
 </section>
+}

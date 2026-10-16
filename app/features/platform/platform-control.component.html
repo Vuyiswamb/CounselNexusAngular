@@ -1,0 +1,34 @@
+<header class="page-header platform-header">
+  <div><p class="eyebrow">PLATFORM CONTROL</p><h1 class="page-title">Law firms</h1><p class="page-subtitle">Manage firms and their subscriptions. Billing is per firm, never per user.</p></div>
+  <div class="header-actions"><button class="btn btn-secondary" type="button" (click)="load()">Refresh</button></div>
+</header>
+
+@if (error) { <div class="message error">{{ error }}</div> }
+
+<section class="platform-grid">
+  <div class="card firms-card">
+    <div class="section-heading"><div><h2>All law firms</h2><p>{{ firms.length }} registered tenant{{ firms.length === 1 ? '' : 's' }}</p></div></div>
+    <div class="platform-search"><input class="input" placeholder="Search firms..." [(ngModel)]="search" /></div>
+    @if (loading) { <div class="empty">Loading firms...</div> }
+    @for (firm of filteredFirms; track firm.id) {
+      <button class="firm-row" [class.selected]="selected?.id === firm.id" type="button" (click)="selectFirm(firm)">
+        <span><strong>{{ firm.name }}</strong><small>{{ firm.email || 'No email' }} · Firm subscription</small></span>
+        <span class="subscription-badge" [class.trial]="firm.subscriptionStatus === 'Trial'" [class.disabled-badge]="!firm.isEnabled">{{ firm.isEnabled ? (firm.subscriptionStatus || 'No subscription') : 'Disabled' }}</span>
+      </button>
+    } @empty { @if (!loading) { <div class="empty">No firms found.</div> } }
+  </div>
+
+  <div class="card details-card" [class.detail-loading]="detailLoading" style="position:relative">
+    @if (detailLoading) { <div class="detail-loading-overlay" aria-live="polite" style="position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(255,255,255,.7);backdrop-filter:blur(2px);color:#49617f;font-size:12px;font-weight:650"><span class="loading-spinner" style="width:16px;height:16px;border:2px solid #cbd9eb;border-top-color:#2563eb;border-radius:50%;animation:platform-spin .75s linear infinite"></span><span>Loading firm details...</span></div> }
+    @if (!selected) { <div class="empty detail-empty">Select a law firm to view its users and subscription.</div> }
+    @else {
+      <div class="detail-title"><div><p class="eyebrow">TENANT</p><h2>{{ selected.name }}</h2><p>{{ selected.email }}</p></div><div class="detail-actions"><span class="subscription-badge" [class.disabled-badge]="!selected.isEnabled">{{ selected.isEnabled ? 'Enabled' : 'Disabled' }}</span><button class="btn" [class.btn-primary]="!selected.isEnabled" [class.btn-secondary]="selected.isEnabled" type="button" [disabled]="statusBusy" (click)="toggleFirmStatus()">{{ statusBusy ? 'Saving...' : selected.isEnabled ? 'Disable firm' : 'Enable firm' }}</button></div></div>
+      <div class="firm-contact" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;padding:16px 0;border-bottom:1px solid #e8edf3"><span style="display:flex;min-width:0;flex-direction:column;gap:5px"><b>Registered contact</b><span>{{ selected.registeredContactName || 'Not available' }}</span></span><span style="display:flex;min-width:0;flex-direction:column;gap:5px"><b>Contact email</b><span>{{ selected.registeredContactEmail || selected.email || 'Not available' }}</span></span><span style="display:flex;min-width:0;flex-direction:column;gap:5px"><b>Registered</b><span>{{ selected.createdAtUtc | date:'d MMM y' }}</span></span></div>
+      <div class="subscription-panel"><div><span>Plan</span><strong>{{ subscription?.planName || selected.planName || 'Not assigned' }}</strong></div><div><span>Billing basis</span><strong>One firm subscription</strong></div><div><span>Start date</span><strong>{{ subscription?.startsAtUtc ? (subscription?.startsAtUtc | date:'d MMM y') : '—' }}</strong></div><div><span>End date</span><strong>{{ subscription?.endAtUtc ? (subscription?.endAtUtc | date:'d MMM y') : '—' }}</strong></div><div><span>Monthly price</span><strong>{{ subscription?.currency || selected.currency || 'ZAR' }} {{ subscription?.monthlyPrice ?? selected.monthlyPrice ?? 0 | number:'1.2-2' }}</strong></div></div>
+      <div class="detail-section"><div class="section-heading"><div><h3>Users</h3><p>Users are managed separately and do not affect subscription billing.</p></div></div><div class="user-list">@for (user of users; track user.id) { <div class="user-row"><span><strong>{{ user.fullName }}</strong><small>{{ user.email }}</small></span><span>{{ user.roles.join(', ') }}</span></div> } @empty { <div class="empty">No users found.</div> }</div></div>
+      <div class="detail-section"><div class="section-heading"><div><h3>Subscription payments</h3><p>Payment history for this tenant</p></div><button class="btn btn-primary" type="button" [disabled]="!subscription" (click)="showPayment = true">Record payment</button></div><div class="user-list">@for (payment of payments; track payment.id) { <div class="user-row"><span><strong>{{ payment.currency }} {{ payment.amount | number:'1.2-2' }}</strong><small>{{ payment.externalReference || 'No reference' }}</small></span><span>{{ payment.paidAtUtc ? (payment.paidAtUtc | date:'d MMM y') : '—' }}</span></div> } @empty { <div class="empty">No payments recorded.</div> }</div></div>
+    }
+  </div>
+</section>
+
+@if (showPayment && selected) { <div class="modal-backdrop" (click)="showPayment = false"><div class="card modal" (click)="$event.stopPropagation()"><h3 class="card-title">Record firm subscription payment</h3><label class="field"><span>Firm subscription amount</span><input class="input" type="number" min="0.01" [value]="paymentAmount ?? 0" readonly /><small class="field-help">This amount comes from the firm's selected subscription plan, not its user count.</small></label><label class="field"><span>Reference</span><input class="input" [(ngModel)]="paymentReference" /></label><label class="field"><span>Notes</span><textarea class="textarea" rows="3" [(ngModel)]="paymentNotes"></textarea></label><div class="modal-actions"><button class="btn btn-secondary" type="button" (click)="showPayment = false">Cancel</button><button class="btn btn-primary" type="button" [disabled]="paymentBusy || !paymentAmount" (click)="addPayment()">{{ paymentBusy ? 'Saving...' : 'Save payment' }}</button></div></div></div> }

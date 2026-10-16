@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, LoginChallenge } from '../../core/auth.service';
 
@@ -20,11 +20,24 @@ export class LoginComponent {
   twoFactorCode = '';
   busy = false;
   errorMessage = '';
+  paymentRequired = false;
+  paymentEmailLocked = false;
+  paymentSuccess = false;
 
-  constructor(private router: Router, private auth: AuthService) {
+  constructor(private router: Router, private auth: AuthService, private route: ActivatedRoute) {
+    const paymentEmail = this.route.snapshot.queryParamMap.get('email')?.trim();
+    this.paymentSuccess = this.route.snapshot.queryParamMap.get('payment') === 'success';
+    if (paymentEmail) {
+      this.email = paymentEmail;
+      this.paymentEmailLocked = true;
+      this.remember = true;
+    }
+
     try {
-      this.email = localStorage.getItem('cn.rememberedEmail') ?? '';
-      this.remember = !!this.email;
+      if (!this.paymentEmailLocked) {
+        this.email = localStorage.getItem('cn.rememberedEmail') ?? '';
+        this.remember = !!this.email;
+      }
     } catch {
       // Browser storage may be unavailable; sign-in itself does not depend on it.
     }
@@ -33,6 +46,7 @@ export class LoginComponent {
   /** Exchange credentials for a JWT; ask for an authenticator code when 2FA is enabled. */
   signIn(): void {
     this.errorMessage = '';
+    this.paymentRequired = false;
     this.busy = true;
     this.auth.login(this.email, this.password, this.requiresTwoFactor ? this.twoFactorCode : undefined).subscribe({
       next: (response) => {
@@ -47,10 +61,25 @@ export class LoginComponent {
         } catch {
           // Browser storage is optional.
         }
-        this.router.navigate(['/dashboard']);
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        const requestId = this.route.snapshot.queryParamMap.get('requestId');
+        const planId = this.route.snapshot.queryParamMap.get('planId');
+        const months = this.route.snapshot.queryParamMap.get('months');
+        if (returnUrl === '/firm/legal-market' && !this.auth.isClientUser()) {
+          void this.router.navigate(['/firm/legal-market'], { queryParams: requestId ? { requestId } : {} });
+        } else if (returnUrl === '/packages') {
+          void this.router.navigate(['/packages'], { queryParams: planId ? { planId, months: months ?? 1 } : {} });
+        } else {
+          void this.router.navigate([this.auth.isClientUser() ? '/legal-market' : '/dashboard']);
+        }
       },
       error: (error) => {
         this.busy = false;
+        if (error?.status === 402) {
+          this.paymentRequired = true;
+          this.errorMessage = error?.error?.detail ?? 'Your subscription has ended. Choose a package to renew your workspace.';
+          return;
+        }
         this.errorMessage = error?.error?.detail ?? 'Unable to sign in. Check your details and try again.';
       },
     });

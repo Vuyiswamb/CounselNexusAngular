@@ -4,6 +4,8 @@ import { CaseResearchModel, CaseResearchMatch } from '../../core/case-research.m
 import { CaseResearchApiService, MattersService } from '../../core/api-services';
 import { CaseResearchAiResponse, LegalCaseDocumentDto, LegalCaseSearchResult } from '../../core/api.models';
 import { IconComponent } from '../../shared/icon.component';
+import { AuthService } from '../../core/auth.service';
+import { of } from 'rxjs';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -20,6 +22,7 @@ export class CaseResearchComponent implements OnInit {
   private mattersApi = inject(MattersService);
   private aiApi = inject(CaseResearchApiService);
   private model = inject(CaseResearchModel);
+  private auth = inject(AuthService);
 
   request = {
     title: '', facts: '', legalIssues: '', practiceArea: '', jurisdiction: '', desiredOutcome: '',
@@ -52,7 +55,10 @@ export class CaseResearchComponent implements OnInit {
     }
     this.loading = true;
     this.error = '';
-    this.mattersApi.list({ page: 1, pageSize: 200, includeArchived: true }).subscribe({
+    const matters$ = this.auth.hasPermission('matters.read')
+      ? this.mattersApi.list({ page: 1, pageSize: 200, includeArchived: true })
+      : of({ items: [], total: 0, page: 1, pageSize: 0 });
+    matters$.subscribe({
       next: (result) => {
         this.matterCount = result.total;
         this.matches = this.model.rank(this.request, result.items);
@@ -203,6 +209,7 @@ export class CaseResearchComponent implements OnInit {
   }
 
   private loadMatterCount(): void {
+    if (!this.auth.hasPermission('matters.read')) return;
     this.mattersApi.list({ page: 1, pageSize: 1 }).subscribe({ next: (result) => (this.matterCount = result.total) });
   }
 }

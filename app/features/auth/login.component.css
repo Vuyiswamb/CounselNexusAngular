@@ -1,3 +1,16 @@
 :host {
   display: block;
 }
+
+.cn-field-hint {
+  display: block;
+  margin-top: 7px;
+  color: #5f789d;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.cn-input-wrap input[readonly] {
+  cursor: not-allowed;
+  background: #edf4ff;
+}

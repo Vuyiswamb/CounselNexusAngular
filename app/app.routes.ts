@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { ShellComponent } from './layout/shell.component';
 import { authGuard } from './core/auth.guard';
+import { platformGuard } from './core/platform.guard';
+import { workspaceGuard } from './core/workspace.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -9,6 +11,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/public-site/public-site.component').then((m) => m.PublicSiteComponent),
     data: { page: 'home' },
+  },
+  {
+    path: 'request-legal-help',
+    loadComponent: () => import('./features/marketplace/legal-request.component').then((m) => m.LegalRequestComponent),
+  },
+  {
+    path: 'legal-market',
+    loadComponent: () => import('./features/marketplace/legal-market.component').then((m) => m.LegalMarketComponent),
   },
   {
     path: 'about',
@@ -75,6 +85,7 @@ export const routes: Routes = [
     path: '',
     component: ShellComponent,
     canActivate: [authGuard],
+    canActivateChild: [workspaceGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
@@ -91,6 +102,11 @@ export const routes: Routes = [
         path: 'case-research',
         loadComponent: () =>
           import('./features/case-research/case-research.component').then((m) => m.CaseResearchComponent),
+      },
+      {
+        path: 'firm/legal-market',
+        loadComponent: () =>
+          import('./features/marketplace/legal-market.component').then((m) => m.LegalMarketComponent),
       },
       {
         path: 'contacts',
@@ -197,6 +213,13 @@ export const routes: Routes = [
       { path: 'evictions', data: { operation: 'evictions' }, loadComponent: () => import('./features/operations/operations.component').then((m) => m.OperationsComponent) },
       { path: 'drivers-appointments', data: { operation: 'drivers-appointments' }, loadComponent: () => import('./features/operations/operations.component').then((m) => m.OperationsComponent) },
       { path: 'summons-management', data: { operation: 'summons-management' }, loadComponent: () => import('./features/operations/operations.component').then((m) => m.OperationsComponent) },
+      { path: 'platform/billing', canActivate: [platformGuard], loadComponent: () => import('./features/platform/platform-control.component').then((m) => m.PlatformControlComponent) },
+      { path: 'platform/packages', canActivate: [platformGuard], loadComponent: () => import('./features/platform/platform-packages.component').then((m) => m.PlatformPackagesComponent) },
+      { path: 'platform/assignments', canActivate: [platformGuard], loadComponent: () => import('./features/platform/platform-assignments.component').then((m) => m.PlatformAssignmentsComponent) },
+      { path: 'platform/transactions', canActivate: [platformGuard], loadComponent: () => import('./features/platform/platform-transactions.component').then((m) => m.PlatformTransactionsComponent) },
+      { path: 'platform/users', canActivate: [platformGuard], loadComponent: () => import('./features/platform/platform-users.component').then((m) => m.PlatformUsersComponent) },
+      { path: 'platform/gateways', canActivate: [platformGuard], loadComponent: () => import('./features/platform/platform-gateways.component').then((m) => m.PlatformGatewaysComponent) },
+      { path: 'platform', pathMatch: 'full', redirectTo: 'platform/billing' },
     ],
   },
   { path: '**', redirectTo: 'home' },

@@ -8,7 +8,7 @@
   <header class="cn-header">
     <div class="cn-container">
       <a class="cn-logo" routerLink="/home"><img src="/assets/images/logo-display.png" alt="CounselNexus" width="700" height="142"></a>
-      <nav class="cn-nav" aria-label="Public navigation"><a routerLink="/home">Home</a><a routerLink="/about">About</a><a routerLink="/services">Services</a><a routerLink="/packages">Packages</a><a routerLink="/contact">Contact</a></nav>
+      <nav class="cn-nav" aria-label="Public navigation"><a routerLink="/home">Home</a><a routerLink="/about">About</a><a routerLink="/services">Services</a><a href="/legal-market" routerLink="/legal-market">Legal Market Place</a><a routerLink="/packages">Packages</a><a routerLink="/contact">Contact</a></nav>
       <div class="cn-header-actions"><a class="cn-login-link" routerLink="/login">Log in</a><a class="cn-btn sm" routerLink="/register">Create account</a></div>
     </div>
   </header>
@@ -37,8 +37,9 @@
             <label for="email">Email address</label>
             <div class="cn-input-wrap">
               <svg class="cn-field-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
-              <input id="email" class="input" type="email" name="email" autocomplete="username" placeholder="you@firm.co.za" [(ngModel)]="email" required />
+              <input id="email" class="input" type="email" name="email" autocomplete="username" placeholder="you@firm.co.za" [(ngModel)]="email" [readonly]="paymentEmailLocked" required />
             </div>
+            @if (paymentEmailLocked) { <small class="cn-field-hint">This is the firm account email used for your payment and cannot be changed here.</small> }
           </div>
 
           <div class="cn-field">
@@ -67,11 +68,13 @@
             <a class="forgot cn-link" routerLink="/forgot-password">Forgot your password?</a>
           </div>
 
-          @if (errorMessage) { <p class="login-error cn-error" role="alert">{{ errorMessage }}</p> }
+          @if (errorMessage) { <div class="login-error cn-error" role="alert"><span>{{ errorMessage }}</span>@if (paymentRequired) { <a class="cn-link" routerLink="/packages" [queryParams]="{ renew: 1 }">View paid packages and renew</a> }</div> }
           <button class="sign-in cn-btn block" type="submit" [disabled]="loginForm.invalid || busy">
             {{ busy ? 'Signing in...' : requiresTwoFactor ? 'Verify code' : 'Sign in' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg>
           </button>
         </form>
+
+        @if (paymentSuccess && paymentEmailLocked) { <p class="cn-success" role="status">Payment received. Sign in with the firm account email used for this subscription.</p> }
 
         <p class="cn-auth-alt">New to CounselNexus? <a class="create-account cn-link" routerLink="/register">Create an account</a></p>
       </div>

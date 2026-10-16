@@ -75,14 +75,23 @@
           </select>
         </div>
 
-        <button class="btn btn-secondary add-party" type="button">
+        <button class="btn btn-secondary add-party" type="button" (click)="openPartyDialog()">
           <app-icon name="plus" [size]="14" /> Add Party
         </button>
 
-        <div class="empty-parties muted">No parties added yet</div>
+        @if (parties.length) {
+          <div class="party-list">
+            @for (party of parties; track party.contactId + party.role) {
+              <div class="party-row"><div><strong>{{ party.contactName }}</strong><span>{{ party.role }}</span></div><button type="button" class="party-remove" (click)="removeParty(party)" aria-label="Remove party">×</button></div>
+            }
+          </div>
+        } @else { <div class="empty-parties muted">No parties added yet</div> }
       </div>
     </div>
     }
     @if (error) {
-      <div class="error-msg card">{{ error }}</div>
+      <div class="error-backdrop" role="presentation" (click)="error = ''"><section class="error-popup" role="alert" (click)="$event.stopPropagation()"><div class="error-icon">!</div><div><h3>We couldn’t save the matter</h3><p>{{ error }}</p></div><button type="button" class="error-close" aria-label="Dismiss error" (click)="error = ''">×</button></section></div>
+    }
+    @if (partyDialogOpen) {
+      <div class="party-backdrop" role="presentation" (click)="closePartyDialog()"><section class="party-dialog" role="dialog" aria-modal="true" aria-labelledby="party-dialog-title" (click)="$event.stopPropagation()"><div class="party-dialog-header"><div><p class="eyebrow">MATTER PARTY</p><h2 id="party-dialog-title">Add a party</h2><p>Link another contact to this matter.</p></div><button type="button" class="dialog-close" aria-label="Close" (click)="closePartyDialog()">×</button></div><label class="field"><span>Contact</span><select class="select" [(ngModel)]="partyContactId"><option value="">Select a contact...</option>@for (contact of contacts; track contact.id) {<option [value]="contact.id">{{ contact.fullName }} · {{ contact.type }}</option>}</select></label><label class="field"><span>Role</span><select class="select" [(ngModel)]="partyRole"><option value="Opponent">Opponent</option><option value="Court">Court</option><option value="Expert">Expert</option></select></label><div class="party-dialog-actions"><button type="button" class="btn btn-secondary" (click)="closePartyDialog()">Cancel</button><button type="button" class="btn btn-primary" [disabled]="!partyContactId" (click)="addParty()">Add party</button></div></section></div>
     }
