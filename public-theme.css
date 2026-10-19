@@ -363,7 +363,7 @@
 @media (max-width: 400px) { .cn-topbar-left a:first-child { display: none; } }
 
 /* ---------- Legal pages ---------- */
-.cn-banner.legal { padding: 90px 0; background-image: linear-gradient(rgba(2,10,31,.86), rgba(7,26,61,.86)), url('/assets/images/site/library.jpg'); }
+.cn-banner.legal { background-image: linear-gradient(rgba(2,10,31,.86), rgba(7,26,61,.86)), url('/assets/images/site/library.jpg'); }
 .cn-legal { max-width: 860px; margin: 0 auto; color: #333b4d; font-size: 15.5px; }
 .cn-legal-date { display: inline-block; margin-bottom: 26px !important; padding: 6px 16px; border-radius: 50px; background: var(--cn-tint); color: var(--cn-muted); font-size: 13.5px; }
 .cn-legal h2 { margin: 38px 0 12px; padding-top: 22px; border-top: 1px solid var(--cn-border); font-size: 21px; }
