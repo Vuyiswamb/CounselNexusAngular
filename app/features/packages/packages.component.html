@@ -122,6 +122,7 @@
         @if (checkoutError) { <p class="cn-error" role="alert">{{ checkoutError }}</p> }
         <div class="checkout-actions"><button class="cn-btn outline" type="button" (click)="closeCheckout()">Cancel</button><button class="cn-btn" type="button" [disabled]="checkoutBusy" (click)="continueCheckout()">{{ checkoutBusy ? 'Preparing payment...' : 'Continue to PayFast' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg></button></div>
         <small class="checkout-login-note">After successful payment, you will be redirected to sign in.</small>
+        <p class="cn-recaptcha-note">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply.</p>
       </section>
     </div>
   }

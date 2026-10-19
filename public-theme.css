@@ -376,3 +376,9 @@
 .cn-legal b { color: var(--cn-ink); }
 .cn-foot-legal { display: inline-flex; flex-wrap: wrap; gap: 8px 22px; }
 .cn-foot-legal a:hover { color: #fff; }
+
+/* ---------- reCAPTCHA v3 ---------- */
+/* Google allows hiding the floating badge when the notice below is shown on protected forms. */
+.grecaptcha-badge { visibility: hidden !important; }
+.cn-recaptcha-note { margin: 14px 0 0 !important; color: #7a8599; font-size: 11.5px; line-height: 1.5; text-align: center; }
+.cn-recaptcha-note a { color: inherit; text-decoration: underline; }

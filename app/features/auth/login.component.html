@@ -73,6 +73,7 @@
             {{ busy ? 'Signing in...' : requiresTwoFactor ? 'Verify code' : 'Sign in' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg>
           </button>
         </form>
+        <p class="cn-recaptcha-note">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply.</p>
 
         @if (paymentSuccess && paymentEmailLocked) { <p class="cn-success" role="status">Payment received. Sign in with the firm account email used for this subscription.</p> }
 
