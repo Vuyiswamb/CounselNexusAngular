@@ -1,8 +1,11 @@
-<div class="page-header">
+<div class="page-header settings-header">
   <div>
     <h1 class="page-title">Practice setup</h1>
     <p class="page-subtitle">Set your practice identity, logo, system colors, workspace appearance, invoice letterhead, and billing rates.</p>
   </div>
+  <button class="btn btn-primary settings-save-top" type="submit" form="branding-form" [disabled]="saving || !firm.name.trim()">
+    {{ saving ? 'Saving…' : 'Save company branding' }}
+  </button>
 </div>
 
 <nav class="admin-nav" aria-label="Administration">
@@ -15,7 +18,7 @@
 @if (loading) {
   <section class="card loading">Loading company settings…</section>
 } @else {
-  <form class="branding-layout" #brandingForm="ngForm" (ngSubmit)="save()">
+  <form id="branding-form" class="branding-layout" #brandingForm="ngForm" (ngSubmit)="save()">
     <section class="card form-card">
       <div class="section-heading">
         <span class="section-icon"><app-icon name="admin" [size]="18" /></span>
@@ -100,22 +103,10 @@
       </div>
       <small class="field-help">PNG, JPEG, or WebP. Maximum 4 MB. Stored in the database and displayed on matter invoices.</small>
 
-      <div class="letterhead-heading workspace-image-heading">
-        <div><label for="firm-workspace-background">Workspace background image</label><small>Use a firm office, library, or brand photograph behind the translucent workspace panels.</small></div>
-        <span class="letterhead-tag">WORKSPACE</span>
+      <div class="workspace-background-disabled" role="status">
+        <strong>Workspace background image disabled</strong>
+        <small>The workspace uses the consistent CounselNexus theme for now.</small>
       </div>
-      <div class="workspace-image-preview" [style.--preview-primary]="firm.brandPrimaryColor" [style.--preview-accent]="firm.brandAccentColor" [style.background-image]="workspaceBackgroundUrl ? 'url(' + workspaceBackgroundUrl + ')' : null">
-        <div class="glass-sample">
-          <span class="glass-sample-mark" [style.background]="firm.brandAccentColor">{{ firm.name ? firm.name.slice(0, 1) : 'F' }}</span>
-          <div><b>{{ firm.name || 'Your firm workspace' }}</b><small>Glassy workspace preview</small></div>
-        </div>
-      </div>
-      <div class="logo-actions">
-        <label class="btn btn-secondary upload-button" for="firm-workspace-background">Choose workspace image</label>
-        <input id="firm-workspace-background" class="file-input" type="file" accept="image/png,image/jpeg,image/webp" (change)="onWorkspaceBackgroundSelected($event)" />
-        @if (workspaceBackgroundUrl) { <button class="text-button" type="button" (click)="removeWorkspaceBackground()">Remove image</button> }
-      </div>
-      <small class="field-help">PNG, JPEG, or WebP. Maximum 6 MB. Stored in the database. Without an upload, the built-in workspace photo is used.</small>
 
       <div class="color-grid">
         <div class="field color-field">

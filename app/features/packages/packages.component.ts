@@ -21,6 +21,7 @@ export class PackagesComponent implements OnInit {
   selectedPackage: PlatformPackageDto | null = null;
   months = 1;
   checkoutBusy = false;
+  checkoutPointerDown = false;
   renewalMode = false;
   checkoutEmail = '';
   private packagesApi = inject(PublicPackagesService);
@@ -74,12 +75,20 @@ export class PackagesComponent implements OnInit {
 
   closeCheckout(event?: MouseEvent): void {
     if (event && event.target !== event.currentTarget) return;
+    if (this.checkoutPointerDown || window.getSelection()?.toString()) {
+      this.checkoutPointerDown = false;
+      return;
+    }
     if (!this.checkoutBusy) this.selectedPackage = null;
   }
 
   continueCheckout(): void {
-    if (!this.selectedPackage || this.months < 1 || this.months > 36) return;
     this.checkoutError = '';
+    if (!this.selectedPackage) return;
+    if (!Number.isInteger(Number(this.months)) || Number(this.months) < 1 || Number(this.months) > 36) {
+      this.checkoutError = 'Choose a payment period between 1 and 36 months.';
+      return;
+    }
     if (!this.checkoutEmail.trim()) {
       this.checkoutError = 'Enter the email address registered for your firm.';
       return;
@@ -88,8 +97,20 @@ export class PackagesComponent implements OnInit {
     this.checkoutApi.checkout(this.selectedPackage.id, this.months, this.checkoutEmail.trim()).subscribe({
       next: (checkout) => {
         this.checkoutBusy = false;
+        const approvedActions = new Set([
+          'https://sandbox.payfast.co.za/eng/process',
+          'https://www.payfast.co.za/eng/process',
+        ]);
+        if (!approvedActions.has(checkout.action)) {
+          this.checkoutError = 'The payment gateway returned an unapproved checkout destination.';
+          return;
+        }
         const form = document.createElement('form');
-        form.method = 'POST'; form.action = checkout.action; form.style.display = 'none';
+        form.method = 'POST';
+        form.action = checkout.action;
+        form.enctype = 'application/x-www-form-urlencoded';
+        form.acceptCharset = 'UTF-8';
+        form.style.display = 'none';
         Object.entries(checkout.fields).forEach(([name, value]) => {
           const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = value; form.appendChild(input);
         });

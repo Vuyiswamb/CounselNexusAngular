@@ -107,13 +107,13 @@
 
   @if (selectedPackage) {
     <div class="package-checkout-backdrop" role="presentation" (click)="closeCheckout($event)">
-      <section class="package-checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+      <section class="package-checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title" (pointerdown)="checkoutPointerDown = true" (click)="$event.stopPropagation(); checkoutPointerDown = false">
         <button class="package-checkout-close" type="button" aria-label="Close" (click)="closeCheckout()">×</button>
         <span class="cn-sub">Secure subscription payment</span>
         <h2 id="checkout-title">{{ selectedPackage.name }}</h2>
-        <p>Choose how many months you would like to pay. Your subscription end date will be extended after PayFast confirms the payment.</p>
+        <p>Choose how many months you would like to pay. If your firm has an active subscription, the paid months will be added to its current end date after PayFast confirms the payment.</p>
         <label class="checkout-months">Number of months
-          <input type="number" min="1" max="36" [(ngModel)]="months" />
+          <input type="number" min="1" max="36" step="1" required [(ngModel)]="months" />
         </label>
         <label class="checkout-months">Firm account email
           <input type="email" autocomplete="email" placeholder="you@yourfirm.co.za" [(ngModel)]="checkoutEmail" />

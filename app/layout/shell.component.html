@@ -2,19 +2,23 @@
       <!-- ===================== Sidenav ===================== -->
       <aside class="sidenav">
         <a class="brand" routerLink="/dashboard">
-          @if (auth.isPlatformAdmin()) {
-            <img class="platform-brand-logo" src="/assets/images/logo-transparent.png" alt="CounselNexus" />
-          } @else if (firm?.logoBase64 && firm?.logoContentType) {
-            <img class="brand-logo" [src]="'data:' + firm!.logoContentType + ';base64,' + firm!.logoBase64" [alt]="firm!.name + ' logo'" />
-          } @else {
-            <span class="brand-mark"><app-icon name="scales" [size]="28" /></span>
-          }
-          @if (!auth.isPlatformAdmin()) { <span class="brand-name">{{ firm?.name || 'CounselNexus' }}</span> }
+          <span class="brand-logo-wrap">
+            @if (auth.isPlatformAdmin()) {
+              <img class="platform-brand-logo" src="/assets/images/logo-transparent.png" alt="CounselNexus" />
+            } @else if (firm?.logoBase64 && firm?.logoContentType) {
+              <img class="brand-logo" [src]="'data:' + firm!.logoContentType + ';base64,' + firm!.logoBase64" [alt]="firm!.name + ' logo'" />
+            } @else {
+              <span class="brand-mark"><app-icon name="scales" [size]="28" /></span>
+            }
+          </span>
+          <span class="brand-copy"><span class="brand-name">{{ auth.isPlatformAdmin() ? 'CounselNexus' : (firm?.name || 'CounselNexus') }}</span><small>LEGAL PRACTICE PLATFORM</small></span>
         </a>
 
+        <label class="menu-search"><app-icon name="search" [size]="17" /><input type="search" [(ngModel)]="navQuery" placeholder="Search menu..." aria-label="Search menu" /><kbd>⌘ K</kbd></label>
+
         <nav class="nav">
-          @for (item of visibleNav; track item.route) {
-            @if ($first || visibleNav[$index - 1].section !== item.section) {
+          @for (item of menuNav; track item.route) {
+            @if ($first || menuNav[$index - 1].section !== item.section) {
               <div class="nav-section-label">{{ item.section }}</div>
             }
             <a
@@ -49,6 +53,14 @@
           </div>
 
           <div class="topbar-right">
+            <label class="header-language-switcher" aria-label="Website language">
+              <span aria-hidden="true">Lang</span>
+              <select [value]="language.language" (change)="changeLanguage($any($event.target).value)">
+                <option value="en">English</option>
+                <option value="af">Afrikaans</option>
+              </select>
+            </label>
+            <span class="app-version" aria-label="Application version">{{ appVersion }}</span>
             <button class="icon-btn" type="button" aria-label="Notifications">
               <app-icon name="bell" [size]="18" />
               <span class="dot"></span>

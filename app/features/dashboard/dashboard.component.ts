@@ -6,6 +6,7 @@ import { IconComponent } from '../../shared/icon.component';
 import { AuthService } from '../../core/auth.service';
 import { DashboardService, TasksService, TimeEntriesService } from '../../core/api-services';
 import { DashboardSummaryDto, DiaryEventDto, TaskDto, TimeEntryDto } from '../../core/api.models';
+import { LanguageService } from '../../core/language.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +19,7 @@ export class DashboardComponent implements OnInit {
   private tasksApi = inject(TasksService);
   private timeApi = inject(TimeEntriesService);
   readonly auth = inject(AuthService);
+  readonly language = inject(LanguageService);
 
   summary: DashboardSummaryDto | null = null;
   diary: DiaryEventDto[] = [];
@@ -26,12 +28,27 @@ export class DashboardComponent implements OnInit {
   loading = true;
   error = '';
   readonly today = new Date();
-  readonly todayLabel = new Intl.DateTimeFormat('en-ZA', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  }).format(this.today);
+  get todayLabel(): string {
+    return new Intl.DateTimeFormat(this.locale, {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    }).format(this.today);
+  }
+
+  get locale(): string { return this.language.language === 'af' ? 'af-ZA' : 'en-ZA'; }
+
+  get weekDays(): string[] {
+    const monday = new Date(this.today);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + index);
+      return new Intl.DateTimeFormat(this.locale, { weekday: 'short' }).format(date);
+    });
+  }
 
   get greeting(): string {
     const hour = this.today.getHours();
+    if (this.language.language === 'af') return hour < 12 ? 'Goeiemôre' : hour < 17 ? 'Goeiemiddag' : 'Goeienaand';
     return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   }
 
@@ -99,36 +116,36 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.error = err?.status === 403
-          ? 'Your account does not have permission to view dashboard information.'
-          : 'Dashboard information could not be loaded. Please try again.';
+          ? (this.language.language === 'af' ? 'Jou rekening het nie toestemming om kontroleskerminligting te sien nie.' : 'Your account does not have permission to view dashboard information.')
+          : (this.language.language === 'af' ? 'Kontroleskerminligting kon nie gelaai word nie. Probeer asseblief weer.' : 'Dashboard information could not be loaded. Please try again.');
         this.loading = false;
       },
     });
   }
 
   eventTime(value: string, allDay: boolean): string {
-    return allDay ? 'All day' : new Intl.DateTimeFormat('en-ZA', { hour: '2-digit', minute: '2-digit' }).format(new Date(value));
+    return allDay ? (this.language.language === 'af' ? 'Heeldag' : 'All day') : new Intl.DateTimeFormat(this.locale, { hour: '2-digit', minute: '2-digit' }).format(new Date(value));
   }
 
   eventDate(value: string): string {
     const date = new Date(value);
-    if (date.toDateString() === this.today.toDateString()) return 'Today';
+    if (date.toDateString() === this.today.toDateString()) return this.language.language === 'af' ? 'Vandag' : 'Today';
     const tomorrow = new Date(this.today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
-    return new Intl.DateTimeFormat('en-ZA', { weekday: 'short', day: 'numeric', month: 'short' }).format(date);
+    if (date.toDateString() === tomorrow.toDateString()) return this.language.language === 'af' ? 'Môre' : 'Tomorrow';
+    return new Intl.DateTimeFormat(this.locale, { weekday: 'short', day: 'numeric', month: 'short' }).format(date);
   }
 
   taskDue(value: string | null): string {
-    if (!value) return 'No due date';
+    if (!value) return this.language.language === 'af' ? 'Geen sperdatum' : 'No due date';
     const due = new Date(value);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dueDay = new Date(due);
     dueDay.setHours(0, 0, 0, 0);
-    if (dueDay.getTime() < today.getTime()) return 'Overdue';
-    if (dueDay.toDateString() === today.toDateString()) return 'Today';
-    return new Intl.DateTimeFormat('en-ZA', { day: 'numeric', month: 'short' }).format(due);
+    if (dueDay.getTime() < today.getTime()) return this.language.language === 'af' ? 'Agterstallig' : 'Overdue';
+    if (dueDay.toDateString() === today.toDateString()) return this.language.language === 'af' ? 'Vandag' : 'Today';
+    return new Intl.DateTimeFormat(this.locale, { day: 'numeric', month: 'short' }).format(due);
   }
 
   barHeight(hours: number): number { return hours > 0 ? Math.max(5, hours / this.maxHours * 100) : 0; }

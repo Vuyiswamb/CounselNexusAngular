@@ -66,7 +66,7 @@
       </div>
       <div class="chart-legend"><span><i class="legend-current"></i>This week</span><span><i class="legend-previous"></i>Last week</span></div>
       <div class="hours-chart" role="img" aria-label="Bar chart comparing recorded hours by weekday for this week and last week">
-        @for (day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; track day; let i = $index) {
+        @for (day of weekDays; track day; let i = $index) {
           <div class="hours-column">
             <div class="hours-bars">
               <span class="hours-bar current-bar" [style.height.%]="barHeight(weekHours[i])" [attr.title]="weekHours[i] + ' hours this week'"></span>

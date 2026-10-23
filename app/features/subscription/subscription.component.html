@@ -1,0 +1,26 @@
+<header class="subscription-header">
+  <div><p class="eyebrow">ACCOUNT</p><h1>Subscription</h1><p class="page-subtitle">Manage your firm’s CounselNexus subscription, payments and renewal.</p></div>
+  <a class="btn btn-primary" routerLink="/packages" [queryParams]="{ renew: 1 }">Renew or change package</a>
+</header>
+
+@if (loading) { <section class="subscription-loading card">Loading subscription details…</section> }
+@else if (error) { <section class="subscription-error card" role="alert"><strong>Subscription details unavailable</strong><p>{{ error }}</p><button class="btn btn-secondary" type="button" (click)="load()">Try again</button></section> }
+@else if (subscription) {
+  <section class="subscription-summary card">
+    <div class="summary-heading"><div><p class="eyebrow">CURRENT PLAN</p><h2>{{ subscription.planName }}</h2><p>{{ subscription.planCode }}</p></div><span class="status" [class.active]="isActive">{{ subscription.status }}</span></div>
+    <div class="summary-grid">
+      <div><span>Subscription period</span><strong>{{ subscription.startsAtUtc | date:'d MMM y' }} – {{ subscription.endAtUtc | date:'d MMM y' }}</strong></div>
+      <div><span>Monthly price</span><strong>{{ subscription.currency }} {{ subscription.monthlyPrice | number:'1.2-2' }}</strong></div>
+      <div><span>Renewal date</span><strong>{{ subscription.renewsAtUtc ? (subscription.renewsAtUtc | date:'d MMM y') : 'Manual renewal' }}</strong></div>
+    </div>
+    <div class="renewal-note"><span>↗</span><p><b>{{ isActive ? 'Your firm has an active subscription.' : 'Your subscription needs attention.' }}</b> Payments made through packages will extend the current end date when the subscription is active.</p><a routerLink="/packages" [queryParams]="{ renew: 1 }">Renew now</a></div>
+  </section>
+
+  <section class="payment-history card">
+    <div class="section-heading"><div><h2>Payment history</h2><p>Payments recorded for your firm subscription.</p></div><button class="btn btn-secondary" type="button" (click)="load()">Refresh</button></div>
+    @if (!payments.length) { <div class="empty">No subscription payments have been recorded yet.</div> }
+    @else { <div class="table-wrap"><table><thead><tr><th>Date</th><th>Reference</th><th>Status</th><th>Months</th><th class="amount">Amount</th></tr></thead><tbody>@for (payment of payments; track payment.id) { <tr><td>{{ (payment.paidAtUtc || payment.createdAtUtc) | date:'d MMM y, HH:mm' }}</td><td>{{ payment.externalReference || '—' }}</td><td><span class="payment-status" [class.paid]="payment.status.toLowerCase() === 'paid'">{{ payment.status }}</span></td><td>{{ payment.months || '—' }}</td><td class="amount">{{ payment.currency }} {{ payment.amount | number:'1.2-2' }}</td></tr> }</tbody></table></div> }
+  </section>
+} @else {
+  <section class="subscription-empty card"><h2>No subscription found</h2><p>Choose a package to activate your firm’s subscription.</p><a class="btn btn-primary" routerLink="/packages">View packages</a></section>
+}

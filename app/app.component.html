@@ -1,9 +1,11 @@
+@if (!auth.user()) {
+  <label class="public-language-switcher" aria-label="Website language">
+    <span aria-hidden="true">{{ language.language === 'af' ? 'Taal' : 'Language' }}</span>
+    <select [value]="language.language" (change)="changeLanguage($any($event.target).value)">
+      <option value="en">English</option>
+      <option value="af">Afrikaans</option>
+    </select>
+  </label>
+}
 <router-outlet />
 <app-error-popup />
-<label class="global-language-switcher" aria-label="Website language">
-  <span aria-hidden="true">文</span>
-  <select [value]="language.language" (change)="changeLanguage($any($event.target).value)">
-    <option value="en">English</option>
-    <option value="af">Afrikaans</option>
-  </select>
-</label>

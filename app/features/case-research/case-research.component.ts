@@ -5,6 +5,7 @@ import { CaseResearchApiService, MattersService } from '../../core/api-services'
 import { CaseResearchAiResponse, LegalCaseDocumentDto, LegalCaseSearchResult } from '../../core/api.models';
 import { IconComponent } from '../../shared/icon.component';
 import { AuthService } from '../../core/auth.service';
+import { LanguageService } from '../../core/language.service';
 import { of } from 'rxjs';
 
 interface ChatMessage {
@@ -23,6 +24,7 @@ export class CaseResearchComponent implements OnInit {
   private aiApi = inject(CaseResearchApiService);
   private model = inject(CaseResearchModel);
   private auth = inject(AuthService);
+  private language = inject(LanguageService);
 
   request = {
     title: '', facts: '', legalIssues: '', practiceArea: '', jurisdiction: '', desiredOutcome: '',
@@ -35,7 +37,7 @@ export class CaseResearchComponent implements OnInit {
   ai: CaseResearchAiResponse | null = null;
   chatInput = '';
   chatSending = false;
-  researchStatus = 'Ready';
+  researchStatus = this.language.language === 'af' ? 'Gereed' : 'Ready';
   selectedFileName = '';
   documentsRequested = false;
   documentAuthorities: LegalCaseSearchResult[] = [];
@@ -64,7 +66,7 @@ export class CaseResearchComponent implements OnInit {
         this.matches = this.model.rank(this.request, result.items);
         this.searched = true;
         this.ai = null;
-        this.researchStatus = 'Searching the South African case database...';
+        this.researchStatus = this.language.language === 'af' ? 'Soek in die Suid-Afrikaanse saakdatabasis...' : 'Searching the South African case database...';
         this.aiApi.research({
           ...this.request,
           internalMatters: result.items.map((matter) => ({
@@ -81,7 +83,7 @@ export class CaseResearchComponent implements OnInit {
             if (this.documentsRequested && this.documentAuthorities.length === 0) this.searchForDocuments();
             if (this.chatSending) this.chatMessages.push({ role: 'assistant', text: answer.answer });
             this.chatSending = false;
-            this.researchStatus = 'Ready';
+            this.researchStatus = this.language.language === 'af' ? 'Gereed' : 'Ready';
             this.loading = false;
           },
           error: (error) => {
@@ -90,7 +92,7 @@ export class CaseResearchComponent implements OnInit {
               : 'The internal matches loaded, but the AI Server could not complete the analysis.';
             if (this.chatSending) this.chatMessages.push({ role: 'assistant', text: this.error });
             this.chatSending = false;
-            this.researchStatus = 'Ready';
+            this.researchStatus = this.language.language === 'af' ? 'Gereed' : 'Ready';
             this.loading = false;
           },
         });
@@ -110,7 +112,7 @@ export class CaseResearchComponent implements OnInit {
     if (/\b(document|documents|judgment|judgement|download|attachment|case file)\b/i.test(message)) this.documentsRequested = true;
     this.request.facts = [this.request.facts, message].filter(Boolean).join('\n\n');
     this.chatSending = true;
-    this.researchStatus = 'Reading the case details...';
+    this.researchStatus = this.language.language === 'af' ? 'Lees die saakbesonderhede...' : 'Reading the case details...';
     this.research();
   }
 
@@ -137,7 +139,7 @@ export class CaseResearchComponent implements OnInit {
     const query = [this.request.title, this.request.practiceArea, this.request.legalIssues, this.request.facts]
       .filter(Boolean).join(' ').replace(/\b(download|documents?|judg(e)?ment|attachments?|case file)\b/gi, '').trim().slice(0, 500);
     if (!query) return;
-    this.researchStatus = 'Finding related judgments and documents...';
+    this.researchStatus = this.language.language === 'af' ? 'Vind verwante uitsprake en dokumente...' : 'Finding related judgments and documents...';
     this.aiApi.searchCorpus(query, undefined, 10).subscribe({
       next: (authorities) => {
         this.documentAuthorities = authorities;
@@ -145,9 +147,9 @@ export class CaseResearchComponent implements OnInit {
         if (authorities.length === 0) {
           this.chatMessages.push({ role: 'assistant', text: 'I could not find a verified stored judgment or document for this matter. No download is available yet. Add the case document to the South African research corpus, or open a verified source link when one is provided.' });
         }
-        this.researchStatus = 'Ready';
+        this.researchStatus = this.language.language === 'af' ? 'Gereed' : 'Ready';
       },
-      error: () => { this.researchStatus = 'Ready'; },
+    error: () => { this.researchStatus = this.language.language === 'af' ? 'Gereed' : 'Ready'; },
     });
   }
 
@@ -199,7 +201,7 @@ export class CaseResearchComponent implements OnInit {
     this.ai = null;
     this.chatInput = '';
     this.chatSending = false;
-    this.researchStatus = 'Ready';
+    this.researchStatus = this.language.language === 'af' ? 'Gereed' : 'Ready';
     this.selectedFileName = '';
     this.documentsRequested = false;
     this.documentAuthorities = [];

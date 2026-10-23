@@ -43,7 +43,7 @@
               <td><span class="badge badge-blue">{{ u.roles[0] || '—' }}</span></td>
               <td class="muted-cell">{{ u.lastLoginAtUtc ? (u.lastLoginAtUtc | date: 'dd MMM yyyy, HH:mm') : 'Never' }}</td>
               <td><span class="badge badge-green">Active</span></td>
-              <td><button class="table-action" type="button" (click)="openAccess(u)">Module access</button></td>
+              <td><button class="table-action" type="button" (click)="openEdit(u)">Edit</button><button class="table-action" type="button" (click)="openAccess(u)">Module access</button></td>
             </tr>
           } @empty {
             <tr><td colspan="6" class="empty">{{ loading ? 'Loading…' : 'No users found.' }}</td></tr>
@@ -112,6 +112,19 @@
             <button class="btn btn-secondary" type="button" (click)="showAccess = false">Cancel</button>
             <button class="btn btn-primary" type="button" [disabled]="accessBusy" (click)="saveAccess()">{{ accessBusy ? 'Saving…' : 'Save access' }}</button>
           </div>
+        </div>
+      </div>
+    }
+
+    @if (showEdit && editUser) {
+      <div class="modal-backdrop" role="presentation" (click)="showEdit = false">
+        <div class="card modal" (click)="$event.stopPropagation()">
+          <h3 class="card-title">Edit User</h3>
+          <div class="field"><label>Full Name</label><input class="input" [value]="editUser.fullName" readonly /></div>
+          <div class="field"><label>Email</label><input class="input" [value]="editUser.email" readonly /></div>
+          <div class="field"><label>Role</label><select class="select" [(ngModel)]="editRole">@for (r of roles; track r) { <option [value]="r">{{ r }}</option> }</select></div>
+          @if (editError) { <div class="error-msg">{{ editError }}</div> }
+          <div class="modal-actions"><button class="btn btn-secondary" type="button" [disabled]="editBusy" (click)="showEdit = false">Cancel</button><button class="btn btn-primary" type="button" [disabled]="editBusy" (click)="saveEdit()">{{ editBusy ? 'Saving…' : 'Save changes' }}</button></div>
         </div>
       </div>
     }

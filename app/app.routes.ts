@@ -199,9 +199,24 @@ export const routes: Routes = [
           import('./features/billing/billing.component').then((m) => m.BillingComponent),
       },
       {
+        path: 'subscription',
+        loadComponent: () =>
+          import('./features/subscription/subscription.component').then((m) => m.SubscriptionComponent),
+      },
+      {
         path: 'trust',
         loadComponent: () =>
           import('./features/trust/trust.component').then((m) => m.TrustComponent),
+      },
+      {
+        path: 'legal-accounting',
+        loadComponent: () =>
+          import('./features/legal-accounting/legal-accounting.component').then((m) => m.LegalAccountingComponent),
+      },
+      {
+        path: 'payment-requisitions',
+        loadComponent: () =>
+          import('./features/payment-requisitions/payment-requisitions.component').then((m) => m.PaymentRequisitionsComponent),
       },
       {
         path: 'reports',

@@ -14,9 +14,26 @@
 .status.ready { color: #16734b; background: #eaf8f0; }
 .status.ready i { background: #25a365; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
+.delivery-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px; }
+.delivery-option { display: flex; align-items: flex-start; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: #fff; cursor: pointer; }
+.delivery-option.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 1px var(--primary); }
+.delivery-option input { margin-top: 3px; accent-color: var(--primary); }
+.delivery-option b,.delivery-option small { display: block; }
+.delivery-option b { font-size: 12px; }
+.delivery-option small { margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.free-settings-notice { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 22px; padding: 14px; border: 1px solid #bfe5d0; border-radius: 10px; background: #effaf3; color: #176641; }
+.free-settings-notice app-icon { flex: 0 0 auto; margin-top: 1px; }
+.free-settings-notice b,.free-settings-notice small { display: block; }
+.free-settings-notice b { font-size: 12px; }
+.free-settings-notice small { margin-top: 4px; color: #4d7b61; font-size: 11px; line-height: 1.4; }
 .field { min-width: 0; }
 .field label { display: block; margin-bottom: 7px; font-size: 12px; font-weight: 650; }
 .field .input { width: 100%; box-sizing: border-box; }
+.password-input { position: relative; }
+.password-input .input { padding-right: 42px; }
+.password-toggle { position: absolute; top: 50%; right: 8px; display: grid; width: 30px; height: 30px; place-items: center; transform: translateY(-50%); border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; }
+.password-toggle:hover, .password-toggle:focus-visible { color: var(--primary); background: var(--primary-light); outline: none; }
+.password-toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .field small, .ssl-option small { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .required { color: #c24141; }
 .ssl-option { display: flex; align-items: flex-start; gap: 10px; margin-top: 22px; cursor: pointer; }
@@ -35,6 +52,7 @@
   .page-header { align-items: flex-start; gap: 12px; flex-direction: column; }
   .smtp-card { padding: 18px; }
   .form-grid { grid-template-columns: 1fr; gap: 15px; }
+  .delivery-options { grid-template-columns: 1fr; }
   .card-heading { align-items: flex-start; flex-wrap: wrap; }
   .status { margin-left: 56px; }
   .actions { align-items: stretch; flex-direction: column; }

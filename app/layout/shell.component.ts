@@ -5,6 +5,8 @@ import { IconComponent } from '../shared/icon.component';
 import { AuthService } from '../core/auth.service';
 import { FirmSettingsService, UsersService } from '../core/api-services';
 import { FirmSettingsDto } from '../core/api.models';
+import { APP_VERSION } from '../core/app-version';
+import { LanguageService } from '../core/language.service';
 
 interface NavItem {
   section: string;
@@ -23,7 +25,9 @@ interface NavItem {
   styleUrls: ['./shell.component.css'],
 })
 export class ShellComponent implements OnInit {
+  readonly appVersion = APP_VERSION;
   query = '';
+  navQuery = '';
   userMenuOpen = false;
   profileOpen = false;
   profileSection: 'profile' | 'security' = 'profile';
@@ -52,11 +56,14 @@ export class ShellComponent implements OnInit {
     { section: 'TIME & FINANCE', label: 'Fees & Time', icon: 'fees', route: '/fees', permission: 'fees.read' },
     { section: 'TIME & FINANCE', label: 'Billing', icon: 'billing', route: '/billing', permission: 'billing.read' },
     { section: 'TIME & FINANCE', label: 'Trust Accounting', icon: 'trust', route: '/trust', permission: 'trust.read' },
+    { section: 'TIME & FINANCE', label: 'Legal Accounting', icon: 'billing', route: '/legal-accounting', permission: 'legal-accounting.read' },
+    { section: 'TIME & FINANCE', label: 'Payment Requisitions', icon: 'billing', route: '/payment-requisitions', permission: 'payments.read' },
     { section: 'MANAGEMENT', label: 'Reports', icon: 'reports', route: '/reports', permission: 'reports.read' },
+    { section: 'MANAGEMENT', label: 'Subscription', icon: 'billing', route: '/subscription' },
     { section: 'MANAGEMENT', label: "Driver's Appointment Report", icon: 'reports', route: '/drivers-appointments', permission: 'reports.read' },
     { section: 'MANAGEMENT', label: 'Practice Setup', icon: 'admin', route: '/admin/settings', permission: 'admin.permissions' },
-    { section: 'MANAGEMENT', label: 'Admin', icon: 'admin', route: '/admin/users', permission: 'admin.users' },
     { section: 'MANAGEMENT', label: 'Email Settings', icon: 'mail', route: '/admin/email', permission: 'admin.permissions' },
+    { section: 'MANAGEMENT', label: 'Admin', icon: 'admin', route: '/admin/users', permission: 'admin.users' },
     { section: 'PLATFORM', label: 'Reports', icon: 'reports', route: '/reports', permission: 'platform.reports' },
     { section: 'PLATFORM', label: 'Billing', icon: 'billing', route: '/platform/billing', permission: 'platform.billing' },
     { section: 'PLATFORM', label: 'Subscription packages', icon: 'billing', route: '/platform/packages', permission: 'platform.billing' },
@@ -67,6 +74,7 @@ export class ShellComponent implements OnInit {
   ];
 
   auth = inject(AuthService);
+  readonly language = inject(LanguageService);
   private router = inject(Router);
   private firmSettings = inject(FirmSettingsService);
   private usersApi = inject(UsersService);
@@ -77,6 +85,11 @@ export class ShellComponent implements OnInit {
       .filter((item) => isPlatformRole ? item.section === 'PLATFORM' || item.label === 'Email Settings' : item.section !== 'PLATFORM')
       .map((item) => item.label === 'Email Settings' && this.auth.isPlatformAdmin() ? { ...item, permission: 'platform.email' } : item)
       .filter((item) => this.auth.hasPermission(item.permission));
+  }
+
+  get menuNav(): NavItem[] {
+    const query = this.navQuery.trim().toLowerCase();
+    return !query ? this.visibleNav : this.visibleNav.filter((item) => `${item.section} ${item.label}`.toLowerCase().includes(query));
   }
 
   ngOnInit(): void {
@@ -93,6 +106,10 @@ export class ShellComponent implements OnInit {
   goSearch(): void {
     const q = this.query.trim();
     this.router.navigate(['/search'], q ? { queryParams: { q } } : {});
+  }
+
+  changeLanguage(value: string): void {
+    this.language.setLanguage(value === 'af' ? 'af' : 'en');
   }
 
   signOut(): void {

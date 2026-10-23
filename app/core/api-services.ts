@@ -6,7 +6,7 @@ import { API_BASE_URL } from './api';
 import {
   ContactDto, ContactUpsertRequest, ContactType, CreateDraftInvoiceRequest, EntityStatus, InvoiceDto, MatterDetailDto,
   MatterListItemDto, MatterStatus, MatterUpsertRequest, PagedResult, RoleDto,
-  UserDto, CreateUserRequest, TimeEntryDto, TimeEntryRequest, NoteDto, NoteRequest,
+  UserDto, CreateUserRequest, UpdateUserRoleRequest, TimeEntryDto, TimeEntryRequest, NoteDto, NoteRequest,
   TaskDto, TaskRequest, DashboardSummaryDto, DiaryEventDto,
   DiaryEventRequest, TrustTransactionDto, TrustMovementRequest, TrustTransferRequest,
   WorkInProgressDto, OverdueInvoiceDto, TrustBalanceReportDto, ActivityReportItemDto,
@@ -17,6 +17,7 @@ import {
   RafClaimDto, RafClaimRequest,
   PermissionDto, MatterAccessDto, MatterAccessUpdateRequest, UserPermissionDto, UserPermissionsUpdateRequest, UpdateProfileRequest, ChangePasswordRequest,
   PlatformFirmDto, PlatformFirmReportDto, PlatformUserDto, CreatePlatformUserRequest, UpdatePlatformUserRequest, PlatformSubscriptionDto, PlatformPaymentDto, PlatformPaymentRequest, PlatformTransactionDto, PlatformComponentDto, PlatformPackageDto, PlatformPackageRequest,
+  PaymentRequisitionDto, PaymentRequisitionRequest, PaymentRequisitionListDto, PaymentRequisitionDashboardDto,
 } from './api.models';
 
 /** Thin typed wrappers over the /api/v1 endpoints. */
@@ -188,6 +189,10 @@ export class UsersService {
     return this.http.post<UserDto>(this.base, body);
   }
 
+  setRole(userId: string, body: UpdateUserRoleRequest): Observable<void> {
+    return this.http.put<void>(`${this.base}/${userId}/role`, body);
+  }
+
   matterAccess(userId: string): Observable<MatterAccessDto[]> {
     return this.http.get<MatterAccessDto[]>(`${this.base.replace('/users', '/admin/users')}/${userId}/matter-access`);
   }
@@ -276,8 +281,58 @@ export class SubscriptionCheckoutService {
   private base = `${inject(API_BASE_URL)}/api/v1/subscriptions`;
 
   checkout(planId: string, months: number, email: string): Observable<import('./api.models').SubscriptionCheckoutResponse> {
-    return this.http.post<import('./api.models').SubscriptionCheckoutResponse>(`${this.base}/checkout`, { planId, months, email });
+    return this.http.post<import('./api.models').SubscriptionCheckoutResponse>(`${this.base}/checkout`, {
+      planId, months, email, extendActiveSubscription: true,
+    });
   }
+}
+
+@Injectable({ providedIn: 'root' })
+export class FirmSubscriptionService {
+  private http = inject(HttpClient);
+  private base = `${inject(API_BASE_URL)}/api/v1/subscriptions`;
+
+  current(): Observable<import('./api.models').PlatformSubscriptionDto> {
+    return this.http.get<import('./api.models').PlatformSubscriptionDto>(`${this.base}/current`);
+  }
+
+  payments(): Observable<import('./api.models').PlatformPaymentDto[]> {
+    return this.http.get<import('./api.models').PlatformPaymentDto[]>(`${this.base}/current/payments`);
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class LegalAccountingService {
+  private http = inject(HttpClient);
+  private base = `${inject(API_BASE_URL)}/api/v1/legal-accounting`;
+  accounts(): Observable<import('./api.models').LedgerAccountDto[]> { return this.http.get<import('./api.models').LedgerAccountDto[]>(`${this.base}/accounts`); }
+  trialBalance(): Observable<import('./api.models').TrialBalanceRowDto[]> { return this.http.get<import('./api.models').TrialBalanceRowDto[]>(`${this.base}/trial-balance`); }
+  ledger(accountId: string): Observable<import('./api.models').LedgerEntryDto[]> { return this.http.get<import('./api.models').LedgerEntryDto[]>(`${this.base}/ledger/${accountId}`); }
+  postJournal(request: import('./api.models').JournalPostRequest): Observable<import('./api.models').JournalPostResultDto> { return this.http.post<import('./api.models').JournalPostResultDto>(`${this.base}/journals`, request); }
+  reverseJournal(id: string): Observable<import('./api.models').JournalPostResultDto> { return this.http.post<import('./api.models').JournalPostResultDto>(`${this.base}/journals/${id}/reverse`, {}); }
+}
+
+@Injectable({ providedIn: 'root' })
+export class PaymentRequisitionsService {
+  private http = inject(HttpClient);
+  private base = `${inject(API_BASE_URL)}/api/v1/payment-requisitions`;
+  dashboard(): Observable<PaymentRequisitionDashboardDto> { return this.http.get<PaymentRequisitionDashboardDto>(`${this.base}/dashboard`); }
+  list(params: { search?: string; status?: string; page?: number; pageSize?: number } = {}): Observable<PagedResult<PaymentRequisitionListDto>> {
+    const query: Record<string, string> = { page: String(params.page ?? 1), pageSize: String(params.pageSize ?? 100) };
+    if (params.search) query['search'] = params.search;
+    if (params.status) query['status'] = params.status;
+    return this.http.get<PagedResult<PaymentRequisitionListDto>>(this.base, { params: query });
+  }
+  get(id: string): Observable<PaymentRequisitionDto> { return this.http.get<PaymentRequisitionDto>(`${this.base}/${id}`); }
+  create(request: PaymentRequisitionRequest): Observable<PaymentRequisitionDto> { return this.http.post<PaymentRequisitionDto>(this.base, request); }
+  update(id: string, request: PaymentRequisitionRequest): Observable<PaymentRequisitionDto> { return this.http.put<PaymentRequisitionDto>(`${this.base}/${id}`, request); }
+  submit(id: string): Observable<PaymentRequisitionDto> { return this.http.post<PaymentRequisitionDto>(`${this.base}/${id}/submit`, {}); }
+  verify(id: string, decision: string, comments: string): Observable<PaymentRequisitionDto> { return this.http.post<PaymentRequisitionDto>(`${this.base}/${id}/verify`, { decision, comments }); }
+  approve(id: string, comments: string): Observable<PaymentRequisitionDto> { return this.http.post<PaymentRequisitionDto>(`${this.base}/${id}/approve`, { decision: 'approve', comments }); }
+  reject(id: string, comments: string): Observable<PaymentRequisitionDto> { return this.http.post<PaymentRequisitionDto>(`${this.base}/${id}/reject`, { decision: 'reject', comments }); }
+  process(id: string, paymentReference: string, notes: string): Observable<PaymentRequisitionDto> { return this.http.post<PaymentRequisitionDto>(`${this.base}/${id}/process`, { paymentReference, notes }); }
+  confirmPayment(id: string, request: { paymentReference?: string; paymentDateUtc?: string; method?: string; bankConfirmationReference?: string; notes?: string }): Observable<PaymentRequisitionDto> { return this.http.post<PaymentRequisitionDto>(`${this.base}/${id}/confirm-payment`, request); }
+  reconcile(id: string, comments: string): Observable<PaymentRequisitionDto> { return this.http.post<PaymentRequisitionDto>(`${this.base}/${id}/reconcile`, { decision: 'reconcile', comments }); }
 }
 
 @Injectable({ providedIn: 'root' })

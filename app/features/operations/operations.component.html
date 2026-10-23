@@ -10,8 +10,8 @@
   </div>
   @if (error) { <div class="operation-error">{{ error }}</div> }
   @if (showForm) {
-    <div class="modal-backdrop" (click)="closeForm()">
-      <form class="record-form card" role="dialog" aria-modal="true" [attr.aria-label]="'Add ' + config.singular" (click)="$event.stopPropagation()" (ngSubmit)="save()">
+    <div class="modal-backdrop" (click)="closeFormFromBackdrop($event)">
+      <form class="record-form card" role="dialog" aria-modal="true" [attr.aria-label]="'Add ' + config.singular" (pointerdown)="formPointerDown = true" (click)="$event.stopPropagation(); formPointerDown = false" (ngSubmit)="save()">
         <div class="form-heading"><div><h2>Add {{ config.singular }}</h2><p>Capture the information needed to follow this workflow.</p></div><button type="button" class="close" (click)="closeForm()">Close</button></div>
         <div class="form-grid">
           <label>Reference<input name="reference" [(ngModel)]="form.reference" placeholder="e.g. DC-002" /></label>

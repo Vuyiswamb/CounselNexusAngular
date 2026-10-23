@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DiaryService, MattersService } from '../../core/api-services';
-import { DiaryEventDto, DiaryEventRequest, MatterListItemDto } from '../../core/api.models';
+import { DiaryEventDto, DiaryEventRequest, MatterDetailDto, MatterListItemDto } from '../../core/api.models';
 import { IconComponent } from '../../shared/icon.component';
 
 interface CalendarDay {
@@ -27,6 +27,10 @@ export class DiaryComponent implements OnInit {
   loading = true;
   saving = false;
   error = '';
+  showEventModal = false;
+  selectedEvent?: DiaryEventDto;
+  selectedMatter?: MatterDetailDto;
+  matterPreviewLoading = false;
   editingId = '';
   title = '';
   matterId = '';
@@ -46,6 +50,30 @@ export class DiaryComponent implements OnInit {
 
   get todayKey(): string {
     return this.dateKey(new Date());
+  }
+
+  get monthEventCount(): number {
+    return this.events.filter((event) => {
+      const date = new Date(event.startsAtUtc);
+      return date.getFullYear() === this.calendarMonth.getFullYear() && date.getMonth() === this.calendarMonth.getMonth();
+    }).length;
+  }
+
+  get nextSevenEvents(): DiaryEventDto[] {
+    const now = Date.now();
+    const end = now + 7 * 86400000;
+    return this.events.filter((event) => {
+      const starts = new Date(event.startsAtUtc).getTime();
+      return starts >= now && starts <= end;
+    }).sort((a, b) => a.startsAtUtc.localeCompare(b.startsAtUtc)).slice(0, 4);
+  }
+
+  get nextSevenCourtDates(): DiaryEventDto[] {
+    return this.nextSevenEvents.filter((event) => event.kind === 'Hearing' || event.kind === 'Limitation').slice(0, 3);
+  }
+
+  countKind(kind: DiaryEventRequest['kind']): number {
+    return this.events.filter((event) => event.kind === kind).length;
   }
 
   get calendarDays(): CalendarDay[] {
@@ -96,7 +124,21 @@ export class DiaryComponent implements OnInit {
   }
 
   openMatter(matter: MatterListItemDto): void {
-    void this.router.navigate(['/matters', matter.id]);
+    this.matterPreviewLoading = true;
+    this.selectedMatter = undefined;
+    this.mattersApi.get(matter.id).subscribe({
+      next: (detail) => { this.selectedMatter = detail; this.matterPreviewLoading = false; },
+      error: () => { this.error = 'Could not load the matter preview.'; this.matterPreviewLoading = false; },
+    });
+  }
+
+  closeMatterPreview(): void {
+    this.selectedMatter = undefined;
+    this.matterPreviewLoading = false;
+  }
+
+  openFullMatter(): void {
+    if (this.selectedMatter) void this.router.navigate(['/matters', this.selectedMatter.id]);
   }
 
   reminders(): DiaryEventDto[] {
@@ -121,7 +163,7 @@ export class DiaryComponent implements OnInit {
     this.error = '';
     const request$ = this.editingId ? this.diaryApi.update(this.editingId, request) : this.diaryApi.create(request);
     request$.subscribe({
-      next: () => { this.resetForm(); this.saving = false; this.load(); },
+      next: () => { this.resetForm(); this.showEventModal = false; this.saving = false; this.load(); },
       error: (err) => { this.error = err?.error?.detail || err?.error?.title || 'Could not save this diary event.'; this.saving = false; },
     });
   }
@@ -131,7 +173,30 @@ export class DiaryComponent implements OnInit {
     this.matterId = item.matterId ?? ''; this.kind = item.kind as DiaryEventRequest['kind'];
     this.startsLocal = this.localValue(new Date(item.startsAtUtc)); this.endsLocal = this.localValue(new Date(item.endsAtUtc));
     this.allDay = item.allDay; this.reminderLocal = item.reminderAtUtc ? this.localValue(new Date(item.reminderAtUtc)) : '';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.selectedEvent = undefined;
+    this.error = '';
+    this.showEventModal = true;
+  }
+
+  openCreate(): void {
+    this.resetForm();
+    this.selectedEvent = undefined;
+    this.error = '';
+    this.showEventModal = true;
+  }
+
+  openEvent(item: DiaryEventDto): void {
+    this.selectedEvent = item;
+    this.error = '';
+  }
+
+  closeEventModal(): void {
+    this.showEventModal = false;
+    this.error = '';
+  }
+
+  closeEventDetails(): void {
+    this.selectedEvent = undefined;
   }
 
   remove(item: DiaryEventDto): void {

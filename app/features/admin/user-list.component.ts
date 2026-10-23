@@ -22,6 +22,11 @@ export class UserListComponent implements OnInit {
   loading = false;
 
   showCreate = false;
+  showEdit = false;
+  editUser: UserDto | null = null;
+  editRole = '';
+  editError = '';
+  editBusy = false;
   newName = '';
   newEmail = '';
   newRole = 'FeeEarner';
@@ -70,7 +75,7 @@ export class UserListComponent implements OnInit {
         email: this.newEmail.trim(),
         role: this.newRole,
         password: this.newPassword,
-        sendWelcomeEmail: false,
+        sendWelcomeEmail: true,
       })
       .subscribe({
         next: () => {
@@ -84,6 +89,32 @@ export class UserListComponent implements OnInit {
           this.createError = this.apiError(err, 'Could not create the user.');
         },
       });
+  }
+
+  openEdit(user: UserDto): void {
+    this.editUser = user;
+    this.editRole = user.roles[0] || this.roles[0];
+    this.editError = '';
+    this.showEdit = true;
+  }
+
+  saveEdit(): void {
+    if (!this.editUser || !this.editRole || this.editBusy) return;
+    this.editBusy = true;
+    this.editError = '';
+    const userId = this.editUser.id;
+    this.api.setRole(userId, { role: this.editRole }).subscribe({
+      next: () => {
+        this.users = this.users.map((user) => user.id === userId ? { ...user, roles: [this.editRole] } : user);
+        this.showEdit = false;
+        this.editUser = null;
+        this.editBusy = false;
+      },
+      error: (err) => {
+        this.editError = this.apiError(err, 'Could not update the user role.');
+        this.editBusy = false;
+      },
+    });
   }
 
   private apiError(error: any, fallback: string): string {

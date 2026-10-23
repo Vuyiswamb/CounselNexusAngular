@@ -34,6 +34,7 @@ export class RafClaimsComponent implements OnInit {
   medicalReportsLoading = false;
   medicalReportUploading = false;
   medicalReportError = '';
+  formPointerDown = false;
   supportingDocuments: DocumentDto[] = [];
   supportingDocumentUploading = false;
   supportingDocumentError = '';
@@ -91,6 +92,15 @@ export class RafClaimsComponent implements OnInit {
   }
 
   closeForm(): void { if (!this.saving) { this.showForm = false; this.editingClaimId = null; } }
+
+  closeFormFromBackdrop(event: MouseEvent): void {
+    if (event.target !== event.currentTarget || this.saving) return;
+    if (this.formPointerDown || window.getSelection()?.toString()) {
+      this.formPointerDown = false;
+      return;
+    }
+    this.closeForm();
+  }
 
   save(): void {
     if (!this.validateClaimDetails()) return;

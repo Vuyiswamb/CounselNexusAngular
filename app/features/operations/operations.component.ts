@@ -69,6 +69,7 @@ export class OperationsComponent implements OnInit {
   search = '';
   statusFilter = 'All statuses';
   showForm = false;
+  formPointerDown = false;
   form: OperationRecord = this.emptyRecord();
   matters: MatterListItemDto[] = [];
   selectedSummons: OperationRecord | null = null;
@@ -108,6 +109,14 @@ export class OperationsComponent implements OnInit {
 
   openForm(): void { this.form = this.emptyRecord(); this.showForm = true; }
   closeForm(): void { this.showForm = false; }
+  closeFormFromBackdrop(event: MouseEvent): void {
+    if (event.target !== event.currentTarget) return;
+    if (this.formPointerDown || window.getSelection()?.toString()) {
+      this.formPointerDown = false;
+      return;
+    }
+    this.closeForm();
+  }
 
   save(): void {
     if (!this.form.subject.trim() || !this.form.person.trim()) return;

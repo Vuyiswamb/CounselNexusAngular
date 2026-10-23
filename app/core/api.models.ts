@@ -190,6 +190,8 @@ export interface CreateUserRequest {
   sendWelcomeEmail: boolean;
 }
 
+export interface UpdateUserRoleRequest { role: string; }
+
 export type MatterAccessLevel = 'View' | 'Edit' | 'Admin';
 
 export interface PermissionDto {
@@ -239,7 +241,7 @@ export interface PlatformSubscriptionDto {
 export interface PlatformPaymentDto {
   id: string; firmId: string; firmSubscriptionId: string; amount: number; currency: string;
   status: string; paidAtUtc: string | null; externalReference: string | null; notes: string | null;
-  createdAtUtc: string; createdBy: string | null;
+  createdAtUtc: string; createdBy: string | null; months?: number;
 }
 
 export interface PlatformPaymentRequest {
@@ -251,7 +253,27 @@ export interface PlatformTransactionDto extends PlatformPaymentDto { firmName: s
 export interface PlatformComponentDto { id: string; code: string; name: string; isActive: boolean; }
 export interface PlatformPackageDto { id: string; code: string; name: string; monthlyPrice: number; currency: string; isActive: boolean; createdAtUtc: string; components: PlatformComponentDto[]; }
 export interface PlatformPackageRequest { code: string; name: string; monthlyPrice: number; currency: string; isActive: boolean; }
+export interface SubscriptionCheckoutRequest { planId: string; months: number; email: string; extendActiveSubscription: boolean; }
 export interface SubscriptionCheckoutResponse { action: string; fields: Record<string, string>; paymentId: string; amount: number; currency: string; proposedEndAtUtc: string; }
+
+export type PaymentRequisitionStatus = 'Draft' | 'Submitted' | 'Verification' | 'PendingApproval' | 'Approved' | 'PaymentProcessing' | 'Paid' | 'Reconciled' | 'Returned' | 'Rejected' | 'Cancelled' | 'PaymentFailed';
+export type PaymentSource = 'Business' | 'Trust';
+export type PaymentPriority = 'Normal' | 'Urgent' | 'Critical';
+export interface PaymentRequisitionItemRequest { description: string; category: string; amount: number; vatAmount: number; }
+export interface PaymentRequisitionRequest { department?: string | null; matterId?: string | null; clientId?: string | null; dueDate?: string | null; priority: PaymentPriority; motivation: string; category: string; beneficiaryName: string; beneficiaryAccountReference?: string | null; currency: string; source: PaymentSource; costCentre?: string | null; paymentReference?: string | null; items: PaymentRequisitionItemRequest[]; }
+export interface PaymentRequisitionItemDto extends PaymentRequisitionItemRequest { id: string; totalAmount: number; }
+export interface PaymentRequisitionApprovalDto { id: string; step: string; decision: string; comments: string | null; actorUserId: string; decidedAtUtc: string; }
+export interface PaymentRequisitionTransactionDto { id: string; status: string; method: string; paymentReference: string | null; paymentDateUtc: string | null; bankConfirmationReference: string | null; notes: string | null; }
+export interface PaymentRequisitionDto extends Omit<PaymentRequisitionRequest, 'items'> { id: string; number: string; requestDateUtc: string; subtotal: number; vatAmount: number; totalAmount: number; status: PaymentRequisitionStatus; requestedById: string; items: PaymentRequisitionItemDto[]; approvals: PaymentRequisitionApprovalDto[]; transactions: PaymentRequisitionTransactionDto[]; }
+export interface PaymentRequisitionListDto { id: string; number: string; requestDateUtc: string; matterId: string | null; clientId: string | null; category: string; beneficiaryName: string; totalAmount: number; currency: string; status: PaymentRequisitionStatus; priority: PaymentPriority; requestedById: string; dueDate: string | null; source: PaymentSource; }
+export interface PaymentRequisitionDashboardDto { total: number; draft: number; pendingVerification: number; pendingApproval: number; approved: number; awaitingPayment: number; paid: number; requestedAmount: number; approvedAmount: number; paidAmount: number; outstandingAmount: number; }
+
+export interface LedgerAccountDto { id: string; code: string; name: string; accountType: string; isActive: boolean; createdAtUtc: string; }
+export interface TrialBalanceRowDto { ledgerAccountId: string; code: string; name: string; accountType: string; debits: number; credits: number; balance: number; }
+export interface LedgerEntryDto { journalEntryId: string; entryNumber: string; entryDate: string; description: string; code: string; name: string; lineDescription: string | null; debit: number; credit: number; matterId: string | null; }
+export interface JournalLineRequest { ledgerAccountId: string; matterId?: string | null; description?: string | null; debit: number; credit: number; }
+export interface JournalPostRequest { entryDate: string; description: string; sourceType?: string | null; sourceId?: string | null; lines: JournalLineRequest[]; }
+export interface JournalPostResultDto { id: string; entryNumber: string; }
 
 export interface UserPermissionsUpdateRequest {
   allowedPermissionIds: string[];
@@ -526,10 +548,12 @@ export interface DashboardSummaryDto {
 }
 
 export interface SmtpSettingsDto {
+  useCounselNexusSettings?: boolean;
   host: string | null;
   port: number;
   enableSsl: boolean;
   username: string | null;
+  password?: string | null;
   fromAddress: string | null;
   fromName: string | null;
   hasPassword: boolean;
@@ -537,6 +561,7 @@ export interface SmtpSettingsDto {
 }
 
 export interface SmtpSettingsUpdateRequest {
+  useCounselNexusSettings?: boolean;
   host: string;
   port: number;
   enableSsl: boolean;
@@ -549,8 +574,11 @@ export interface SmtpSettingsUpdateRequest {
 export interface PayFastEnvironmentDto {
   enabled: boolean;
   merchantId: string | null;
-  merchantKey: string | null;
-  passphrase: string | null;
+  merchantKeyConfigured: boolean;
+  passphraseConfigured: boolean;
+  /** Write-only fields: the API never returns these values. */
+  merchantKey?: string | null;
+  passphrase?: string | null;
   processUrl: string | null;
   returnUrl: string | null;
   cancelUrl: string | null;
@@ -571,6 +599,7 @@ export interface PlatformGatewaySettingsDto {
 export interface PlatformGatewaySettingsUpdateRequest {
   environment: 'Sandbox' | 'Live';
   payFastEnabled: boolean;
+  payFastSandbox?: boolean;
   environmentEnabled: boolean;
   payFastMerchantId: string | null;
   payFastMerchantKey: string | null;

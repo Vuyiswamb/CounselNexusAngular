@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ErrorPopupComponent } from './shared/error-popup.component';
 import { LanguageService } from './core/language.service';
+import { AuthService } from './core/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,7 @@ import { LanguageService } from './core/language.service';
 export class AppComponent implements OnInit {
   title = 'CounselNexus';
   readonly language = inject(LanguageService);
+  readonly auth = inject(AuthService);
 
   ngOnInit(): void { this.language.start(); }
 

@@ -13,8 +13,8 @@ export class PlatformGatewaysComponent implements OnInit {
   private api = inject(PlatformGatewaySettingsService);
   settings: PlatformGatewaySettingsDto = {
     payFastEnabled: false,
-    sandbox: { enabled: false, merchantId: '', merchantKey: '', passphrase: '', processUrl: 'https://sandbox.payfast.co.za/eng/process', returnUrl: 'https://www.counselnexus.co.za/login?payment=success', cancelUrl: 'https://www.counselnexus.co.za/packages?payment=cancelled' },
-    live: { enabled: false, merchantId: '', merchantKey: '', passphrase: '', processUrl: 'https://www.payfast.co.za/eng/process', returnUrl: 'https://www.counselnexus.co.za/login?payment=success', cancelUrl: 'https://www.counselnexus.co.za/packages?payment=cancelled' },
+    sandbox: { enabled: false, merchantId: '', merchantKeyConfigured: false, passphraseConfigured: false, merchantKey: '', passphrase: '', processUrl: 'https://sandbox.payfast.co.za/eng/process', returnUrl: 'https://www.counselnexus.co.za/login?payment=success', cancelUrl: 'https://www.counselnexus.co.za/packages?payment=cancelled' },
+    live: { enabled: false, merchantId: '', merchantKeyConfigured: false, passphraseConfigured: false, merchantKey: '', passphrase: '', processUrl: 'https://www.payfast.co.za/eng/process', returnUrl: 'https://www.counselnexus.co.za/login?payment=success', cancelUrl: 'https://www.payfast.co.za/packages?payment=cancelled' },
     smsEnabled: false, smsProvider: '', smsBaseUrl: '', smsApiKeyConfigured: false, smsApiSecretConfigured: false, smsFrom: '',
   };
   loading = true;
@@ -42,6 +42,7 @@ export class PlatformGatewaysComponent implements OnInit {
     this.api.save({
       environment,
       payFastEnabled: this.settings.payFastEnabled,
+      payFastSandbox: sandbox,
       environmentEnabled: selected.enabled,
       payFastMerchantId: selected.merchantId || null,
       payFastMerchantKey: selected.merchantKey || null,

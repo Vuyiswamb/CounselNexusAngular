@@ -16,10 +16,12 @@ export class SmtpSettingsComponent implements OnInit {
   private api = inject(SmtpSettingsService);
   auth = inject(AuthService);
   settings: SmtpSettingsDto = {
+    useCounselNexusSettings: false,
     host: '', port: 587, enableSsl: true, username: '', fromAddress: '',
     fromName: 'CounselNexus', hasPassword: false, isConfigured: false,
   };
   password = '';
+  showPassword = false;
   testRecipientEmail = '';
   loading = true;
   saving = false;
@@ -28,6 +30,9 @@ export class SmtpSettingsComponent implements OnInit {
   notice = '';
 
   get isPlatformEmail(): boolean { return this.auth.isPlatformAdmin(); }
+  get usesCounselNexusSettings(): boolean {
+    return !this.isPlatformEmail && !!this.settings.useCounselNexusSettings;
+  }
 
   get validTestRecipient(): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.testRecipientEmail.trim());
@@ -35,7 +40,12 @@ export class SmtpSettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.api.get().subscribe({
-      next: (value) => { this.settings = value; this.loading = false; },
+      next: (value) => {
+        this.settings = { ...value, useCounselNexusSettings: value.useCounselNexusSettings ?? false };
+        this.password = value.password ?? '';
+        this.showPassword = !!this.password;
+        this.loading = false;
+      },
       error: () => { this.error = 'Could not load SMTP settings. Confirm the API database schema is up to date.'; this.loading = false; },
     });
   }
@@ -45,14 +55,17 @@ export class SmtpSettingsComponent implements OnInit {
     this.notice = '';
     this.saving = true;
     this.api.save({
+      useCounselNexusSettings: !this.isPlatformEmail && this.usesCounselNexusSettings,
       host: this.settings.host ?? '', port: Number(this.settings.port), enableSsl: this.settings.enableSsl,
       username: this.settings.username || null, password: this.password || null,
       fromAddress: this.settings.fromAddress ?? '', fromName: this.settings.fromName || null,
     }).subscribe({
       next: (value) => {
         this.settings = value;
-        this.password = '';
-        this.notice = 'SMTP settings saved securely.';
+        this.password = value.password ?? this.password;
+        // Keep the plain-text password visible after saving and after reload.
+        this.showPassword = true;
+        this.notice = 'SMTP settings saved.';
         this.saving = false;
       },
       error: (err) => { this.error = err?.error?.title || 'Could not save SMTP settings.'; this.saving = false; },

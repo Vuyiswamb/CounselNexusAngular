@@ -21,6 +21,20 @@
 
   @if (loading) { <div class="loading">Loading email settings…</div> } @else {
     <form #smtpForm="ngForm" (ngSubmit)="save()">
+      @if (!isPlatformEmail) {
+        <div class="delivery-options" role="radiogroup" aria-label="Email delivery method">
+          <label class="delivery-option" [class.selected]="!usesCounselNexusSettings">
+            <input type="radio" name="deliveryMode" [checked]="!usesCounselNexusSettings" (change)="settings.useCounselNexusSettings = false" />
+            <span><b>Use my firm SMTP settings</b><small>Send system messages from your firm email address.</small></span>
+          </label>
+          <label class="delivery-option" [class.selected]="usesCounselNexusSettings">
+            <input type="radio" name="deliveryMode" [checked]="usesCounselNexusSettings" (change)="settings.useCounselNexusSettings = true" />
+            <span><b>Use free settings by CounselNexus</b><small>Use CounselNexus system email delivery without configuring a domain or SMTP server.</small></span>
+          </label>
+        </div>
+      }
+
+      @if (!usesCounselNexusSettings) {
       <div class="form-grid">
         <div class="field">
           <label for="smtp-host">SMTP host <span class="required">*</span></label>
@@ -36,8 +50,13 @@
         </div>
         <div class="field">
           <label for="smtp-password">Password</label>
-          <input id="smtp-password" class="input" name="password" type="password" [(ngModel)]="password" autocomplete="new-password" placeholder="{{ settings.hasPassword ? 'Saved; leave blank to keep it' : 'SMTP password or app password' }}" />
-          <small>The saved password is encrypted and never shown here.</small>
+          <div class="password-input">
+            <input id="smtp-password" class="input" name="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" autocomplete="new-password" placeholder="{{ settings.hasPassword ? 'Saved; leave blank to keep it' : 'SMTP password or app password' }}" />
+            <button class="password-toggle" type="button" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide SMTP password' : 'Show SMTP password'" [attr.aria-pressed]="showPassword">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+            </button>
+          </div>
+          <small>Leave this blank to keep the saved password. It will be loaded again after logout or an API restart.</small>
         </div>
         <div class="field">
           <label for="smtp-from">From email <span class="required">*</span></label>
@@ -53,6 +72,9 @@
         <input type="checkbox" name="enableSsl" [(ngModel)]="settings.enableSsl" />
         <span><b>Use secure connection (STARTTLS)</b><small>Use the TLS submission port provided by your email provider, commonly 587.</small></span>
       </label>
+      } @else {
+        <div class="free-settings-notice" role="status"><app-icon name="mail" [size]="17" /><span><b>CounselNexus email delivery is enabled</b><small>System emails will be sent using CounselNexus-managed settings. You can switch back to firm SMTP at any time.</small></span></div>
+      }
 
       <div class="field test-recipient-field">
         <label for="smtp-test-recipient">Send test email to</label>
@@ -69,7 +91,7 @@
         <span class="hint">Test message recipient is the address entered above.</span>
         <div class="action-buttons">
           <button class="btn btn-secondary test-button" type="button" (click)="sendTest()"
-            [disabled]="testing || saving || !settings.isConfigured || !smtpForm.valid || !validTestRecipient">
+            [disabled]="testing || saving || (!usesCounselNexusSettings && !settings.isConfigured) || !smtpForm.valid || !validTestRecipient">
             <app-icon name="mail" [size]="16" /> {{ testing ? 'Sending…' : 'Send test email' }}
           </button>
           <button class="btn btn-primary" type="submit" [disabled]="saving || !smtpForm.valid">
