@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { IconComponent } from '../../shared/icon.component';
@@ -60,6 +60,7 @@ const configs: Record<string, OperationConfig> = {
 })
 export class OperationsComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private host = inject(ElementRef<HTMLElement>);
   private api = inject(PracticeOperationsService);
   private mattersApi = inject(MattersService);
   config = configs['debt-collections'];
@@ -118,12 +119,28 @@ export class OperationsComponent implements OnInit {
     this.closeForm();
   }
 
-  save(): void {
-    if (!this.form.subject.trim() || !this.form.person.trim()) return;
-    if (this.config.key === 'debt-collections' && !this.form.matterId) { this.error = 'Select a current matter before saving the collection.'; return; }
-    if (this.config.key === 'summons-management' && !this.form.matterId) { this.error = 'Select a current matter before saving the summons.'; return; }
+  save(form?: NgForm): void {
+    if (form?.invalid || !this.form.subject.trim() || !this.form.person.trim()) {
+      this.error = 'Complete the required fields before saving.';
+      this.focusFirstInvalidControl();
+      return;
+    }
+    if (this.config.key === 'debt-collections' && !this.form.matterId) { this.error = 'Select a current matter before saving the collection.'; this.focusFirstInvalidControl(); return; }
+    if (this.config.key === 'summons-management' && !this.form.matterId) { this.error = 'Select a current matter before saving the summons.'; this.focusFirstInvalidControl(); return; }
     const request = { reference: this.form.reference || `${this.config.key.slice(0, 3).toUpperCase()}-${this.records.length + 1}`, personName: this.form.person, subject: this.form.subject, nextAction: this.form.date, status: this.form.status, amount: this.form.amount ? Number(this.form.amount.replace(/[^0-9.-]/g, '')) : null, notes: this.form.matterId ? `linkedMatterId:${this.form.matterId}` : null };
     this.api.create(this.config.key, request).subscribe({ next: () => { this.showForm = false; this.load(); }, error: () => (this.error = 'The record could not be saved.') });
+  }
+
+  private focusFirstInvalidControl(): void {
+    requestAnimationFrame(() => {
+      const control = (this.host.nativeElement as HTMLElement).querySelector('.record-form input.ng-invalid, .record-form select.ng-invalid, .record-form textarea.ng-invalid') as HTMLElement | null;
+      if (!control) return;
+      control.focus();
+      control.classList.remove('cn-validation-shake');
+      void control.offsetWidth;
+      control.classList.add('cn-validation-shake');
+      window.setTimeout(() => control.classList.remove('cn-validation-shake'), 500);
+    });
   }
 
   private emptyRecord(): OperationRecord { return { id: '', reference: '', subject: '', person: '', date: '', status: this.config.statuses[0], amount: '', matterId: '', matterLabel: '' }; }

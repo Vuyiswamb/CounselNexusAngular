@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-type LegalDoc = 'terms' | 'privacy' | 'cookies';
+type LegalDoc = 'terms' | 'privacy' | 'cookies' | 'refunds';
 
 /** Public legal pages (Terms and Conditions, Privacy Policy, Cookie Policy). Static content only. */
 @Component({

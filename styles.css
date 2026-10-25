@@ -70,6 +70,78 @@ html:has(app-shell), body:has(app-shell) { overflow: hidden; }
 a { color: var(--primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
+/* ---------- Validation feedback ----------
+   Angular adds .ng-submitted to a form when the user attempts to submit it.
+   Keep the invalid state quiet while the user is filling the form, then make
+   every invalid control unmistakable once validation has run. */
+form.ng-submitted input.ng-invalid:not([type='checkbox']):not([type='radio']),
+form.ng-submitted select.ng-invalid,
+form.ng-submitted textarea.ng-invalid {
+  border-color: #dc2626 !important;
+  background-color: #fff8f8;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
+  animation: cn-invalid-control .42s ease-in-out;
+}
+
+form.ng-submitted label:has(input.ng-invalid),
+form.ng-submitted label:has(select.ng-invalid),
+form.ng-submitted label:has(textarea.ng-invalid) {
+  color: #b42318;
+}
+
+form.ng-submitted input[type='checkbox'].ng-invalid,
+form.ng-submitted input[type='radio'].ng-invalid {
+  accent-color: #dc2626;
+  outline: 3px solid rgba(220, 38, 38, .2);
+  animation: cn-invalid-choice .42s ease-in-out;
+}
+
+/* Also supports validation triggered by custom dialog actions. */
+form input.ng-invalid.ng-touched:not([type='checkbox']):not([type='radio']),
+form select.ng-invalid.ng-touched,
+form textarea.ng-invalid.ng-touched {
+  border-color: #dc2626 !important;
+  background-color: #fff8f8;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
+  animation: cn-invalid-control .42s ease-in-out;
+}
+
+form label:has(.ng-invalid.ng-touched) { color: #b42318; }
+form input[type='checkbox'].ng-invalid.ng-touched,
+form input[type='radio'].ng-invalid.ng-touched {
+  accent-color: #dc2626;
+  outline: 3px solid rgba(220, 38, 38, .2);
+  animation: cn-invalid-choice .42s ease-in-out;
+}
+
+@keyframes cn-invalid-control {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+.cn-validation-shake {
+  border-color: #dc2626 !important;
+  background-color: #fff8f8 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, .12) !important;
+  animation: cn-invalid-control .42s ease-in-out !important;
+}
+
+@keyframes cn-invalid-choice {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  form.ng-submitted input.ng-invalid,
+  form.ng-submitted select.ng-invalid,
+  form.ng-submitted textarea.ng-invalid {
+    animation: none;
+  }
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-flex;

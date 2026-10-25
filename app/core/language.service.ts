@@ -96,7 +96,7 @@ export class LanguageService {
 const af: Record<string, string> = {
   'Home': 'Tuis', 'About': 'Oor ons', 'Services': 'Dienste', 'Legal Market Place': 'Regsmark',
   'Packages': 'Pakkette', 'Contact': 'Kontak', 'Log in': 'Meld aan', 'Register': 'Registreer',
-  'Dashboard': 'Kontroleskerm', 'Search': 'Soek', 'Case Research': 'Regsnavorsing',
+  'Dashboard': 'Kontroleskerm', 'Search': 'Soek', 'Case Research': 'Regsnavorsing', 'AI Case Research': 'KI-regsnavorsing',
   'Contacts': 'Kontakte', 'Matters': 'Sake', 'Notes': 'Notas', 'Tasks': 'Take',
   'Legal Calendar & Court Diary': 'Regs- en hofkalender', 'RAF Claims': 'RAF-eise',
   'Debt Collections': 'Skuldinvordering', 'Evictions': 'Uitsettings', 'Summons Management': 'Dagvaardingsbestuur',

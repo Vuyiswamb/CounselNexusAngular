@@ -3,13 +3,14 @@
     </div>
 
     <div class="page-header">
-      <h1 class="page-title">New Contact</h1>
+      <h1 class="page-title">{{ isEdit ? 'Edit Contact' : 'New Contact' }}</h1>
       <div class="actions">
         <button class="btn btn-secondary" type="button" (click)="cancel()">Cancel</button>
-        <button class="btn btn-primary" type="button" [disabled]="busy" (click)="save()">{{ busy ? 'Saving…' : 'Save' }}</button>
+        <button class="btn btn-primary" type="submit" form="contact-form" [disabled]="busy || loadingContact">{{ loadingContact ? 'Loading…' : busy ? 'Saving…' : isEdit ? 'Save Changes' : 'Save' }}</button>
       </div>
     </div>
 
+    <form id="contact-form" #contactForm="ngForm" (ngSubmit)="save(contactForm)">
     <div class="card form-card">
       <div class="columns">
         <!-- Basic Information -->
@@ -17,21 +18,21 @@
           <h3 class="card-title">Basic Information</h3>
           <div class="field">
             <label for="name">Full Name <span class="req">*</span></label>
-            <input id="name" class="input" type="text" [(ngModel)]="name" />
+            <input id="name" class="input" type="text" name="name" [(ngModel)]="name" required />
           </div>
           <div class="field">
             <label for="type">Type <span class="req">*</span></label>
-            <select id="type" class="select" [(ngModel)]="type">
+            <select id="type" class="select" name="type" [(ngModel)]="type" required>
               @for (t of contactTypes; track t) { <option [value]="t">{{ t }}</option> }
             </select>
           </div>
           <div class="field">
             <label for="email">Email</label>
-            <input id="email" class="input" type="email" [(ngModel)]="email" />
+            <input id="email" class="input" type="email" name="email" [(ngModel)]="email" />
           </div>
           <div class="field">
             <label for="phone">Phone</label>
-            <input id="phone" class="input" type="tel" [(ngModel)]="phone" />
+            <input id="phone" class="input" type="tel" name="phone" [(ngModel)]="phone" />
           </div>
         </section>
 
@@ -40,18 +41,18 @@
           <h3 class="card-title">Additional Information</h3>
           <div class="field">
             <label for="status">Status</label>
-            <select id="status" class="select" [(ngModel)]="status">
+            <select id="status" class="select" name="status" [(ngModel)]="status">
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
           </div>
           <div class="field">
             <label for="address">Address</label>
-            <textarea id="address" class="textarea" [(ngModel)]="address"></textarea>
+            <textarea id="address" class="textarea" name="address" [(ngModel)]="address"></textarea>
           </div>
           <div class="field">
             <label for="notes">Notes</label>
-            <textarea id="notes" class="textarea" [(ngModel)]="notes"></textarea>
+            <textarea id="notes" class="textarea" name="notes" [(ngModel)]="notes"></textarea>
           </div>
         </section>
       </div>
@@ -59,3 +60,4 @@
         <div class="error-msg">{{ error }}</div>
       }
     </div>
+    </form>

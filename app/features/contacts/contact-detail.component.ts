@@ -89,4 +89,8 @@ export class ContactDetailComponent implements OnInit {
   go(path: string): void {
     this.router.navigateByUrl(path);
   }
+
+  edit(): void {
+    if (this.contact) void this.router.navigate(['/contacts', this.contact.id, 'edit']);
+  }
 }

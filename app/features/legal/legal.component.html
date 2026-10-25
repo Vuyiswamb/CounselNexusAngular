@@ -40,7 +40,8 @@
         <ul><li>The first person to register a firm becomes its System Admin and is responsible for adding users, setting their roles and removing access when someone leaves.</li><li>The details you give us when you register must be accurate and kept up to date.</li><li>Each user must keep their password and any authenticator codes private. Tell us straight away at <a href="mailto:info@counselnexus.co.za">info&#64;counselnexus.co.za</a> if you think an account has been used without permission.</li><li>Your firm is responsible for everything done through its users' accounts.</li></ul>
         <h2>4. Packages and fees</h2>
         <p>CounselNexus is offered in the Essential, Professional and Premium packages shown on our Packages page. Prices are not published on the website. We quote each firm directly, and the fees, billing period and payment terms are those set out in the quotation or service agreement your firm accepts.</p>
-        <p>Unless your agreement says otherwise, fees are payable in advance and are exclusive of VAT.</p>
+        <p>Unless your agreement says otherwise, fees are payable in advance and are exclusive of VAT. Payments made through PayFast are processed securely by PayFast. We do not receive or store your full card or banking details.</p>
+        <p>Payment reversals, cancellations and refunds are handled under our <a routerLink="/refunds">Refund and Cancellation Policy</a>. Nothing in that policy limits any right you have under the Consumer Protection Act, 2008 or another applicable law.</p>
         <h2>5. Acceptable use</h2>
         <p>You may not:</p>
         <ul><li>use the system for anything unlawful, or to store information you have no right to hold;</li><li>try to get into accounts, data or parts of the system you are not authorised to use;</li><li>copy, reverse engineer or resell the software, or use it to build a competing product;</li><li>upload malicious code or do anything that could harm the system or other users;</li><li>share sign in details between people. Each person needs their own user.</li></ul>
@@ -135,6 +136,33 @@
     </main>
   }
 
+  @if (doc === 'refunds') {
+    <main>
+      <section class="cn-banner legal"><div class="cn-container"><h1>Refund and Cancellation Policy</h1><p>How CounselNexus handles subscription payments, cancellations and refunds.</p><div class="cn-crumb"><a routerLink="/home">Home</a> / <span>Refund Policy</span></div></div></section>
+      <section class="cn-pad"><div class="cn-container"><article class="cn-legal">
+        <p class="cn-legal-date">Last updated: 24 October 2026</p>
+        <h2>1. Who this policy applies to</h2>
+        <p>This policy applies to subscription payments for CounselNexus made by a law firm or its authorised representative through PayFast. It should be read with our <a routerLink="/terms">Terms and Conditions</a>.</p>
+        <h2>2. Payment confirmation</h2>
+        <p>A payment is treated as received only after PayFast confirms it to CounselNexus and our system successfully validates the notification. A pending or failed payment does not activate or extend a subscription.</p>
+        <h2>3. Cancellation before payment</h2>
+        <p>You may close the PayFast payment page before completing payment. No CounselNexus subscription payment is due when a payment is cancelled before PayFast confirms it.</p>
+        <h2>4. Refunds after payment</h2>
+        <p>Because subscription access is provisioned for a selected period, please contact us as soon as possible if you believe a payment was made in error, duplicated, or was not authorised by your firm. We will investigate the payment and, where appropriate, process a refund to the original payment method through PayFast.</p>
+        <p>Where a refund is approved for an unused period, we may calculate it on a pro-rata basis. Amounts already used for the subscription period, transaction charges, or amounts that are non-refundable under an agreed quotation or service agreement may be excluded where the law permits.</p>
+        <h2>5. Failed, reversed or disputed payments</h2>
+        <p>If PayFast declines, reverses or disputes a payment, the related subscription may remain inactive or be suspended until the payment is resolved. We will not treat a payment as complete solely because a customer reached the PayFast payment page.</p>
+        <h2>6. How to request help or a refund</h2>
+        <p>Email <a href="mailto:info@counselnexus.co.za">info&#64;counselnexus.co.za</a> with the firm account email, payment date, amount and PayFast payment reference if available. Do not send card numbers, passwords, one-time codes or PayFast secret credentials.</p>
+        <p>We aim to acknowledge requests within two business days and will communicate the outcome after reviewing the payment records.</p>
+        <h2>7. Your statutory rights</h2>
+        <p>This policy does not exclude or limit any right or remedy that cannot lawfully be excluded, including rights under the Consumer Protection Act, 2008. If this policy conflicts with a signed quotation or service agreement, that agreement applies to the extent permitted by law.</p>
+        <h2>8. Contact</h2>
+        <p>Questions about payments or refunds can be sent to <a href="mailto:info@counselnexus.co.za">info&#64;counselnexus.co.za</a> or <a href="tel:+27120072568">+27 12 007 2568</a>.</p>
+      </article></div></section>
+    </main>
+  }
+
   <footer class="cn-footer">
     <div class="cn-container cn-foot-grid">
       <div>
@@ -146,6 +174,6 @@
       <div><h5>Platform</h5><ul><li><a routerLink="/services">Matter management</a></li><li><a routerLink="/services">Trust accounting</a></li><li><a routerLink="/services">Billing and time</a></li><li><a routerLink="/services">Compliance</a></li></ul></div>
       <div><h5>Get started</h5><p class="cn-foot-text">Already using CounselNexus? Sign in to your workspace.</p><a class="cn-btn sm" routerLink="/login">Log in <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg></a></div>
     </div>
-    <div class="cn-container cn-foot-bottom"><small>© 2026 CounselNexus. All rights reserved. A Manelisi Technologies product.</small><span class="cn-foot-legal"><a routerLink="/terms">Terms and Conditions</a><a routerLink="/privacy">Privacy Policy</a><a routerLink="/cookies">Cookie Policy</a></span></div>
+    <div class="cn-container cn-foot-bottom"><small>© 2026 CounselNexus. All rights reserved. A Manelisi Technologies product.</small><span class="cn-foot-legal"><a routerLink="/terms">Terms and Conditions</a><a routerLink="/privacy">Privacy Policy</a><a routerLink="/refunds">Refund Policy</a><a routerLink="/cookies">Cookie Policy</a></span></div>
   </footer>
 </div>

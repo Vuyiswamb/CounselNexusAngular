@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { MattersService, TrustService } from '../../core/api-services';
 import { MatterListItemDto, TrustTransactionDto } from '../../core/api.models';
@@ -15,6 +15,7 @@ import { IconComponent } from '../../shared/icon.component';
 export class TrustComponent implements OnInit {
   private mattersApi = inject(MattersService);
   private trustApi = inject(TrustService);
+  private host = inject(ElementRef<HTMLElement>);
   matters: MatterListItemDto[] = [];
   rows: TrustTransactionDto[] = [];
   matterId = '';
@@ -54,8 +55,14 @@ export class TrustComponent implements OnInit {
     });
   }
 
-  post(): void {
-    if (!this.matterId || !this.amount || this.amount <= 0 || !this.reference.trim() || this.saving) return;
+  post(form?: NgForm): void {
+    if (this.saving) return;
+    if (this.movementType === 'Transfer') form?.controls['targetMatterId']?.setErrors(this.targetMatterId && this.targetMatterId !== this.matterId ? null : { required: true });
+    if (form?.invalid || !this.matterId || !this.amount || this.amount <= 0 || !this.reference.trim()) {
+      this.error = 'Complete the required trust movement fields before posting.';
+      this.focusFirstInvalidControl();
+      return;
+    }
     this.saving = true; this.error = ''; this.notice = '';
     const common = { amount: Number(this.amount), reference: this.reference.trim(), description: this.description.trim() || null };
     const request$: Observable<unknown> = this.movementType === 'Receipt'
@@ -69,6 +76,18 @@ export class TrustComponent implements OnInit {
     request$.subscribe({
       next: () => { this.notice = `${this.movementType} recorded.`; this.amount = null; this.reference = ''; this.description = ''; this.saving = false; this.load(); },
       error: (err) => { this.error = err?.error?.detail || err?.error?.title || (typeof err?.error === 'string' ? err.error : '') || `Could not record the ${this.movementType.toLowerCase()}.`; this.saving = false; },
+    });
+  }
+
+  private focusFirstInvalidControl(): void {
+    requestAnimationFrame(() => {
+      const control = (this.host.nativeElement as HTMLElement).querySelector('.movement-card input.ng-invalid, .movement-card select.ng-invalid, .movement-card textarea.ng-invalid') as HTMLElement | null;
+      if (!control) return;
+      control.focus();
+      control.classList.remove('cn-validation-shake');
+      void control.offsetWidth;
+      control.classList.add('cn-validation-shake');
+      window.setTimeout(() => control.classList.remove('cn-validation-shake'), 500);
     });
   }
 

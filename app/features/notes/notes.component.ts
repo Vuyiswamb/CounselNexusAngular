@@ -1,9 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { MatterNotesService, MattersService } from '../../core/api-services';
 import { MatterListItemDto, NoteDto, NoteKind } from '../../core/api.models';
 import { IconComponent } from '../../shared/icon.component';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-notes',
@@ -48,16 +49,36 @@ export class NotesComponent implements OnInit {
     });
   }
 
-  save(): void {
+  save(form?: NgForm): void {
     const subject = this.subject.trim();
     const body = this.body.trim();
-    if (!this.matterId || !subject || !body || this.saving) return;
+    if (this.saving) return;
+    if (form?.invalid || !this.matterId || !subject || !body) {
+      this.error = 'Matter, subject, and note details are required.';
+      return;
+    }
     this.saving = true;
     this.error = '';
     this.notesApi.create({ matterId: this.matterId, kind: this.kind, subject, body, isPrivileged: this.privileged }).subscribe({
       next: () => { this.subject = ''; this.body = ''; this.privileged = false; this.saving = false; this.loadNotes(); },
       error: (err) => { this.error = err?.error?.detail || err?.error?.title || 'Could not save the note.'; this.saving = false; },
     });
+  }
+
+  downloadTemplate(): void {
+    const worksheet = XLSX.utils.aoa_to_sheet([
+      ['Matter Reference', 'Type', 'Subject', 'Note Details', 'Privileged'],
+      ['SMIT001', 'Note', 'Client consultation', 'Record the consultation details here.', 'No'],
+    ]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Notes');
+    const content = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const url = URL.createObjectURL(new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'notes-import-template.xlsx';
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   archive(note: NoteDto): void {

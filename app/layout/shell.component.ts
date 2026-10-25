@@ -42,7 +42,7 @@ export class ShellComponent implements OnInit {
   nav: NavItem[] = [
     { section: 'OVERVIEW', label: 'Dashboard', icon: 'dashboard', route: '/dashboard', permission: 'dashboard.read' },
     { section: 'OVERVIEW', label: 'Search', icon: 'search', route: '/search', permission: 'search.read' },
-    { section: 'LEGAL RESEARCH', label: 'Case Research', icon: 'file', route: '/case-research', permission: 'search.read', exact: true },
+    { section: 'LEGAL RESEARCH', label: 'AI Case Research', icon: 'file', route: '/case-research', permission: 'search.read', exact: true },
     { section: 'MARKETPLACE', label: 'Legal Market Place', icon: 'scales', route: '/firm/legal-market', permission: 'legal-market', exact: true },
     { section: 'CLIENT INTAKE', label: 'Contacts', icon: 'contacts', route: '/contacts', permission: 'contacts.read' },
     { section: 'CLIENT INTAKE', label: 'Matters', icon: 'matters', route: '/matters', permission: 'matters.read' },

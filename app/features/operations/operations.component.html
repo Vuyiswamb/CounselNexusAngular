@@ -11,7 +11,7 @@
   @if (error) { <div class="operation-error">{{ error }}</div> }
   @if (showForm) {
     <div class="modal-backdrop" (click)="closeFormFromBackdrop($event)">
-      <form class="record-form card" role="dialog" aria-modal="true" [attr.aria-label]="'Add ' + config.singular" (pointerdown)="formPointerDown = true" (click)="$event.stopPropagation(); formPointerDown = false" (ngSubmit)="save()">
+      <form class="record-form card" #recordForm="ngForm" role="dialog" aria-modal="true" [attr.aria-label]="'Add ' + config.singular" (pointerdown)="formPointerDown = true" (click)="$event.stopPropagation(); formPointerDown = false" (ngSubmit)="save(recordForm)">
         <div class="form-heading"><div><h2>Add {{ config.singular }}</h2><p>Capture the information needed to follow this workflow.</p></div><button type="button" class="close" (click)="closeForm()">Close</button></div>
         <div class="form-grid">
           <label>Reference<input name="reference" [(ngModel)]="form.reference" placeholder="e.g. DC-002" /></label>
@@ -22,7 +22,8 @@
           @if (config.key === 'debt-collections' || config.key === 'summons-management') { <label>Current matter<select name="matterId" [(ngModel)]="form.matterId" required><option value="">Select active matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} - {{ matter.title }}</option> }</select></label> }
           @if (config.key === 'debt-collections') { <label>Amount<input name="amount" [(ngModel)]="form.amount" placeholder="e.g. R 25,000" /></label> }
         </div>
-        <div class="form-actions"><button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button><button type="submit" class="btn btn-primary">Save {{ config.singular }}</button></div>
+        @if (error) { <div class="operation-error" role="alert">{{ error }}</div> }
+        <div class="form-actions"><button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button><button type="button" class="btn btn-primary" (click)="save(recordForm)">Save {{ config.singular }}</button></div>
       </form>
     </div>
   }

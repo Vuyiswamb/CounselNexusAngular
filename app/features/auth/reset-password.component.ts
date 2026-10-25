@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 
@@ -25,7 +25,8 @@ export class ResetPasswordComponent {
     if (!this.email || !this.token) this.errorMessage = 'This password reset link is incomplete. Request a new one.';
   }
 
-  resetPassword(): void {
+  resetPassword(form: NgForm): void {
+    if (form.invalid || !this.token) return;
     this.busy = true;
     this.errorMessage = '';
     this.auth.resetPassword({ email: this.email, token: this.token, newPassword: this.newPassword }).subscribe({

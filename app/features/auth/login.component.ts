@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService, LoginChallenge } from '../../core/auth.service';
 
 /** Screen 1 — Login. Split layout: navy brand panel + sign-in card. */
@@ -44,7 +44,8 @@ export class LoginComponent {
   }
 
   /** Exchange credentials for a JWT; ask for an authenticator code when 2FA is enabled. */
-  signIn(): void {
+  signIn(form: NgForm): void {
+    if (form.invalid) return;
     this.errorMessage = '';
     this.paymentRequired = false;
     this.busy = true;

@@ -62,6 +62,12 @@ export const routes: Routes = [
     data: { doc: 'cookies' },
   },
   {
+    path: 'refunds',
+    loadComponent: () =>
+      import('./features/legal/legal.component').then((m) => m.LegalComponent),
+    data: { doc: 'refunds' },
+  },
+  {
     path: 'register',
     loadComponent: () =>
       import('./features/auth/register.component').then((m) => m.RegisterComponent),
@@ -115,6 +121,11 @@ export const routes: Routes = [
       },
       {
         path: 'contacts/new',
+        loadComponent: () =>
+          import('./features/contacts/contact-form.component').then((m) => m.ContactFormComponent),
+      },
+      {
+        path: 'contacts/:id/edit',
         loadComponent: () =>
           import('./features/contacts/contact-form.component').then((m) => m.ContactFormComponent),
       },

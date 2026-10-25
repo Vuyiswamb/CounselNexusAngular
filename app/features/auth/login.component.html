@@ -32,7 +32,7 @@
         <h2>Welcome back</h2>
         <p class="cn-muted">Sign in to access your workspace</p>
 
-        <form class="cn-form single" (ngSubmit)="signIn()" #loginForm="ngForm">
+        <form class="cn-form single" (ngSubmit)="signIn(loginForm)" #loginForm="ngForm">
           <div class="cn-field">
             <label for="email">Email address</label>
             <div class="cn-input-wrap">
@@ -69,7 +69,7 @@
           </div>
 
           @if (errorMessage) { <div class="login-error cn-error" role="alert"><span>{{ errorMessage }}</span>@if (paymentRequired) { <a class="cn-link" routerLink="/packages" [queryParams]="{ renew: 1 }">View paid packages and renew</a> }</div> }
-          <button class="sign-in cn-btn block" type="submit" [disabled]="loginForm.invalid || busy">
+          <button class="sign-in cn-btn block" type="submit" [disabled]="busy">
             {{ busy ? 'Signing in...' : requiresTwoFactor ? 'Verify code' : 'Sign in' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg>
           </button>
         </form>

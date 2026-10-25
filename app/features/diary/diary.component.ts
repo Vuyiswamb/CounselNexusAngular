@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DiaryService, MattersService } from '../../core/api-services';
 import { DiaryEventDto, DiaryEventRequest, MatterDetailDto, MatterListItemDto } from '../../core/api.models';
@@ -40,6 +40,7 @@ export class DiaryComponent implements OnInit {
   endsLocal = this.localValue(new Date(Date.now() + 2 * 60 * 60 * 1000));
   allDay = false;
   reminderLocal = '';
+  @ViewChild('eventForm') eventForm?: NgForm;
   readonly rangeStart = new Date();
   readonly rangeEnd = new Date(Date.now() + 90 * 86400000);
   calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -145,10 +146,19 @@ export class DiaryComponent implements OnInit {
     return this.events.filter((event) => event.reminderAtUtc).sort((a, b) => (a.reminderAtUtc ?? '').localeCompare(b.reminderAtUtc ?? '')).slice(0, 5);
   }
 
-  save(): void {
+  save(form?: NgForm): void {
     const start = new Date(this.startsLocal);
     const end = new Date(this.endsLocal);
-    if (!this.title.trim() || !this.startsLocal || !this.endsLocal || end <= start || this.saving) {
+    if (this.saving) return;
+    const validationForm = form ?? this.eventForm;
+    const titleControl = validationForm?.controls['title'];
+    const startsControl = validationForm?.controls['startsLocal'];
+    const endsControl = validationForm?.controls['endsLocal'];
+    titleControl?.setErrors(this.title.trim() ? null : { required: true });
+    startsControl?.setErrors(this.startsLocal ? null : { required: true });
+    endsControl?.setErrors(this.endsLocal && end > start ? null : { required: true });
+    if (validationForm) validationForm.form.markAllAsTouched();
+    if (validationForm?.invalid || !this.title.trim() || !this.startsLocal || !this.endsLocal || end <= start) {
       this.error = end <= start ? 'The end time must be after the start time.' : 'Enter an event title and date.';
       return;
     }

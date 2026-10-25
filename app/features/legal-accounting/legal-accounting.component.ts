@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { IconComponent } from '../../shared/icon.component';
 import { LegalAccountingService } from '../../core/api-services';
 import { LedgerAccountDto, TrialBalanceRowDto } from '../../core/api.models';
@@ -13,6 +13,8 @@ import { LedgerAccountDto, TrialBalanceRowDto } from '../../core/api.models';
 })
 export class LegalAccountingComponent implements OnInit {
   private api = inject(LegalAccountingService);
+  private host = inject(ElementRef<HTMLElement>);
+  @ViewChild('journalForm') journalForm?: NgForm;
   accounts: LedgerAccountDto[] = [];
   trialBalance: TrialBalanceRowDto[] = [];
   selectedAccount?: LedgerAccountDto;
@@ -61,8 +63,18 @@ export class LegalAccountingComponent implements OnInit {
     });
   }
 
-  postJournal(): void {
-    if (!this.description.trim() || !this.debitAccountId || !this.creditAccountId || !this.amount || this.amount <= 0 || this.debitAccountId === this.creditAccountId || this.saving) return;
+  postJournal(form?: NgForm): void {
+    if (this.saving) return;
+    const validationForm = form ?? this.journalForm;
+    validationForm?.controls['description']?.setErrors(this.description.trim() ? null : { required: true });
+    validationForm?.controls['amount']?.setErrors(this.amount && this.amount > 0 ? null : { required: true });
+    validationForm?.controls['debitAccount']?.setErrors(this.debitAccountId ? null : { required: true });
+    validationForm?.controls['creditAccount']?.setErrors(this.creditAccountId && this.creditAccountId !== this.debitAccountId ? null : { required: true });
+    if (validationForm?.invalid || !this.description.trim() || !this.debitAccountId || !this.creditAccountId || !this.amount || this.amount <= 0 || this.debitAccountId === this.creditAccountId) {
+      this.error = this.debitAccountId === this.creditAccountId && this.debitAccountId ? 'Debit and credit accounts must be different.' : 'Complete all required journal fields before posting.';
+      this.focusFirstInvalidControl();
+      return;
+    }
     this.saving = true; this.error = ''; this.notice = '';
     this.api.postJournal({ entryDate: this.entryDate, description: this.description.trim(), lines: [
       { ledgerAccountId: this.debitAccountId, description: this.lineDescription.trim() || null, debit: Number(this.amount), credit: 0 },
@@ -70,6 +82,27 @@ export class LegalAccountingComponent implements OnInit {
     ] }).subscribe({
       next: (result) => { this.notice = `Journal ${result.entryNumber} posted successfully.`; this.description = ''; this.lineDescription = ''; this.amount = null; this.saving = false; this.load(); },
       error: (err) => { this.error = err?.error?.detail || err?.error?.title || (typeof err?.error === 'string' ? err.error : '') || 'The journal could not be posted.'; this.saving = false; },
+    });
+  }
+
+  private focusFirstInvalidControl(): void {
+    requestAnimationFrame(() => {
+      const selector = !this.description.trim()
+        ? '.journal-card input[name="description"]'
+        : !this.amount || this.amount <= 0
+          ? '.journal-card input[name="amount"]'
+          : !this.debitAccountId
+            ? '.journal-card select[name="debitAccount"]'
+            : !this.creditAccountId || this.creditAccountId === this.debitAccountId
+              ? '.journal-card select[name="creditAccount"]'
+              : '.journal-card input[name="entryDate"]';
+      const control = (this.host.nativeElement as HTMLElement).querySelector(selector) as HTMLElement | null;
+      if (!control) return;
+      control.focus();
+      control.classList.remove('cn-validation-shake');
+      void control.offsetWidth;
+      control.classList.add('cn-validation-shake');
+      window.setTimeout(() => control.classList.remove('cn-validation-shake'), 500);
     });
   }
 }

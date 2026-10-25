@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { MarketplaceService, LegalRequestCreated, LegalRequestInput } from '../../core/marketplace.service';
@@ -83,7 +83,7 @@ export class LegalRequestComponent implements OnDestroy {
       ? !!this.clientFullName.trim() && !!this.clientEmail.trim() && this.clientPassword.length >= 8 && this.clientPassword === this.clientPasswordConfirm
       : !!this.loginEmail.trim() && !!this.loginPassword;
   }
-  next(): void { if (!this.canContinue) return; this.error = ''; if (this.step < 4) this.step++; else if (this.step === 4 && !this.auth.isAuthenticated) this.step = 5; else this.submit(); }
+  next(form?: NgForm): void { if (form?.invalid || !this.canContinue) return; this.error = ''; if (this.step < 4) this.step++; else if (this.step === 4 && !this.auth.isAuthenticated) this.step = 5; else this.submit(); }
   back(): void { this.error = ''; if (this.step > 1) this.step--; }
   submit(): void {
     this.error = '';

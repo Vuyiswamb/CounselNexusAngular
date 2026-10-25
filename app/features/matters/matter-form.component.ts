@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { IconComponent } from '../../shared/icon.component';
 import { ContactsService, MattersService, UsersService } from '../../core/api-services';
 import { ContactDto, MatterDetailDto, MatterStatus, PartyDto, UserDto } from '../../core/api.models';
@@ -81,10 +81,10 @@ export class MatterFormComponent implements OnInit {
     this.partyLinks = matter.parties;
   }
 
-  save(): void {
+  save(form?: NgForm): void {
     if (this.busy) return;
     this.error = '';
-    if (!this.title.trim() || !this.clientId || !this.feeEarnerId) {
+    if (form?.invalid || !this.title.trim() || !this.clientId || !this.feeEarnerId) {
       this.error = 'Title, client and fee earner are required.';
       return;
     }

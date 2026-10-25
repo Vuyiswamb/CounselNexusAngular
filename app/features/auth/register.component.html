@@ -33,7 +33,7 @@
         <p class="cn-muted">Your firm workspace starts with your details</p>
         <p class="admin-notice cn-notice">The first account for a firm becomes its System Admin. You’ll manage your firm’s users, branding, and email settings.</p>
 
-        <form class="cn-form" (ngSubmit)="register()" #registrationForm="ngForm">
+        <form class="cn-form" (ngSubmit)="register(registrationForm)" #registrationForm="ngForm">
           <div class="cn-field full">
             <label for="firmName">Legal firm name</label>
             <input id="firmName" name="firmName" type="text" autocomplete="organization" placeholder="e.g. Smith & Partners Attorneys" [(ngModel)]="firmName" required maxlength="200">
@@ -60,7 +60,7 @@
           </div>
           <p class="password-hint cn-hint full">Use at least 8 characters, including uppercase, lowercase and a number.</p>
           @if (errorMessage) { <p class="form-error cn-error full" role="alert">{{ errorMessage }}</p> }
-          <button class="submit-button cn-btn block full" type="submit" [disabled]="registrationForm.invalid || busy || password !== confirmPassword">
+          <button class="submit-button cn-btn block full" type="submit" [disabled]="busy">
             {{ busy ? 'Creating your firm...' : 'Create firm and continue' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg>
           </button>
         </form>

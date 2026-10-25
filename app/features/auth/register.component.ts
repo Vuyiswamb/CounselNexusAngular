@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 
@@ -22,7 +22,8 @@ export class RegisterComponent {
 
   constructor(private auth: AuthService, private router: Router) {}
 
-  register(): void {
+  register(form: NgForm): void {
+    if (form.invalid) return;
     this.errorMessage = '';
     if (this.password !== this.confirmPassword) {
       this.errorMessage = 'The passwords do not match.';

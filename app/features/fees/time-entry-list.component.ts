@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '../../shared/icon.component';
 import { AuthService } from '../../core/auth.service';
@@ -45,6 +45,7 @@ export class TimeEntryListComponent implements OnInit, OnDestroy {
   private usersApi = inject(UsersService);
   private firmApi = inject(FirmSettingsService);
   private auth = inject(AuthService);
+  private host = inject(ElementRef<HTMLElement>);
 
   ngOnInit(): void {
     this.load();
@@ -117,8 +118,13 @@ export class TimeEntryListComponent implements OnInit, OnDestroy {
     this.error = '';
   }
 
-  save(): void {
-    if (this.saving || !this.matterId || !this.feeEarnerId || !this.description.trim() || !this.hours || this.rate == null) return;
+  save(form?: NgForm): void {
+    if (this.saving) return;
+    if (form?.invalid || !this.matterId || !this.feeEarnerId || !this.description.trim() || !this.hours || this.rate == null) {
+      this.error = 'Complete all required time-entry fields before saving.';
+      this.focusFirstInvalidControl();
+      return;
+    }
     this.saving = true;
     this.error = '';
     const request: TimeEntryRequest = {
@@ -136,6 +142,18 @@ export class TimeEntryListComponent implements OnInit, OnDestroy {
         this.saving = false;
         this.error = error?.status === 403 ? 'You do not have permission to record time.' : error?.error?.detail || error?.error || 'The time entry could not be saved.';
       },
+    });
+  }
+
+  private focusFirstInvalidControl(): void {
+    requestAnimationFrame(() => {
+      const control = (this.host.nativeElement as HTMLElement).querySelector('.entry-form input.ng-invalid, .entry-form select.ng-invalid, .entry-form textarea.ng-invalid') as HTMLElement | null;
+      if (!control) return;
+      control.focus();
+      control.classList.remove('cn-validation-shake');
+      void control.offsetWidth;
+      control.classList.add('cn-validation-shake');
+      window.setTimeout(() => control.classList.remove('cn-validation-shake'), 500);
     });
   }
 

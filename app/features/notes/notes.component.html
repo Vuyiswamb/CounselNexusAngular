@@ -1,19 +1,22 @@
 <header class="page-header">
   <div><p class="eyebrow">MATTER WORK</p><h1 class="page-title">Notes &amp; file notes</h1><p class="page-subtitle">Record matter advice, attendance notes, and internal updates.</p></div>
+  <button class="btn btn-secondary" type="button" (click)="downloadTemplate()"><app-icon name="download" [size]="15" /> Download template</button>
 </header>
 
 <section class="notes-layout">
   <section class="card composer">
+    <form #noteForm="ngForm" (ngSubmit)="save(noteForm)">
     <div class="section-title"><span class="icon-box"><app-icon name="notes" [size]="18" /></span><div><h2>Add a note</h2><p>Each note is linked to a matter and recorded under your account.</p></div></div>
-    <label class="field"><span>Matter</span><select class="select" name="matterId" [(ngModel)]="matterId" (ngModelChange)="loadNotes()"><option value="">Select a matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} · {{ matter.title }}</option> }</select></label>
+    <label class="field"><span>Matter</span><select class="select" name="matterId" [(ngModel)]="matterId" (ngModelChange)="loadNotes()" required><option value="">Select a matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} · {{ matter.title }}</option> }</select></label>
     <div class="field-row">
       <label class="field"><span>Type</span><select class="select" name="kind" [(ngModel)]="kind"><option value="Note">Note</option><option value="FileNote">File note</option></select></label>
-      <label class="field"><span>Subject</span><input class="input" name="subject" [(ngModel)]="subject" maxlength="200" placeholder="Short note title" /></label>
+      <label class="field"><span>Subject</span><input class="input" name="subject" [(ngModel)]="subject" maxlength="200" placeholder="Short note title" required /></label>
     </div>
-    <label class="field"><span>Note details</span><textarea class="textarea" name="body" [(ngModel)]="body" rows="6" placeholder="Enter the note or attendance details..."></textarea></label>
+    <label class="field"><span>Note details</span><textarea class="textarea" name="body" [(ngModel)]="body" rows="6" placeholder="Enter the note or attendance details..." required></textarea></label>
     <label class="check-row"><input type="checkbox" name="privileged" [(ngModel)]="privileged" /><span>Mark as privileged</span></label>
     @if (error) { <p class="message error" role="alert">{{ error }}</p> }
-    <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving || !matterId || !subject.trim() || !body.trim()"><app-icon name="plus" [size]="16" /> {{ saving ? 'Saving…' : 'Save note' }}</button>
+    <button class="btn btn-primary" type="submit" [disabled]="saving"><app-icon name="plus" [size]="16" /> {{ saving ? 'Saving…' : 'Save note' }}</button>
+    </form>
   </section>
 
   <section class="card notes-panel">

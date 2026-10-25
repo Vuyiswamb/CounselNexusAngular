@@ -20,10 +20,16 @@
       <button class="btn btn-primary" type="button" (click)="newContact()">
         <app-icon name="plus" [size]="15" /> New Contact
       </button>
-      <button class="btn btn-secondary" type="button">
-        <app-icon name="import" [size]="15" /> Import
+      <button class="btn btn-secondary" type="button" [disabled]="importing" (click)="contactImport.click()">
+        <app-icon name="import" [size]="15" /> {{ importing ? 'Importing…' : 'Import' }}
       </button>
+      <button class="btn btn-secondary" type="button" (click)="downloadImportTemplate()">
+        <app-icon name="download" [size]="15" /> Download template
+      </button>
+      <input #contactImport class="contact-import-input" type="file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" (change)="importContacts($event)" />
     </div>
+
+    @if (importMessage) { <div class="import-message" role="status">{{ importMessage }}</div> }
 
     <div class="card">
       <table class="table">

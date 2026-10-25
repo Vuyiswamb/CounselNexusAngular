@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 
@@ -19,7 +19,8 @@ export class ForgotPasswordComponent {
 
   constructor(private auth: AuthService) {}
 
-  sendResetLink(): void {
+  sendResetLink(form: NgForm): void {
+    if (form.invalid) return;
     this.busy = true;
     this.errorMessage = '';
     this.message = '';

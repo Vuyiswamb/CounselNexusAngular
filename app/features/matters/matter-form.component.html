@@ -6,13 +6,14 @@
       <h1 class="page-title">{{ isEdit ? 'Edit Matter' : 'New Matter' }}</h1>
       <div class="actions">
         <button class="btn btn-secondary" type="button" (click)="cancel()">Cancel</button>
-        <button class="btn btn-primary" type="button" [disabled]="busy || loadingMatter" (click)="save()">{{ loadingMatter ? 'Loading…' : busy ? 'Saving…' : isEdit ? 'Save Changes' : 'Save' }}</button>
+        <button class="btn btn-primary" type="submit" form="matter-form" [disabled]="busy || loadingMatter">{{ loadingMatter ? 'Loading…' : busy ? 'Saving…' : isEdit ? 'Save Changes' : 'Save' }}</button>
       </div>
     </div>
 
     @if (loadingMatter) { <div class="card loading-matter">Loading matter details…</div> }
 
     @if (!loadingMatter && (!isEdit || !error)) {
+    <form id="matter-form" #matterForm="ngForm" (ngSubmit)="save(matterForm)">
     <div class="columns">
       <!-- Matter Information -->
       <div class="card form-card">
@@ -20,23 +21,23 @@
 
         <div class="field">
           <label for="ref">Reference</label>
-          <input id="ref" class="input" type="text" placeholder="Auto-allocated if left blank (e.g. SMIT001)" [(ngModel)]="reference" />
+          <input id="ref" class="input" type="text" name="reference" placeholder="Auto-allocated if left blank (e.g. SMIT001)" [(ngModel)]="reference" />
         </div>
         <div class="field">
           <label for="title">Title <span class="req">*</span></label>
-          <input id="title" class="input" type="text" [(ngModel)]="title" />
+          <input id="title" class="input" type="text" name="title" [(ngModel)]="title" required />
         </div>
 
         <div class="field-row">
           <div class="field">
             <label for="area">Practice Area <span class="req">*</span></label>
-            <select id="area" class="select" [(ngModel)]="practiceArea">
+            <select id="area" class="select" name="practiceArea" [(ngModel)]="practiceArea" required>
               @for (a of practiceAreas; track a) { <option [value]="a">{{ a }}</option> }
             </select>
           </div>
           <div class="field">
             <label for="status">Status <span class="req">*</span></label>
-            <select id="status" class="select" [(ngModel)]="status">
+            <select id="status" class="select" name="status" [(ngModel)]="status" required>
               <option value="Active">Active</option>
               <option value="OnHold">On Hold</option>
               <option value="Closed">Closed</option>
@@ -47,19 +48,19 @@
         <div class="field-row">
           <div class="field">
             <label for="earner">Fee Earner <span class="req">*</span></label>
-            <select id="earner" class="select" [(ngModel)]="feeEarnerId">
+            <select id="earner" class="select" name="feeEarnerId" [(ngModel)]="feeEarnerId" required>
               @for (u of users; track u.id) { <option [value]="u.id">{{ u.fullName }}</option> }
             </select>
           </div>
           <div class="field">
             <label for="opened">Open Date <span class="req">*</span></label>
-            <input id="opened" class="input" type="date" [(ngModel)]="openDate" />
+            <input id="opened" class="input" type="date" name="openDate" [(ngModel)]="openDate" required />
           </div>
         </div>
 
         <div class="field">
           <label for="desc">Description</label>
-          <textarea id="desc" class="textarea" [(ngModel)]="description"></textarea>
+          <textarea id="desc" class="textarea" name="description" [(ngModel)]="description"></textarea>
         </div>
       </div>
 
@@ -69,7 +70,7 @@
 
         <div class="field">
           <label for="client">Client <span class="req">*</span></label>
-          <select id="client" class="select" [(ngModel)]="clientId">
+          <select id="client" class="select" name="clientId" [(ngModel)]="clientId" required>
             <option value="" disabled>Select a client…</option>
             @for (c of clients; track c.id) { <option [value]="c.id">{{ c.fullName }}</option> }
           </select>
@@ -88,6 +89,7 @@
         } @else { <div class="empty-parties muted">No parties added yet</div> }
       </div>
     </div>
+    </form>
     }
     @if (error) {
       <div class="error-backdrop" role="presentation" (click)="error = ''"><section class="error-popup" role="alert" (click)="$event.stopPropagation()"><div class="error-icon">!</div><div><h3>We couldn’t save the matter</h3><p>{{ error }}</p></div><button type="button" class="error-close" aria-label="Dismiss error" (click)="error = ''">×</button></section></div>

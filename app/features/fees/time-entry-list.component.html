@@ -11,7 +11,7 @@
 </div>
 
 @if (showForm) {
-  <form class="card entry-form" (ngSubmit)="save()">
+  <form class="card entry-form" #entryForm="ngForm" (ngSubmit)="save(entryForm)">
     <div class="form-head"><div><h2>{{ editingId ? 'Edit time entry' : 'Record time' }}</h2><p>Time entries are linked to a matter and fee earner. Billed entries cannot be edited.</p></div><button class="btn btn-secondary" type="button" (click)="showForm=false" [disabled]="saving">Close</button></div>
     <div class="entry-fields">
       <label><span>Matter <i>*</i></span><select name="matterId" [(ngModel)]="matterId" required><option value="">Select a matter</option>@for (matter of matters; track matter.id) { <option [value]="matter.id">{{ matter.reference }} — {{ matter.title }}</option> }</select></label>
@@ -27,9 +27,10 @@
     <div class="capture-tools">
       <div class="timer-box"><span class="timer-readout">{{ timerLabel }}</span><button class="btn btn-secondary" type="button" (click)="toggleTimer()">{{ timerRunning ? 'Stop timer & use time' : 'Start timer' }}</button><button class="timer-reset" type="button" (click)="resetTimer()" [disabled]="timerRunning">Reset</button></div>
       <button class="btn" [class.btn-danger]="voiceListening" [class.btn-secondary]="!voiceListening" type="button" (click)="toggleVoice()"><app-icon name="mic" [size]="15" /> {{ voiceListening ? 'Stop dictation' : 'Dictate description' }}</button>
-      <button class="btn btn-primary" type="submit" [disabled]="saving || !matterId || !feeEarnerId || !description.trim() || !hours || rate == null">{{ saving ? 'Saving…' : editingId ? 'Save changes' : 'Save time entry' }}</button>
+      <button class="btn btn-primary" type="button" (click)="save(entryForm)" [disabled]="saving">{{ saving ? 'Saving…' : editingId ? 'Save changes' : 'Save time entry' }}</button>
     </div>
     @if (voiceError) { <p class="inline-error" role="status">{{ voiceError }}</p> }
+    @if (error) { <p class="inline-error" role="alert">{{ error }}</p> }
   </form>
 }
 
