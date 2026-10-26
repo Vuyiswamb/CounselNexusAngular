@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ContactsService, MatterDocumentsService, MattersService, RafClaimsService } from '../../core/api-services';
 import { ContactDto, DocumentDto, MatterListItemDto, RafClaimDto, RafClaimRequest } from '../../core/api.models';
 import { IconComponent } from '../../shared/icon.component';
+import { ClientPickerComponent } from '../../shared/client-picker.component';
 import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-raf-claims',
-  imports: [FormsModule, IconComponent, DatePipe],
+  imports: [FormsModule, IconComponent, DatePipe, ClientPickerComponent],
   templateUrl: './raf-claims.component.html',
   styleUrls: ['./raf-claims.component.css'],
 })
@@ -45,6 +46,8 @@ export class RafClaimsComponent implements OnInit {
   readonly statuses = ['New', 'Under Investigation', 'Being Prepared', 'Medical Evidence', 'Lodged', 'Awaiting RAF Response', 'Under Litigation', 'Settlement Negotiation', 'Settled', 'Awaiting Payment', 'Paid', 'Closed', 'Rejected', 'Withdrawn'];
   readonly claimTypes = ['Personal Injury', 'Passenger Claim', 'Pedestrian Claim', 'Driver Claim', 'Cyclist Claim', 'Motorcycle Claim', 'Hit-and-Run / Unidentified Vehicle', 'Loss of Support', 'Funeral Expenses', 'Minor Claimant', 'Other RAF Claim'];
   form: RafClaimRequest = this.emptyForm();
+
+  selectClient(client: ContactDto): void { this.form.clientId = client.id; this.validationMessage = ''; }
 
   get newCount(): number { return this.claims.filter((claim) => claim.status === 'New').length; }
   get investigationCount(): number { return this.claims.filter((claim) => claim.status === 'Under Investigation').length; }

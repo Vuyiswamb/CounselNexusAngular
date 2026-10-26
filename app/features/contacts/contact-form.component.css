@@ -1,6 +1,7 @@
 .actions { display: flex; gap: 10px; }
     .form-card { padding: 24px 26px; }
     .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .error-msg {
       margin-top: 14px;
       padding: 9px 12px;
@@ -10,4 +11,4 @@
       color: #b91c1c;
       font-size: 13px;
     }
-    @media (max-width: 900px) { .columns { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .columns, .field-row { grid-template-columns: 1fr; } }

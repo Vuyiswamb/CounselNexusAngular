@@ -118,6 +118,7 @@
       <!-- ============ Parties (live) ============ -->
       @if (activeTab === 'parties') {
         <div class="card">
+          <div class="time-entries-toolbar"><div><h2>Time entries</h2><p>All recorded time for this matter.</p></div><div class="time-entries-actions"><label class="time-search"><app-icon name="search" [size]="15" /><input type="search" [(ngModel)]="timeSearch" placeholder="Search entries..." /></label><label class="time-filter"><app-icon name="filter" [size]="14" /><select [(ngModel)]="timeStatusFilter" aria-label="Filter time entries"><option value="all">All entries</option><option value="unbilled">Unbilled</option><option value="billed">Billed</option></select></label></div></div>
           <table class="table">
             <thead><tr><th>Role</th><th>Name</th></tr></thead>
             <tbody>
@@ -238,6 +239,8 @@
       @if (activeTab === 'fees') {
         <div class="card">
           <form class="time-entry-form" (ngSubmit)="recordTime()">
+            @if (savedRecordingUrl) { <div class="saved-recording"><div><strong>Saved dictation recording</strong><small>Available for playback during this session.</small></div><audio controls [src]="savedRecordingUrl"></audio></div> }
+            <div class="microphone-panel"><div class="microphone-panel-heading"><strong>Microphone</strong><small>Test and select the microphone used for dictation.</small></div><div class="microphone-panel-controls"><select class="microphone-select" [(ngModel)]="selectedMicrophoneId" (focus)="prepareMicrophone()" aria-label="Select microphone"><option value="">Default microphone</option>@for (microphone of microphones; track microphone.deviceId) { <option [value]="microphone.deviceId">{{ microphone.label || 'Microphone ' + ($index + 1) }}</option> }</select><button class="btn btn-secondary microphone-test-button" type="button" (click)="testMicrophone()"><app-icon name="microphone" [size]="14" /> {{ microphoneTesting ? 'Stop mic test' : 'Test microphone' }}</button>@if (microphoneTesting) { <span class="mic-level" aria-label="Microphone input level"><i [style.width.%]="microphoneLevel"></i></span> }</div>@if (microphoneError) { <small class="microphone-error" role="status">{{ microphoneError }}</small> }</div>
             <div class="time-form-heading"><div><h2>Record time</h2><p>Capture work against {{ matter.reference }}. The matter’s fee earner is assigned automatically.</p></div><span class="time-matter-chip">{{ matter.reference }}</span></div>
             <label class="time-field time-description"><span>Work description</span><textarea name="timeDescription" rows="2" [(ngModel)]="timeDescription" required maxlength="1000" placeholder="Describe the work completed"></textarea><small>Dictation converts speech to text in your browser; no audio recording is saved.</small></label>
             <label class="time-field"><span>Work date</span><input name="timeWorkDate" type="date" [(ngModel)]="timeWorkDate" required /></label>
@@ -254,7 +257,7 @@
               <tr><th>Date</th><th>Description</th><th>Fee Earner</th><th class="num">Hours</th><th class="num">Rate</th><th class="num">Amount</th><th>Status</th></tr>
             </thead>
             <tbody>
-              @for (t of fees; track t.id) {
+              @for (t of filteredFees; track t.id) {
                 <tr>
                   <td>{{ t.workDate | date: 'dd MMM yyyy' }}</td>
                   <td>{{ t.description }}</td>
@@ -337,6 +340,7 @@
           </button>
         </div>
         @if (invoiceError) { <div class="invoice-error" role="alert">{{ invoiceError }}</div> }
+        @if (invoiceNotice) { <div class="invoice-notice" role="status">{{ invoiceNotice }}</div> }
         <article class="process-invoice-print" [style.--firm-primary]="firm?.brandPrimaryColor || '#173966'" [style.--firm-accent]="firm?.brandAccentColor || '#c7923e'">
             @if (letterheadUrl) {
               <img class="process-letterhead-image" [src]="letterheadUrl" [alt]="(firm?.name || 'Firm') + ' invoice letterhead'" />
@@ -366,7 +370,7 @@
             </table>
             <div class="invoice-total"><span>Subtotal</span><b>{{ selectedInvoice.currency }} {{ selectedInvoice.subtotal | number: '1.2-2' }}</b><span>Tax</span><b>{{ selectedInvoice.currency }} {{ selectedInvoice.taxAmount | number: '1.2-2' }}</b><strong>Total due</strong><strong>{{ selectedInvoice.currency }} {{ selectedInvoice.total | number: '1.2-2' }}</strong></div>
             <footer class="invoice-contact-footer">{{ firm?.name }} <span>{{ firm?.address }}</span><span>{{ firm?.email }}</span><span>{{ firm?.phone }}</span><span>{{ firm?.website }}</span></footer>
-            <div class="invoice-print-actions"><button class="btn btn-secondary" type="button" (click)="printInvoice()">Print / Save PDF</button></div>
+            <div class="invoice-print-actions">@if (selectedInvoice.status === 'Issued') { <button class="btn btn-primary" type="button" (click)="sendInvoice()" [disabled]="invoiceSending">{{ invoiceSending ? 'Sending…' : 'Send to client' }}</button> }<button class="btn btn-secondary" type="button" (click)="printInvoice()">Print / Save PDF</button></div>
             }
         </article>
         <div class="card invoice-list">

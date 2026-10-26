@@ -1,0 +1,23 @@
+<div class="client-picker">
+  @if (showSelector) { <div class="picker-row">
+    <select class="select" [ngModel]="selectedId" (ngModelChange)="selectedId = $event; selectClient()" [ngModelOptions]="{ standalone: true }" aria-label="Select client">
+      <option value="">Select a client…</option>
+      @for (client of clients; track client.id) { <option [value]="client.id">{{ client.fullName }}</option> }
+    </select>
+    <button class="btn btn-secondary create-client" type="button" (click)="openCreate()">+ Create client</button>
+  </div> } @else { <button class="btn btn-secondary create-client" type="button" (click)="openCreate()">+ Create client here</button> }
+  @if (!clients.length && !error) { <small class="picker-hint">Loading clients…</small> }
+  @if (creating) {
+    <div class="inline-create">
+      <div class="inline-create-heading"><strong>Create client here</strong><button type="button" class="close-create" (click)="cancelCreate()" aria-label="Close">×</button></div>
+      <p>Add the client now and continue creating this record.</p>
+      <div class="create-grid">
+        <label>Full name and surname<input class="input" type="text" [(ngModel)]="newClientName" [ngModelOptions]="{ standalone: true }" placeholder="e.g. Thandi Mokoena" /></label>
+        <label>Email <span>(optional)</span><input class="input" type="email" [(ngModel)]="newClientEmail" [ngModelOptions]="{ standalone: true }" /></label>
+        <label>Phone <span>(optional)</span><input class="input" type="tel" [(ngModel)]="newClientPhone" [ngModelOptions]="{ standalone: true }" /></label>
+      </div>
+      @if (error) { <div class="create-error">{{ error }}</div> }
+      <div class="create-actions"><button type="button" class="btn btn-secondary" (click)="cancelCreate()">Cancel</button><button type="button" class="btn btn-primary" [disabled]="saving" (click)="createClient()">{{ saving ? 'Creating…' : 'Create and select' }}</button></div>
+    </div>
+  } @else if (error) { <small class="create-error">{{ error }}</small> }
+</div>

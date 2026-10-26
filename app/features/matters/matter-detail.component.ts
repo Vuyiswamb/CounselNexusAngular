@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../../shared/icon.component';
-import { FirmSettingsService, InvoicesService, MatterDocumentsService, MatterNotesService, MattersService, TimeEntriesService } from '../../core/api-services';
+import { ContactsService, FirmSettingsService, InvoicesService, MatterDocumentsService, MatterNotesService, MattersService, TimeEntriesService } from '../../core/api-services';
 import { DocumentDto, FirmSettingsDto, InvoiceDto, MatterDetailDto, NoteDto, NoteKind, TimeEntryDto, matterStatusUi } from '../../core/api.models';
 import { MockDataService } from '../../core/mock-data.service';
 import { TaskListComponent } from '../tasks/task-list.component';
@@ -24,7 +24,9 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
   selectedInvoice?: InvoiceDto;
   invoiceLoading = false;
   invoiceSaving = false;
+  invoiceSending = false;
   invoiceError = '';
+  invoiceNotice = '';
   notes: NoteDto[] = [];
   notesLoading = false;
   noteSaving = false;
@@ -44,6 +46,8 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
   archiveSaving = false;
   archiveError = '';
   timeError = '';
+  timeSearch = '';
+  timeStatusFilter: 'all' | 'billed' | 'unbilled' = 'all';
   timeDescription = '';
   timeWorkDate = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
   timeHours: number | null = null;
@@ -53,9 +57,22 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
   voiceListening = false;
   voiceStarting = false;
   voiceError = '';
+  microphones: MediaDeviceInfo[] = [];
+  selectedMicrophoneId = '';
+  microphoneTesting = false;
+  microphoneLevel = 0;
+  microphoneError = '';
+  recordingUrl = '';
+  savedRecordingUrl = '';
+  private audioRecorder?: MediaRecorder;
+  private recordingChunks: Blob[] = [];
   private timerStartedAt = 0;
   private timerHandle?: ReturnType<typeof setInterval>;
   private recognition: any;
+  private microphoneStream?: MediaStream;
+  private microphoneContext?: AudioContext;
+  private microphoneAnalyser?: AnalyserNode;
+  private microphoneLevelHandle?: number;
   timeRateCategory: 'partner' | 'feeEarner' | 'paralegal' | 'assistant' | 'custom' = 'feeEarner';
   readonly rateCategories = [
     { value: 'partner', label: 'Partner', firmField: 'partnerHourlyRate' },
@@ -83,6 +100,7 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
   private api = inject(MattersService);
   private firmApi = inject(FirmSettingsService);
   private invoicesApi = inject(InvoicesService);
+  private contactsApi = inject(ContactsService);
   private timeApi = inject(TimeEntriesService);
   private documentsApi = inject(MatterDocumentsService);
   private notesApi = inject(MatterNotesService);
@@ -93,6 +111,9 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.pauseTimeTimer(false);
     this.stopTimeDictation();
+    this.stopMicrophoneTest();
+    this.stopAudioRecording();
+    this.revokeRecordingUrl();
   }
 
   ngOnInit(): void {
@@ -166,6 +187,41 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.invoiceSaving = false;
         this.invoiceError = error?.error?.detail ?? error?.error ?? 'Could not create a draft. This process may have no unbilled time or disbursements.';
+      },
+    });
+  }
+
+  sendInvoice(): void {
+    if (!this.selectedInvoice || this.invoiceSending || this.selectedInvoice.status !== 'Issued') return;
+    this.contactsApi.get(this.selectedInvoice.clientId).subscribe({
+      next: (client) => {
+        if (!client.email) {
+          this.invoiceError = 'This client does not have an email address. Add one to the contact before sending the invoice.';
+          return;
+        }
+        if (window.confirm(`Send invoice ${this.selectedInvoice?.number} to ${client.fullName} at ${client.email}?`)) this.sendInvoiceRequest();
+      },
+      error: () => { this.invoiceError = 'The client email address could not be loaded.'; },
+    });
+  }
+
+  private sendInvoiceRequest(): void {
+    if (!this.selectedInvoice) return;
+    this.invoiceSending = true;
+    this.invoiceError = '';
+    this.invoiceNotice = '';
+    this.invoicesApi.send(this.selectedInvoice.id).subscribe({
+      next: (invoice) => {
+        this.selectedInvoice = invoice;
+        this.invoiceSending = false;
+        this.invoiceNotice = `Invoice ${invoice.number} was sent to the client.`;
+        this.loadInvoices(this.matter?.id ?? '');
+      },
+      error: (error) => {
+        this.invoiceSending = false;
+        this.invoiceError = error?.status === 404
+          ? 'Sending invoices is not enabled on the current API yet.'
+          : error?.error?.detail ?? error?.error ?? 'The invoice could not be sent to the client.';
       },
     });
   }
@@ -352,6 +408,7 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
       rate: this.timeRate,
     }).subscribe({
       next: () => {
+        this.savedRecordingUrl = this.recordingUrl;
         this.timeDescription = '';
         this.timeHours = null;
         this.timeSaving = false;
@@ -407,12 +464,76 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
     this.requestMicrophoneAndStart(Speech);
   }
 
+  async prepareMicrophone(): Promise<void> {
+    this.microphoneError = '';
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+      await this.loadMicrophones();
+    } catch {
+      this.microphoneError = 'Microphone permission was denied. Allow access in your browser settings and try again.';
+    }
+  }
+
+  async loadMicrophones(): Promise<void> {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    this.microphones = devices.filter((device) => device.kind === 'audioinput');
+    if (!this.selectedMicrophoneId && this.microphones.length) this.selectedMicrophoneId = this.microphones[0].deviceId;
+  }
+
+  async testMicrophone(): Promise<void> {
+    if (this.microphoneTesting) {
+      this.stopMicrophoneTest();
+      return;
+    }
+    this.microphoneError = '';
+    try {
+      if (!this.microphones.length) await this.prepareMicrophone();
+      const audio = this.selectedMicrophoneId ? { deviceId: { exact: this.selectedMicrophoneId } } : true;
+      this.microphoneStream = await navigator.mediaDevices.getUserMedia({ audio });
+      await this.loadMicrophones();
+      this.microphoneContext = new AudioContext();
+      this.microphoneAnalyser = this.microphoneContext.createAnalyser();
+      this.microphoneAnalyser.fftSize = 256;
+      this.microphoneContext.createMediaStreamSource(this.microphoneStream).connect(this.microphoneAnalyser);
+      this.microphoneTesting = true;
+      this.readMicrophoneLevel();
+    } catch {
+      this.stopMicrophoneTest();
+      this.microphoneError = 'The selected microphone could not be started. Check that it is connected and allowed in the browser.';
+    }
+  }
+
+  private readMicrophoneLevel(): void {
+    if (!this.microphoneTesting || !this.microphoneAnalyser) return;
+    const values = new Uint8Array(this.microphoneAnalyser.frequencyBinCount);
+    this.microphoneAnalyser.getByteTimeDomainData(values);
+    const peak = values.reduce((max, value) => Math.max(max, Math.abs(value - 128)), 0);
+    this.microphoneLevel = Math.min(100, Math.round((peak / 128) * 100));
+    this.microphoneLevelHandle = window.requestAnimationFrame(() => this.readMicrophoneLevel());
+  }
+
+  stopMicrophoneTest(): void {
+    if (this.microphoneLevelHandle) window.cancelAnimationFrame(this.microphoneLevelHandle);
+    this.microphoneLevelHandle = undefined;
+    this.microphoneStream?.getTracks().forEach((track) => track.stop());
+    this.microphoneStream = undefined;
+    void this.microphoneContext?.close();
+    this.microphoneContext = undefined;
+    this.microphoneAnalyser = undefined;
+    this.microphoneTesting = false;
+    this.microphoneLevel = 0;
+  }
+
   private async requestMicrophoneAndStart(Speech: any): Promise<void> {
     try {
+      let stream: MediaStream | undefined;
       if (navigator.mediaDevices?.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
+        const audio = this.selectedMicrophoneId ? { deviceId: { exact: this.selectedMicrophoneId } } : true;
+        stream = await navigator.mediaDevices.getUserMedia({ audio });
+        await this.loadMicrophones();
       }
+    if (stream) this.startAudioRecording(stream);
     this.recognition = new Speech();
     this.recognition.lang = 'en-ZA';
     this.recognition.continuous = true;
@@ -425,11 +546,12 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
       if (phrases.length) this.timeDescription = `${this.timeDescription.trim()}${this.timeDescription.trim() ? ' ' : ''}${phrases.join(' ')}`;
     };
     this.recognition.onerror = () => {
+      this.stopAudioRecording();
       this.voiceError = 'Microphone dictation stopped. Check microphone permission and try again.';
       this.voiceListening = false;
       this.voiceStarting = false;
     };
-    this.recognition.onend = () => { this.voiceListening = false; this.voiceStarting = false; };
+    this.recognition.onend = () => { this.stopAudioRecording(); this.voiceListening = false; this.voiceStarting = false; };
     this.voiceListening = true;
     this.voiceStarting = false;
     try { this.recognition.start(); }
@@ -443,8 +565,34 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
 
   private stopTimeDictation(): void {
     if (this.recognition && this.voiceListening) this.recognition.stop();
+    this.stopAudioRecording();
     this.voiceListening = false;
     this.recognition = undefined;
+  }
+
+  private startAudioRecording(stream: MediaStream): void {
+    if (!('MediaRecorder' in window)) return;
+    this.revokeRecordingUrl();
+    this.recordingChunks = [];
+    this.audioRecorder = new MediaRecorder(stream);
+    this.audioRecorder.ondataavailable = (event) => { if (event.data.size) this.recordingChunks.push(event.data); };
+    this.audioRecorder.onstop = () => {
+      if (!this.recordingChunks.length) return;
+      const blob = new Blob(this.recordingChunks, { type: this.audioRecorder?.mimeType || 'audio/webm' });
+      this.recordingUrl = URL.createObjectURL(blob);
+      this.recordingChunks = [];
+    };
+    this.audioRecorder.start();
+  }
+
+  private stopAudioRecording(): void {
+    if (this.audioRecorder?.state === 'recording') this.audioRecorder.stop();
+    this.audioRecorder = undefined;
+  }
+
+  private revokeRecordingUrl(): void {
+    if (this.recordingUrl) URL.revokeObjectURL(this.recordingUrl);
+    this.recordingUrl = '';
   }
 
   updateTimeRate(): void {
@@ -487,6 +635,15 @@ export class MatterDetailComponent implements OnInit, OnDestroy {
 
   get diary() { return this.mock.diaryEvents.filter((e) => e.matterRef === this.ref); }
   get fees() { return this.timeEntries; }
+
+  get filteredFees(): TimeEntryDto[] {
+    const query = this.timeSearch.trim().toLowerCase();
+    return this.timeEntries.filter((entry) => {
+      const matchesSearch = !query || `${entry.description} ${entry.feeEarnerName} ${entry.workDate}`.toLowerCase().includes(query);
+      const matchesStatus = this.timeStatusFilter === 'all' || (this.timeStatusFilter === 'billed' ? entry.isBilled : !entry.isBilled);
+      return matchesSearch && matchesStatus;
+    });
+  }
   get disbursements() { return this.mock.disbursements.filter((d) => d.matterRef === this.ref); }
   get trustTxns() { return this.mock.trustTxns.filter((t) => t.matterRef === this.ref); }
 

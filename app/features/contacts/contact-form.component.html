@@ -16,9 +16,15 @@
         <!-- Basic Information -->
         <section>
           <h3 class="card-title">Basic Information</h3>
-          <div class="field">
-            <label for="name">Full Name <span class="req">*</span></label>
-            <input id="name" class="input" type="text" name="name" [(ngModel)]="name" required />
+          <div class="field-row">
+            <div class="field">
+              <label for="firstName">First name <span class="req">*</span></label>
+              <input id="firstName" class="input" type="text" name="firstName" [(ngModel)]="firstName" autocomplete="given-name" required />
+            </div>
+            <div class="field">
+              <label for="surname">Surname <span class="req">*</span></label>
+              <input id="surname" class="input" type="text" name="surname" [(ngModel)]="surname" autocomplete="family-name" required />
+            </div>
           </div>
           <div class="field">
             <label for="type">Type <span class="req">*</span></label>

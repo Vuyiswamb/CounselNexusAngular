@@ -1,0 +1,16 @@
+.client-picker { display: flex; flex-direction: column; gap: 8px; }
+.picker-row { display: flex; gap: 8px; align-items: stretch; }
+.picker-row .select { flex: 1; }
+.create-client { white-space: nowrap; font-size: 12px; }
+.picker-hint { color: var(--muted); font-size: 11px; }
+.inline-create { margin-top: 3px; padding: 14px; border: 1px solid #c8dbf1; border-radius: 10px; background: #f7fbff; }
+.inline-create-heading { display: flex; justify-content: space-between; align-items: center; color: #1c3b61; font-size: 13px; }
+.close-create { border: 0; background: transparent; color: #6e829c; font-size: 20px; cursor: pointer; }
+.inline-create p { margin: 4px 0 12px; color: var(--muted); font-size: 11px; }
+.create-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 8px; }
+.create-grid label { color: #405a77; font-size: 11px; font-weight: 700; }
+.create-grid label span { font-weight: 400; color: var(--muted); }
+.create-grid .input { width: 100%; margin-top: 4px; padding: 8px 9px; box-sizing: border-box; }
+.create-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.create-error { color: #b42318; font-size: 11px; }
+@media (max-width: 650px) { .picker-row, .create-grid { display: grid; grid-template-columns: 1fr; } .create-client { width: 100%; } }

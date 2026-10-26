@@ -2,13 +2,14 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { IconComponent } from '../../shared/icon.component';
+import { ClientPickerComponent } from '../../shared/client-picker.component';
 import { ContactsService, MattersService, UsersService } from '../../core/api-services';
 import { ContactDto, MatterDetailDto, MatterStatus, PartyDto, UserDto } from '../../core/api.models';
 
 /** Screen 9 — New Matter: Matter Information + Client and Parties panel (live API). */
 @Component({
   selector: 'app-matter-form',
-  imports: [RouterLink, FormsModule, IconComponent],
+  imports: [RouterLink, FormsModule, IconComponent, ClientPickerComponent],
   templateUrl: './matter-form.component.html',
   styleUrls: ['./matter-form.component.css'],
 })
@@ -44,6 +45,12 @@ export class MatterFormComponent implements OnInit {
 
   get isEdit(): boolean { return !!this.matterId; }
   get parties(): PartyDto[] { return this.partyLinks.filter((party) => party.role !== 'Client'); }
+
+  selectClient(client: ContactDto): void {
+    this.clientId = client.id;
+    if (!this.clients.some((item) => item.id === client.id)) this.clients = [client, ...this.clients];
+    this.error = '';
+  }
 
   ngOnInit(): void {
     // Only Client-type contacts can instruct a matter.

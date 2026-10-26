@@ -3,7 +3,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
-import { FirmSettingsService, InvoicesService, MattersService } from '../../core/api-services';
+import { ContactsService, FirmSettingsService, InvoicesService, MattersService } from '../../core/api-services';
 import { FirmSettingsDto, InvoiceDto, MatterListItemDto } from '../../core/api.models';
 import { IconComponent } from '../../shared/icon.component';
 
@@ -21,6 +21,7 @@ export class BillingComponent implements OnInit {
   loading = false;
   saving = false;
   issuingId = '';
+  sendingId = '';
   showDraftForm = false;
   error = '';
   search = '';
@@ -31,6 +32,7 @@ export class BillingComponent implements OnInit {
   taxRate = 0;
 
   private invoicesApi = inject(InvoicesService);
+  private contactsApi = inject(ContactsService);
   private mattersApi = inject(MattersService);
   private firmApi = inject(FirmSettingsService);
   private auth = inject(AuthService);
@@ -123,6 +125,29 @@ export class BillingComponent implements OnInit {
     this.invoicesApi.issue(invoice.id).subscribe({
       next: (updated) => { this.issuingId = ''; this.selectedInvoice = updated; this.load(); },
       error: (error) => { this.issuingId = ''; this.error = error?.status === 403 ? 'You do not have permission to issue invoices.' : error?.error?.detail || error?.error || 'Invoice could not be issued.'; },
+    });
+  }
+
+  send(invoice: InvoiceDto): void {
+    if (!this.canIssue || invoice.status !== 'Issued' || this.sendingId) return;
+    this.contactsApi.get(invoice.clientId).subscribe({
+      next: (client) => {
+        if (!client.email) {
+          this.error = 'This client does not have an email address. Add one to the contact before sending the invoice.';
+          return;
+        }
+        if (window.confirm(`Send invoice ${invoice.number} to ${client.fullName} at ${client.email}?`)) this.sendInvoiceRequest(invoice);
+      },
+      error: () => { this.error = 'The client email address could not be loaded.'; },
+    });
+  }
+
+  private sendInvoiceRequest(invoice: InvoiceDto): void {
+    this.sendingId = invoice.id;
+    this.error = '';
+    this.invoicesApi.send(invoice.id).subscribe({
+      next: (updated) => { this.sendingId = ''; this.selectedInvoice = updated; this.load(); },
+      error: (error) => { this.sendingId = ''; this.error = error?.status === 404 ? 'Sending invoices is not enabled on the current API yet.' : error?.error?.detail || error?.error || 'Invoice could not be sent to the client.'; },
     });
   }
 

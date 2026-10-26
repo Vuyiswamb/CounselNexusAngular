@@ -16,6 +16,8 @@ export interface PagedResult<T> {
 
 export interface ContactDto {
   id: string;
+  firstName?: string;
+  surname?: string;
   fullName: string;
   type: ContactType;
   email: string | null;
@@ -26,6 +28,8 @@ export interface ContactDto {
 }
 
 export interface ContactUpsertRequest {
+  firstName?: string;
+  surname?: string;
   fullName: string;
   type: ContactType;
   email?: string | null;

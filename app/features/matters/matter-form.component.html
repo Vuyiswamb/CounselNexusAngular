@@ -74,6 +74,8 @@
             <option value="" disabled>Select a client…</option>
             @for (c of clients; track c.id) { <option [value]="c.id">{{ c.fullName }}</option> }
           </select>
+          <app-client-picker [showSelector]="false" (clientSelected)="selectClient($event)" />
+          <small class="field-help">Create the client here if they are not already in Contacts.</small>
         </div>
 
         <button class="btn btn-secondary add-party" type="button" (click)="openPartyDialog()">

@@ -14,7 +14,8 @@ import { ContactDto, ContactType, EntityStatus } from '../../core/api.models';
 export class ContactFormComponent implements OnInit {
   readonly contactTypes: ContactType[] = ['Client', 'Opponent', 'Court', 'Expert'];
 
-  name = '';
+  firstName = '';
+  surname = '';
   type: ContactType = 'Client';
   email = '';
   phone = '';
@@ -47,7 +48,9 @@ export class ContactFormComponent implements OnInit {
   }
 
   private populate(contact: ContactDto): void {
-    this.name = contact.fullName;
+    const nameParts = contact.fullName.trim().split(/\s+/);
+    this.firstName = contact.firstName ?? nameParts.shift() ?? '';
+    this.surname = contact.surname ?? nameParts.join(' ');
     this.type = contact.type;
     this.email = contact.email ?? '';
     this.phone = contact.phone ?? '';
@@ -59,13 +62,15 @@ export class ContactFormComponent implements OnInit {
   save(form?: NgForm): void {
     if (this.busy) return;
     this.error = '';
-    if (form?.invalid || !this.name.trim()) {
-      this.error = 'Full name is required.';
+    if (form?.invalid || !this.firstName.trim() || !this.surname.trim()) {
+      this.error = 'First name and surname are required.';
       return;
     }
     this.busy = true;
     const request = {
-        fullName: this.name.trim(),
+        firstName: this.firstName.trim(),
+        surname: this.surname.trim(),
+        fullName: `${this.firstName.trim()} ${this.surname.trim()}`,
         type: this.type,
         email: this.email.trim() || null,
         phone: this.phone.trim() || null,

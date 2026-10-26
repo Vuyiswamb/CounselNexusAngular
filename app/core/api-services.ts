@@ -397,6 +397,10 @@ export class InvoicesService {
   issue(id: string): Observable<InvoiceDto> {
     return this.http.post<InvoiceDto>(`${this.base}/${id}/issue`, {});
   }
+
+  send(id: string): Observable<InvoiceDto> {
+    return this.http.post<InvoiceDto>(`${this.base}/${id}/send`, {});
+  }
 }
 
 @Injectable({ providedIn: 'root' })

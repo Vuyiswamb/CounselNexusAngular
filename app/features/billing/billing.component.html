@@ -55,6 +55,7 @@
 
 @if (selectedInvoice) {
   <section class="card invoice-preview" [style.--firm-primary]="firm?.brandPrimaryColor || '#173966'" [style.--firm-accent]="firm?.brandAccentColor || '#c7923e'">
+    @if (selectedInvoice.status === 'Issued' && canIssue) { <div class="billing-send-bar"><span>Ready to send this invoice to the client.</span><button class="btn btn-primary" type="button" (click)="send(selectedInvoice)" [disabled]="!!sendingId">{{ sendingId === selectedInvoice.id ? 'Sending…' : 'Send to client' }}</button></div> }
     <div class="preview-toolbar"><div><span class="preview-kicker">INVOICE PREVIEW</span><h2>{{ selectedInvoice.number }}</h2></div><div class="preview-actions">@if (selectedInvoice.status === 'Draft' && canIssue) { <button class="btn btn-primary" type="button" (click)="issue(selectedInvoice)" [disabled]="!!issuingId">{{ issuingId === selectedInvoice.id ? 'Issuing…' : 'Issue invoice' }}</button> }<button class="btn btn-secondary" type="button" (click)="printInvoice()">Print / Save PDF</button></div></div>
     <article class="invoice-paper">
       @if (letterheadUrl) { <img class="invoice-letterhead" [src]="letterheadUrl" [alt]="(firm?.name || 'Firm') + ' letterhead'" /> }
