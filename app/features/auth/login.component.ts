@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService, LoginChallenge } from '../../core/auth.service';
+import { LanguageSwitcherComponent } from '../../shared/language-switcher.component';
 
 /** Screen 1 — Login. Split layout: navy brand panel + sign-in card. */
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [LanguageSwitcherComponent, FormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })

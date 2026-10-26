@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
+import { LanguageSwitcherComponent } from '../../shared/language-switcher.component';
 
 type PublicPage = 'home' | 'about' | 'services' | 'contact';
 
 @Component({
   selector: 'app-public-site',
-  imports: [FormsModule, RouterLink, RouterLinkActive],
+  imports: [LanguageSwitcherComponent, FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './public-site.component.html',
   styleUrl: './public-site.component.css',
 })

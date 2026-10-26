@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { LanguageSwitcherComponent } from '../../shared/language-switcher.component';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [FormsModule, RouterLink],
+  imports: [LanguageSwitcherComponent, FormsModule, RouterLink],
   templateUrl: './reset-password.component.html',
   styleUrls: ['./forgot-password.component.css', './reset-password.component.css'],
 })

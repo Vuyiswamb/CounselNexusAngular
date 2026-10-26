@@ -5,11 +5,12 @@ import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/r
 import { AuthService } from '../../core/auth.service';
 import { PublicPackagesService, SubscriptionCheckoutService } from '../../core/api-services';
 import { PlatformPackageDto } from '../../core/api.models';
+import { LanguageSwitcherComponent } from '../../shared/language-switcher.component';
 
 /** Public package comparison page backed by the packages managed in Platform Control. */
 @Component({
   selector: 'app-packages',
-  imports: [RouterLink, RouterLinkActive, CurrencyPipe, FormsModule],
+  imports: [LanguageSwitcherComponent, RouterLink, RouterLinkActive, CurrencyPipe, FormsModule],
   templateUrl: './packages.component.html',
   styleUrl: './packages.component.css',
 })

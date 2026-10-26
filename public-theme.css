@@ -382,3 +382,14 @@
 .grecaptcha-badge { visibility: hidden !important; }
 .cn-recaptcha-note { margin: 14px 0 0 !important; color: #7a8599; font-size: 11.5px; line-height: 1.5; text-align: center; }
 .cn-recaptcha-note a { color: inherit; text-decoration: underline; }
+
+/* Language picker in the public top bar, placed before "Client log in" */
+.cn-topbar-right { align-items: center; }
+.cn-topbar-lang { display: inline-flex; align-items: center; gap: 6px; color: #cdd6e8; font-size: 13px; }
+.cn-topbar-lang select { border: 1px solid rgba(255,255,255,.22); border-radius: 6px; background: transparent; color: #fff; font: inherit; padding: 2px 6px; cursor: pointer; }
+.cn-topbar-lang select option { color: #0b0f1a; }
+.cn-topbar-lang select:focus-visible { outline: 2px solid var(--cn-sky); outline-offset: 2px; }
+/* Where the top bar shows its own picker, hide the floating one so it no longer covers "Book a demo" */
+body:has(.cn-topbar-right) .public-language-switcher { display: none; }
+/* On phones the top bar keeps only the language picker on the right */
+@media (max-width: 560px) { .cn-topbar-right { display: flex; } .cn-topbar-right > a { display: none; } .cn-topbar-lang > span { display: none; } }

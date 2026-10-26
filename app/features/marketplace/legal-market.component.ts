@@ -8,6 +8,7 @@ import { LegalRequestOffer, MarketplaceService, LegalRequestListItem } from '../
 import { LegalRequestComponent } from './legal-request.component';
 import { AuthService } from '../../core/auth.service';
 import * as L from 'leaflet';
+import { LanguageSwitcherComponent } from '../../shared/language-switcher.component';
 
 const suburbCoordinates: Record<string, [number, number]> = {
   sandton: [-26.1076, 28.0567], randburg: [-26.0937, 27.9949], rosebank: [-26.1467, 28.0364], fourways: [-26.0267, 28.0106],
@@ -32,7 +33,7 @@ const requestMarkerIcon = L.icon({
   popupAnchor: [0, -48]
 });
 
-@Component({ selector: 'app-legal-market', imports: [FormsModule, DatePipe, DecimalPipe, RouterLink, NgComponentOutlet], templateUrl: './legal-market.component.html', styleUrl: './legal-market.component.css' })
+@Component({ selector: 'app-legal-market', imports: [LanguageSwitcherComponent, FormsModule, DatePipe, DecimalPipe, RouterLink, NgComponentOutlet], templateUrl: './legal-market.component.html', styleUrl: './legal-market.component.css' })
 export class LegalMarketComponent implements AfterViewInit, OnDestroy {
   private readonly marketplace = inject(MarketplaceService);
   private readonly route = inject(ActivatedRoute);
