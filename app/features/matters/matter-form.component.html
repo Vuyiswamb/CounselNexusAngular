@@ -51,6 +51,7 @@
             <select id="earner" class="select" name="feeEarnerId" [(ngModel)]="feeEarnerId" required>
               @for (u of users; track u.id) { <option [value]="u.id">{{ u.fullName }}</option> }
             </select>
+            <button class="add-fee-earner" type="button" (click)="openFeeEarnerDialog()"><app-icon name="plus" [size]="13" /> Add new fee earner</button>
           </div>
           <div class="field">
             <label for="opened">Open Date <span class="req">*</span></label>
@@ -95,6 +96,18 @@
     }
     @if (error) {
       <div class="error-backdrop" role="presentation" (click)="error = ''"><section class="error-popup" role="alert" (click)="$event.stopPropagation()"><div class="error-icon">!</div><div><h3>We couldn’t save the matter</h3><p>{{ error }}</p></div><button type="button" class="error-close" aria-label="Dismiss error" (click)="error = ''">×</button></section></div>
+    }
+    @if (feeEarnerDialogOpen) {
+      <div class="party-backdrop" role="presentation" (click)="closeFeeEarnerDialog()">
+        <section class="party-dialog" role="dialog" aria-modal="true" aria-labelledby="fee-earner-dialog-title" (click)="$event.stopPropagation()">
+          <div class="party-dialog-header"><div><p class="eyebrow">FIRM USER</p><h2 id="fee-earner-dialog-title">Add a fee earner</h2><p>Create a new firm user and assign them to this matter.</p></div><button type="button" class="dialog-close" aria-label="Close" (click)="closeFeeEarnerDialog()">×</button></div>
+          <label class="field"><span>Full name</span><input class="input" type="text" [(ngModel)]="newFeeEarnerName" autocomplete="name" /></label>
+          <label class="field"><span>Email</span><input class="input" type="email" [(ngModel)]="newFeeEarnerEmail" autocomplete="username" /></label>
+          <label class="field"><span>Temporary password</span><input class="input" type="password" [(ngModel)]="newFeeEarnerPassword" autocomplete="new-password" /><small class="field-help">At least 8 characters with uppercase, lowercase, and a number.</small></label>
+          @if (feeEarnerError) { <div class="error-msg">{{ feeEarnerError }}</div> }
+          <div class="party-dialog-actions"><button type="button" class="btn btn-secondary" [disabled]="feeEarnerBusy" (click)="closeFeeEarnerDialog()">Cancel</button><button type="button" class="btn btn-primary" [disabled]="feeEarnerBusy" (click)="createFeeEarner()">{{ feeEarnerBusy ? 'Creating…' : 'Create fee earner' }}</button></div>
+        </section>
+      </div>
     }
     @if (partyDialogOpen) {
       <div class="party-backdrop" role="presentation" (click)="closePartyDialog()"><section class="party-dialog" role="dialog" aria-modal="true" aria-labelledby="party-dialog-title" (click)="$event.stopPropagation()"><div class="party-dialog-header"><div><p class="eyebrow">MATTER PARTY</p><h2 id="party-dialog-title">Add a party</h2><p>Link another contact to this matter.</p></div><button type="button" class="dialog-close" aria-label="Close" (click)="closePartyDialog()">×</button></div><label class="field"><span>Contact</span><select class="select" [(ngModel)]="partyContactId"><option value="">Select a contact...</option>@for (contact of contacts; track contact.id) {<option [value]="contact.id">{{ contact.fullName }} · {{ contact.type }}</option>}</select></label><label class="field"><span>Role</span><select class="select" [(ngModel)]="partyRole"><option value="Opponent">Opponent</option><option value="Court">Court</option><option value="Expert">Expert</option></select></label><div class="party-dialog-actions"><button type="button" class="btn btn-secondary" (click)="closePartyDialog()">Cancel</button><button type="button" class="btn btn-primary" [disabled]="!partyContactId" (click)="addParty()">Add party</button></div></section></div>

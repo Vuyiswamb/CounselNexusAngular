@@ -14,3 +14,4 @@
   cursor: not-allowed;
   background: #edf4ff;
 }
+.confirmation-resend{display:block;margin-top:7px;padding:0;border:0;background:none;font:inherit;font-weight:700;cursor:pointer}.confirmation-resend:disabled{opacity:.6;cursor:wait}

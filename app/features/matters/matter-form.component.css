@@ -6,6 +6,8 @@
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
     .add-party { margin-bottom: 18px; }
+    .add-fee-earner { display:flex; align-items:center; gap:5px; margin-top:8px; padding:0; border:0; background:transparent; color:#315b88; font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+    .add-fee-earner:hover { color:#163e6b; text-decoration:underline; }
     .empty-parties { text-align: center; font-size: 13px; padding: 24px 0 12px; }
 
     .error-msg {

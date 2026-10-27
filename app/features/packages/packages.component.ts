@@ -76,11 +76,15 @@ export class PackagesComponent implements OnInit {
 
   closeCheckout(event?: MouseEvent): void {
     if (event && event.target !== event.currentTarget) return;
-    if (this.checkoutPointerDown || window.getSelection()?.toString()) {
+    if (event && (this.checkoutPointerDown || window.getSelection()?.toString())) {
       this.checkoutPointerDown = false;
       return;
     }
-    if (!this.checkoutBusy) this.selectedPackage = null;
+    if (!this.checkoutBusy) {
+      this.selectedPackage = null;
+      this.checkoutError = '';
+      this.checkoutPointerDown = false;
+    }
   }
 
   continueCheckout(): void {

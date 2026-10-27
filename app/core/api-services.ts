@@ -306,6 +306,7 @@ export class LegalAccountingService {
   private http = inject(HttpClient);
   private base = `${inject(API_BASE_URL)}/api/v1/legal-accounting`;
   accounts(): Observable<import('./api.models').LedgerAccountDto[]> { return this.http.get<import('./api.models').LedgerAccountDto[]>(`${this.base}/accounts`); }
+  createAccount(request: import('./api.models').LedgerAccountRequest): Observable<import('./api.models').LedgerAccountDto> { return this.http.post<import('./api.models').LedgerAccountDto>(`${this.base}/accounts`, request); }
   trialBalance(): Observable<import('./api.models').TrialBalanceRowDto[]> { return this.http.get<import('./api.models').TrialBalanceRowDto[]>(`${this.base}/trial-balance`); }
   ledger(accountId: string): Observable<import('./api.models').LedgerEntryDto[]> { return this.http.get<import('./api.models').LedgerEntryDto[]>(`${this.base}/ledger/${accountId}`); }
   postJournal(request: import('./api.models').JournalPostRequest): Observable<import('./api.models').JournalPostResultDto> { return this.http.post<import('./api.models').JournalPostResultDto>(`${this.base}/journals`, request); }

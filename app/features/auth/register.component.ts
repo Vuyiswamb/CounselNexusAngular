@@ -38,10 +38,10 @@ export class RegisterComponent {
       email: this.email.trim(),
       password: this.password,
       phone: this.phone.trim() || undefined,
-    }).subscribe({
+    }, false).subscribe({
       next: () => {
         this.busy = false;
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/confirm-email'], { queryParams: { email: this.email.trim() } });
       },
       error: (error) => {
         this.busy = false;

@@ -24,6 +24,8 @@ export class LoginComponent {
   paymentRequired = false;
   paymentEmailLocked = false;
   paymentSuccess = false;
+  confirmationResendBusy = false;
+  confirmationResendNotice = '';
 
   constructor(private router: Router, private auth: AuthService, private route: ActivatedRoute) {
     const paymentEmail = this.route.snapshot.queryParamMap.get('email')?.trim();
@@ -82,8 +84,21 @@ export class LoginComponent {
           this.errorMessage = error?.error?.detail ?? 'Your subscription has ended. Choose a package to renew your workspace.';
           return;
         }
+        if (error?.status === 403 && error?.error?.title === 'Email confirmation expired') {
+          this.confirmationResendNotice = '';
+        }
         this.errorMessage = error?.error?.detail ?? 'Unable to sign in. Check your details and try again.';
       },
+    });
+  }
+
+  resendConfirmation(): void {
+    if (this.confirmationResendBusy || !this.email.trim()) return;
+    this.confirmationResendBusy = true;
+    this.confirmationResendNotice = '';
+    this.auth.resendEmailConfirmation(this.email.trim()).subscribe({
+      next: (result) => { this.confirmationResendBusy = false; this.confirmationResendNotice = result.message; },
+      error: () => { this.confirmationResendBusy = false; this.confirmationResendNotice = 'We could not send the confirmation email. Please try again later.'; },
     });
   }
 

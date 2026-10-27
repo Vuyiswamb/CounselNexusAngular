@@ -1,0 +1,14 @@
+<main class="confirm-page">
+  <section class="confirm-card">
+    <img src="/assets/images/logo-display.png" alt="CounselNexus" class="confirm-logo" />
+    @if (confirming) {
+      <h1>Confirming your email</h1><p>Please wait while we verify your email address.</p>
+    } @else if (confirmed) {
+      <h1>Email confirmed</h1><p>Your email address has been confirmed. You can now sign in to CounselNexus.</p><a class="confirm-button" routerLink="/login">Sign in</a>
+    } @else if (error) {
+      <h1>Confirmation link unavailable</h1><p>{{ error }}</p><a class="confirm-button" routerLink="/login">Go to sign in</a>
+    } @else {
+      <h1>Check your email</h1><p>We sent a confirmation link{{ email ? ' to ' + email : '' }}. Use the link in the welcome email before signing in.</p><a class="confirm-button" routerLink="/login">Go to sign in</a>
+    }
+  </section>
+</main>

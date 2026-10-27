@@ -36,6 +36,12 @@ export class MatterFormComponent implements OnInit {
   partyDialogOpen = false;
   partyContactId = '';
   partyRole: PartyDto['role'] = 'Opponent';
+  feeEarnerDialogOpen = false;
+  newFeeEarnerName = '';
+  newFeeEarnerEmail = '';
+  newFeeEarnerPassword = '';
+  feeEarnerBusy = false;
+  feeEarnerError = '';
 
   private api = inject(MattersService);
   private contactsApi = inject(ContactsService);
@@ -145,5 +151,43 @@ export class MatterFormComponent implements OnInit {
 
   removeParty(party: PartyDto): void {
     this.partyLinks = this.partyLinks.filter((item) => !(item.contactId === party.contactId && item.role === party.role));
+  }
+
+  openFeeEarnerDialog(): void {
+    this.newFeeEarnerName = '';
+    this.newFeeEarnerEmail = '';
+    this.newFeeEarnerPassword = '';
+    this.feeEarnerError = '';
+    this.feeEarnerDialogOpen = true;
+  }
+
+  closeFeeEarnerDialog(): void {
+    if (!this.feeEarnerBusy) this.feeEarnerDialogOpen = false;
+  }
+
+  createFeeEarner(): void {
+    if (this.feeEarnerBusy) return;
+    if (!this.newFeeEarnerName.trim() || !this.newFeeEarnerEmail.trim() || !this.newFeeEarnerPassword) {
+      this.feeEarnerError = 'Full name, email and password are required.';
+      return;
+    }
+    if (this.newFeeEarnerPassword.length < 8 || !/[a-z]/.test(this.newFeeEarnerPassword) || !/[A-Z]/.test(this.newFeeEarnerPassword) || !/[0-9]/.test(this.newFeeEarnerPassword)) {
+      this.feeEarnerError = 'Password must be at least 8 characters and include uppercase, lowercase, and a number.';
+      return;
+    }
+    this.feeEarnerBusy = true;
+    this.feeEarnerError = '';
+    this.usersApi.create({ fullName: this.newFeeEarnerName.trim(), email: this.newFeeEarnerEmail.trim(), role: 'FeeEarner', password: this.newFeeEarnerPassword, sendWelcomeEmail: true }).subscribe({
+      next: (user) => {
+        this.users = [...this.users, user].sort((a, b) => a.fullName.localeCompare(b.fullName));
+        this.feeEarnerId = user.id;
+        this.feeEarnerBusy = false;
+        this.feeEarnerDialogOpen = false;
+      },
+      error: (err) => {
+        this.feeEarnerBusy = false;
+        this.feeEarnerError = err?.error?.detail ?? 'Could not create the fee earner.';
+      },
+    });
   }
 }

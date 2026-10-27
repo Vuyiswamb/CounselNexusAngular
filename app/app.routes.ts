@@ -73,6 +73,10 @@ export const routes: Routes = [
       import('./features/auth/register.component').then((m) => m.RegisterComponent),
   },
   {
+    path: 'confirm-email',
+    loadComponent: () => import('./features/auth/confirm-email.component').then((m) => m.ConfirmEmailComponent),
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./features/auth/forgot-password.component').then((m) => m.ForgotPasswordComponent),

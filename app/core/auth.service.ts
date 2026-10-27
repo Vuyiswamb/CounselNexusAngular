@@ -10,6 +10,8 @@ export interface CurrentUser {
   email: string;
   roles: string[];
   permissions: string[];
+  emailConfirmed?: boolean;
+  emailConfirmationDeadline?: string;
 }
 
 export interface LoginResponse {
@@ -74,16 +76,24 @@ export class AuthService {
       );
   }
 
-  register(request: RegisterFirmRequest): Observable<LoginResponse> {
+  register(request: RegisterFirmRequest, autoLogin = true): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.baseUrl}/api/v1/auth/register`, request)
-      .pipe(tap((response) => this.storeSession(response)));
+      .pipe(tap((response) => { if (autoLogin) this.storeSession(response); }));
   }
 
   registerClient(request: RegisterClientRequest): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.baseUrl}/api/v1/auth/register-client`, request)
       .pipe(tap((response) => this.storeSession(response)));
+  }
+
+  confirmEmail(userId: string, token: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/api/v1/auth/confirm-email`, { userId, token });
+  }
+
+  resendEmailConfirmation(email = this.user()?.email ?? ''): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/api/v1/auth/resend-confirmation`, { email });
   }
 
   forgotPassword(email: string): Observable<ForgotPasswordResponse> {
@@ -152,6 +162,7 @@ export class AuthService {
         email: stored.email ?? '',
         roles: stored.roles ?? [],
         permissions: this.permissionsFromToken(localStorage.getItem(TOKEN_KEY)),
+        ...this.emailConfirmationFromToken(localStorage.getItem(TOKEN_KEY)),
       };
     } catch {
       return null;
@@ -160,7 +171,7 @@ export class AuthService {
 
   private storeSession(response: LoginResponse): void {
     localStorage.setItem(TOKEN_KEY, response.token);
-    const user: CurrentUser = { ...response.user, permissions: this.permissionsFromToken(response.token) };
+    const user: CurrentUser = { ...response.user, permissions: this.permissionsFromToken(response.token), ...this.emailConfirmationFromToken(response.token) };
     localStorage.setItem(USER_KEY, JSON.stringify(user));
     this.user.set(user);
   }
@@ -177,6 +188,23 @@ export class AuthService {
       return Array.isArray(permissions) ? permissions : permissions ? [permissions] : [];
     } catch {
       return [];
+    }
+  }
+
+  private emailConfirmationFromToken(token: string | null): Pick<CurrentUser, 'emailConfirmed' | 'emailConfirmationDeadline'> {
+    if (!token) return {};
+    try {
+      const encoded = token.split('.')[1];
+      if (!encoded) return {};
+      const payload = encoded.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=');
+      const claims = JSON.parse(atob(padded)) as { email_confirmed?: string | boolean; email_confirmation_deadline?: string };
+      return {
+        emailConfirmed: claims.email_confirmed === true || claims.email_confirmed === 'true',
+        emailConfirmationDeadline: claims.email_confirmation_deadline,
+      };
+    } catch {
+      return {};
     }
   }
 }

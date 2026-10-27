@@ -29,6 +29,12 @@ export class LegalAccountingComponent implements OnInit {
   saving = false;
   error = '';
   notice = '';
+  accountDialogOpen = false;
+  accountCode = '';
+  accountName = '';
+  accountType = 'Expense';
+  accountBusy = false;
+  accountError = '';
 
   get totalDebits(): number { return this.trialBalance.reduce((sum, row) => sum + row.debits, 0); }
   get totalCredits(): number { return this.trialBalance.reduce((sum, row) => sum + row.credits, 0); }
@@ -54,6 +60,40 @@ export class LegalAccountingComponent implements OnInit {
   }
 
   closeLedger(): void { this.selectedAccount = undefined; this.ledger = []; }
+
+  openAccountDialog(): void {
+    this.accountCode = '';
+    this.accountName = '';
+    this.accountType = 'Expense';
+    this.accountError = '';
+    this.accountDialogOpen = true;
+  }
+
+  closeAccountDialog(): void {
+    if (!this.accountBusy) this.accountDialogOpen = false;
+  }
+
+  createAccount(): void {
+    if (this.accountBusy) return;
+    if (!this.accountCode.trim() || !this.accountName.trim() || !this.accountType) {
+      this.accountError = 'Code, account name and type are required.';
+      return;
+    }
+    this.accountBusy = true;
+    this.accountError = '';
+    this.api.createAccount({ code: this.accountCode.trim(), name: this.accountName.trim(), accountType: this.accountType }).subscribe({
+      next: (account) => {
+        this.accounts = [...this.accounts, account].sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+        this.accountBusy = false;
+        this.accountDialogOpen = false;
+        this.notice = `Account ${account.code} created.`;
+      },
+      error: (err) => {
+        this.accountBusy = false;
+        this.accountError = err?.error?.detail || err?.error?.title || 'The account could not be created.';
+      },
+    });
+  }
 
   reverseEntry(entry: import('../../core/api.models').LedgerEntryDto): void {
     if (!confirm(`Post a reversal for ${entry.entryNumber}?`)) return;

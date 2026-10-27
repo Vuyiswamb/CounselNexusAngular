@@ -38,6 +38,9 @@ export class ShellComponent implements OnInit {
   profileError = '';
   profileNotice = '';
   firm: FirmSettingsDto | null = null;
+  confirmationBusy = false;
+  confirmationNotice = '';
+  confirmationError = '';
 
   nav: NavItem[] = [
     { section: 'OVERVIEW', label: 'Dashboard', icon: 'dashboard', route: '/dashboard', permission: 'dashboard.read' },
@@ -95,6 +98,22 @@ export class ShellComponent implements OnInit {
   ngOnInit(): void {
     this.firmSettings.firm$.subscribe((firm) => (this.firm = firm));
     this.firmSettings.get().subscribe({ next: (firm) => (this.firm = firm) });
+  }
+
+  get emailConfirmationReminderVisible(): boolean {
+    const user = this.auth.user();
+    return !!user && user.emailConfirmed === false;
+  }
+
+  resendEmailConfirmation(): void {
+    if (this.confirmationBusy) return;
+    this.confirmationBusy = true;
+    this.confirmationNotice = '';
+    this.confirmationError = '';
+    this.auth.resendEmailConfirmation().subscribe({
+      next: (result) => { this.confirmationBusy = false; this.confirmationNotice = result.message; },
+      error: (err) => { this.confirmationBusy = false; this.confirmationError = err?.error?.detail ?? 'Could not resend the confirmation email.'; },
+    });
   }
 
   get workspaceBackgroundUrl(): string | null {

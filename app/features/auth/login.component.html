@@ -68,7 +68,8 @@
             <a class="forgot cn-link" routerLink="/forgot-password">Forgot your password?</a>
           </div>
 
-          @if (errorMessage) { <div class="login-error cn-error" role="alert"><span>{{ errorMessage }}</span>@if (paymentRequired) { <a class="cn-link" routerLink="/packages" [queryParams]="{ renew: 1 }">View paid packages and renew</a> }</div> }
+          @if (errorMessage) { <div class="login-error cn-error" role="alert"><span>{{ errorMessage }}</span>@if (paymentRequired) { <a class="cn-link" routerLink="/packages" [queryParams]="{ renew: 1 }">View paid packages and renew</a> } @if (errorMessage.includes('confirmation')) { <button class="cn-link confirmation-resend" type="button" [disabled]="confirmationResendBusy" (click)="resendConfirmation()">{{ confirmationResendBusy ? 'Sending confirmation…' : 'Send confirmation link' }}</button> }</div> }
+          @if (confirmationResendNotice) { <p class="cn-success" role="status">{{ confirmationResendNotice }}</p> }
           <button class="sign-in cn-btn block" type="submit" [disabled]="busy">
             {{ busy ? 'Signing in...' : requiresTwoFactor ? 'Verify code' : 'Sign in' }} <svg class="cn-i" aria-hidden="true"><use href="/assets/images/site/icons.svg#i-arrow"></use></svg>
           </button>

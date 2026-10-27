@@ -96,6 +96,14 @@
           </div>
         </header>
 
+        @if (emailConfirmationReminderVisible) {
+          <section class="email-confirmation-banner" role="status">
+            <app-icon name="mail" [size]="19" />
+            <div><strong>Confirm your email address</strong><span>Please confirm your email within 7 days to keep access to CounselNexus.</span>@if (confirmationNotice) { <small class="confirmation-success">{{ confirmationNotice }}</small> } @if (confirmationError) { <small class="confirmation-error">{{ confirmationError }}</small> }</div>
+            <button type="button" [disabled]="confirmationBusy" (click)="resendEmailConfirmation()">{{ confirmationBusy ? 'Sending…' : 'Resend confirmation' }}</button>
+          </section>
+        }
+
         @if (profileOpen) {
           <div class="profile-backdrop" (click)="profileOpen = false">
             <form class="profile-modal" (click)="$event.stopPropagation()" (submit)="$event.preventDefault(); saveProfile()">

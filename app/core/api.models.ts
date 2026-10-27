@@ -273,6 +273,7 @@ export interface PaymentRequisitionListDto { id: string; number: string; request
 export interface PaymentRequisitionDashboardDto { total: number; draft: number; pendingVerification: number; pendingApproval: number; approved: number; awaitingPayment: number; paid: number; requestedAmount: number; approvedAmount: number; paidAmount: number; outstandingAmount: number; }
 
 export interface LedgerAccountDto { id: string; code: string; name: string; accountType: string; isActive: boolean; createdAtUtc: string; }
+export interface LedgerAccountRequest { code: string; name: string; accountType: string; }
 export interface TrialBalanceRowDto { ledgerAccountId: string; code: string; name: string; accountType: string; debits: number; credits: number; balance: number; }
 export interface LedgerEntryDto { journalEntryId: string; entryNumber: string; entryDate: string; description: string; code: string; name: string; lineDescription: string | null; debit: number; credit: number; matterId: string | null; }
 export interface JournalLineRequest { ledgerAccountId: string; matterId?: string | null; description?: string | null; debit: number; credit: number; }
